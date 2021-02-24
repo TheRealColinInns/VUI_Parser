@@ -22,7 +22,7 @@ public class Driver {
 		// store initial start time
 		Instant start = Instant.now();
 
-		// TODO Fill in
+		int test;
 
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
@@ -30,13 +30,5 @@ public class Driver {
 		System.out.printf("Elapsed: %f seconds%n", seconds);
 	}
 
-	/*
-	 * Generally, "driver" classes are responsible for setting up and calling
-	 * other classes, usually from a main() method that parses command-line
-	 * parameters. If the driver were only responsible for a single class, we use
-	 * that class name. For example, "TaxiDriver" is what we would name a driver
-	 * class that just sets up and calls the "Taxi" class.
-	 *
-	 * TODO: Delete this after reading.
-	 */
+	
 }
