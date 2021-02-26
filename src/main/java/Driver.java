@@ -28,15 +28,15 @@ public class Driver {
 	public static void main(String[] args) {
 		// store initial start time
 		ArgumentMap myArgMapStem = new ArgumentMap();
-		SimpleJsonWriter myWriter = new SimpleJsonWriter();
-		TextFileStemmer myStemmer = new TextFileStemmer();
+		//SimpleJsonWriter myWriter = new SimpleJsonWriter();
+		//TextFileStemmer myStemmer = new TextFileStemmer();
 		ArrayList<String> temp = new ArrayList<String>();
 		Map<String, Collection<Integer>> myMap = new HashMap<String, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
 		if(myArgMapStem.hasFlag("-text")) {
 			try {
-				temp.addAll(myStemmer.listStems(Path.of(myArgMapStem.getString("-text"))));
+				temp.addAll(TextFileStemmer.listStems(Path.of(myArgMapStem.getString("-text"))));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -56,7 +56,7 @@ public class Driver {
 				}
 			}
 		}
-		System.out.println(myWriter.asNestedArray(myMap).toString());
+		System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
 		
 		//System.out.println(myMap.toString());
 		/*

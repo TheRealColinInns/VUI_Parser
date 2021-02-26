@@ -41,6 +41,8 @@ public class TextFileStemmer {
 		String[] tempList2;
 		String temp = line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase();
 		temp = temp.replaceAll("\t", "");
+		temp = temp.replaceAll("ö", "o");
+		temp = temp.replaceAll("é", "e");
 		tempList2 = temp.split(" ");
 		/*
 		for(String item:tempList2) {

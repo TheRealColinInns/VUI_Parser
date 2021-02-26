@@ -94,7 +94,7 @@ public class SimpleJsonWriter {
 			Map<String, ? extends Collection<Integer>> elements, Writer writer,
 			int level) throws IOException {
 		level++;
-		boolean revfirstTimer = false;
+		//boolean revfirstTimer = false;
 		writer.write("{\n");
 		int counter1 = elements.size();
 		for(Entry<String, ? extends Collection<Integer>> item : elements.entrySet()) {
@@ -105,11 +105,11 @@ public class SimpleJsonWriter {
 			writer.write("[\n");
 			for(Integer i:item.getValue()) {
 				indent(i.toString(), writer, level);
-				if(revfirstTimer&&counter2>1) {
+				if(counter2>1) {
 					writer.write(",\n");
 					counter2--;
 				}
-				revfirstTimer = true;
+				//revfirstTimer = true;
 				
 				
 			}
