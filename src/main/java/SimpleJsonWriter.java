@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
@@ -97,10 +98,21 @@ public class SimpleJsonWriter {
 		//boolean revfirstTimer = false;
 		writer.write("{\n");
 		int counter1 = elements.size();
+		//System.out.println(counter1);
+		int bigCounter = elements.keySet().size();
 		for(Entry<? extends Map<String, String>, ? extends Collection<Integer>> item : elements.entrySet()) {
 			int counter2 = item.getValue().size();
-			//System.out.println(counter2);
-			indent("\""+item.getKey()+"\": ", writer, level);
+			String tempStr = "";
+			try {
+				tempStr = item.getKey().keySet().stream().collect(Collectors.joining());
+			}
+			catch(Exception E) {
+				System.out.println("ERROR: "+E);
+			}
+			//System.out.println("counter: "+bigCounter);
+			indent("\""+tempStr+"\":{\n ", writer, level);
+			level++;
+			indent("\""+item.getKey().get(tempStr)+"\": ", writer, level);
 			level++;
 			boolean revfirstTimer2 = true;
 			writer.write("[\n");
@@ -119,18 +131,23 @@ public class SimpleJsonWriter {
 			}
 			level--;
 			if(revfirstTimer2&&counter1>1) {
-				indent("],", writer, level);
+				indent("],\n", writer, level);
+				level--;
 				counter1--;
+				if(bigCounter>1) {
+					indent("},", writer, level);
+				}
 			}
 			else {
 				indent("]", writer, level);
 			}
+			bigCounter--;
 			writer.write("\n");
 			
 			
 			
 		}
-		
+		writer.write("\t}\n");
 		writer.write("}");
 	}
 
