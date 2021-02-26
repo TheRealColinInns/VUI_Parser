@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,44 +28,82 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		// store initial start time
+		Path myPath = null;
 		ArgumentMap myArgMapStem = new ArgumentMap();
-		//SimpleJsonWriter myWriter = new SimpleJsonWriter();
-		//TextFileStemmer myStemmer = new TextFileStemmer();
+		String filename = null;
 		ArrayList<String> temp = new ArrayList<String>();
-		Map<String, Collection<Integer>> myMap = new HashMap<String, Collection<Integer>>();
+		Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
 		if(myArgMapStem.hasFlag("-text")) {
 			try {
-				temp.addAll(TextFileStemmer.listStems(Path.of(myArgMapStem.getString("-text"))));
+				myPath = Path.of(myArgMapStem.getString("-text"));
+				temp.addAll(TextFileStemmer.listStems(myPath));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		else if(myArgMapStem.hasFlag("-index")) {
+			filename = myArgMapStem.getString("-index");
+		}
 		//System.out.println(temp.toString());
+		String pathname = temp.get(0);
+		
+		for(int i = 1; i<temp.size(); i++) {
+			Map<String, String> myKey = new HashMap<String, String>();
+			myKey.put(temp.get(i), pathname);
+			if(myMap.containsKey(myKey)) {
+				myMap.get(myKey).add(Integer.parseInt(temp.get(++i)));
+			}
+			else {
+				ArrayList<Integer> tempListtoPut = new ArrayList<Integer>();
+				tempListtoPut.add(Integer.parseInt(temp.get(++i)));
+				myMap.put(myKey, tempListtoPut);
+			}
+			
+		}
+		/*
 		for(int i = 0; i<temp.size(); i++) {
 			if(Character.isLetter(temp.get(i).charAt(0))) {
-				if(myMap.containsKey(temp.get(i))) {
-					myMap.get(temp.get(i)).add(Integer.parseInt(temp.get(i+1)));
+				ArrayList<String> tempList = new ArrayList<String>();
+				tempList.add(temp.get(i));
+				tempList.add(temp.get(++i));
+				if(myMap.containsKey(tempList)) {
 					i++;
+					myMap.get(tempList).add(Integer.parseInt(temp.get(i+1)));
+					i++;
+					
 				}
 				else {
-					ArrayList<Integer> tempList = new ArrayList<Integer>();
-					tempList.add(Integer.parseInt(temp.get(i+1)));
-					myMap.put(temp.get(i), tempList);
-					i++;
+					ArrayList<Integer> tempList2 = new ArrayList<Integer>();
+					//ArrayList<String> tempList3 = new ArrayList<String>();
+					System.out.println(temp.get(i));
+					tempList2.add(Integer.parseInt(temp.get(i++)));
+					System.out.println(temp.get(i));;
+					myMap.put(tempList, tempList2);
+					System.out.println(temp.get(i));
 				}
 			}
 		}
-		System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
-		
+		*/
+		//System.out.println(temp.toString());
 		//System.out.println(myMap.toString());
+		System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
 		/*
-		try{String[] arr = new String[temp.size()]; arr = temp.toArray(arr); myArgMap.parse(arr);}
-		catch(Exception E){
-			System.out.println("Unable to Convert: "+E);
+		if(filename!=null) {
+			System.out.println("Writing...");
+			try (PrintWriter out = new PrintWriter(filename)) {
+				System.out.println("Writing2...");
+				out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
+				
+			}
+			catch(Exception E) {
+				System.out.println("Error: "+E);
+			}
 		}
 		*/
+		
+		
 		
 
 		// calculate time elapsed and output

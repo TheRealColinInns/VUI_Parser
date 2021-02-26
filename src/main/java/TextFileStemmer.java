@@ -40,10 +40,13 @@ public class TextFileStemmer {
 		ArrayList<String> tempList = new ArrayList<String>();
 		String[] tempList2;
 		String temp = line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase();
+		tempList2 = TextParser.parse(temp);
+		/*
 		temp = temp.replaceAll("\t", "");
 		temp = temp.replaceAll("ö", "o");
 		temp = temp.replaceAll("é", "e");
 		tempList2 = temp.split(" ");
+		*/
 		/*
 		for(String item:tempList2) {
 			try {
@@ -172,12 +175,12 @@ public class TextFileStemmer {
 	 */
 	public static ArrayList<String> listStems(Path inputFile) throws IOException {
 		ArrayList<String> mylist = new ArrayList<String>();
+		mylist.add(inputFile.toString());
 		int lineNum = 0;
 		try (BufferedReader mybr = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
 			for(String line = mybr.readLine(); line !=null; line = mybr.readLine()) {
 				lineNum++;
 				for(String i:listStems(line, lineNum)) {
-				
 					mylist.add(i);
 					
 				}

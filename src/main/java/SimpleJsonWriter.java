@@ -91,14 +91,15 @@ public class SimpleJsonWriter {
 	 * @throws IOException if an IO error occurs
 	 */
 	public static void asNestedArray(
-			Map<String, ? extends Collection<Integer>> elements, Writer writer,
+			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements, Writer writer,
 			int level) throws IOException {
 		level++;
 		//boolean revfirstTimer = false;
 		writer.write("{\n");
 		int counter1 = elements.size();
-		for(Entry<String, ? extends Collection<Integer>> item : elements.entrySet()) {
+		for(Entry<? extends Map<String, String>, ? extends Collection<Integer>> item : elements.entrySet()) {
 			int counter2 = item.getValue().size();
+			//System.out.println(counter2);
 			indent("\""+item.getKey()+"\": ", writer, level);
 			level++;
 			boolean revfirstTimer2 = true;
@@ -181,7 +182,7 @@ public class SimpleJsonWriter {
 	 * @see #asNestedArray(Map, Writer, int)
 	 */
 	public static void asNestedArray(
-			Map<String, ? extends Collection<Integer>> elements, Path path)
+			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements, Path path)
 			throws IOException {
 		try (
 				BufferedWriter writer = Files.newBufferedWriter(path,
@@ -238,7 +239,7 @@ public class SimpleJsonWriter {
 	 * @see #asNestedArray(Map, Writer, int)
 	 */
 	public static String asNestedArray(
-			Map<String, ? extends Collection<Integer>> elements) {
+			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements) {
 		try {
 			StringWriter writer = new StringWriter();
 			asNestedArray(elements, writer, 0);
