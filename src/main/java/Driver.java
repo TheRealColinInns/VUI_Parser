@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -8,6 +9,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 //Colin Inns
 /**
  * Class responsible for running this project based on the provided command-line
@@ -28,40 +31,96 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		// store initial start time
+		boolean toWrite = false;
 		Path myPath = null;
 		ArgumentMap myArgMapStem = new ArgumentMap();
 		String filename = null;
 		ArrayList<String> temp = new ArrayList<String>();
-		Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
+		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
+		//Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
 		if(myArgMapStem.hasFlag("-text")) {
-			try {
-				myPath = Path.of(myArgMapStem.getString("-text"));
-				temp.addAll(TextFileStemmer.listStems(myPath));
-			} catch (IOException e) {
-				e.printStackTrace();
+			myPath = Path.of(myArgMapStem.getString("-text"));
+			ArrayList<Path> generalList = new ArrayList<Path>();
+			ArrayList<Path> dirAt = new ArrayList<Path>();
+			generalList.add(myPath);
+			dirAt.add(myPath);
+			while(!generalList.isEmpty()) {
+				//System.out.println("BIG LOOP-------------------------------+");
+				for(int i = 0; i<generalList.size(); i++) {
+					//System.out.println("Looping general: length: "+generalList.size()+"     iteration: "+i);
+					if(generalList.get(i).toFile().isDirectory()) {
+						dirAt.remove(generalList.get(i));
+						//System.out.println("Removed: "+generalList.get(i).toString());
+						try {
+							for(File tempFile:generalList.get(i).toFile().listFiles()) {
+								dirAt.add(tempFile.toPath());
+								//System.out.println("Added: "+tempFile.toPath().toString());
+							}
+						}
+						catch(Exception e5) {
+							System.out.println("Problem here");
+						}
+					}
+					else {
+						try {
+							temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
+							//System.out.println("Wrote + Removed: "+generalList.get(i).toString());
+							dirAt.remove(generalList.get(i));
+							
+						} catch (IOException e) {
+							System.out.println("Big Error");
+							e.printStackTrace();
+						}
+					}
+				}
+				
+			
+				try {
+					generalList = dirAt;
+				}
+				catch(Exception E){
+					System.out.println("Cant change");
+				}
+				
 			}
+			
+			
 		}
+		//dirAt = new HashSet<Path>();
+		//myPath = Path.of(myArgMapStem.getString("-text"));
 		else if(myArgMapStem.hasFlag("-index")) {
 			filename = myArgMapStem.getString("-index");
+			toWrite = true;
 		}
 		//System.out.println(temp.toString());
 		String pathname = temp.get(0);
 		
 		for(int i = 1; i<temp.size(); i++) {
-			Map<String, String> myKey = new HashMap<String, String>();
-			myKey.put(temp.get(i), pathname);
-			if(myMap.containsKey(myKey)) {
-				myMap.get(myKey).add(Integer.parseInt(temp.get(++i)));
+			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
+			Collection<Integer> colToAdd = new TreeSet<Integer>();
+			if(temp.get(i).contains("/")) {
+				pathname = temp.get(i);
 			}
 			else {
-				ArrayList<Integer> tempListtoPut = new ArrayList<Integer>();
-				tempListtoPut.add(Integer.parseInt(temp.get(++i)));
-				myMap.put(myKey, tempListtoPut);
+				if(myMap.containsKey(temp.get(i))) {
+					if(myMap.get(temp.get(i)).containsKey(pathname)) {
+						myMap.get(temp.get(i)).get(pathname).add(Integer.parseInt(temp.get(++i)));
+					}
+					else {
+						System.out.println("Impossible");
+					}
+				}
+				else {
+					colToAdd.add(Integer.parseInt(temp.get(i+1)));
+					valueToAdd.put(pathname, colToAdd);
+					myMap.put(temp.get(i++), valueToAdd);
+				}
 			}
 			
 		}
+		
 		/*
 		for(int i = 0; i<temp.size(); i++) {
 			if(Character.isLetter(temp.get(i).charAt(0))) {
@@ -86,23 +145,25 @@ public class Driver {
 			}
 		}
 		*/
-		//System.out.println(temp.toString());
-		//System.out.println(myMap.toString());
+		System.out.println(temp.toString());
+		System.out.println(myMap.toString());
 		System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
 		/*
-		if(filename!=null) {
-			System.out.println("Writing...");
-			try (PrintWriter out = new PrintWriter(filename)) {
-				System.out.println("Writing2...");
-				out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
-				
-			}
-			catch(Exception E) {
-				System.out.println("Error: "+E);
-			}
+		if(filename==null) {
+			filename="index.json";
+		}
+		if(toWrite) {
+		System.out.println("Writing...");
+		try (PrintWriter out = new PrintWriter(filename)) {
+			System.out.println("Writing2...");
+			out.write(SimpleJsonWriter.asNestedArray(myMap).toString());
+			
+		}
+		catch(Exception E) {
+			System.out.println("Error: "+E);
+		}
 		}
 		*/
-		
 		
 		
 

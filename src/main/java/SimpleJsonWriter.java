@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -92,59 +93,20 @@ public class SimpleJsonWriter {
 	 * @throws IOException if an IO error occurs
 	 */
 	public static void asNestedArray(
-			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements, Writer writer,
+			Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements, Writer writer,
 			int level) throws IOException {
 		level++;
 		//boolean revfirstTimer = false;
 		writer.write("{\n");
-		int counter1 = elements.size();
-		//System.out.println(counter1);
-		int bigCounter = elements.keySet().size();
-		for(Entry<? extends Map<String, String>, ? extends Collection<Integer>> item : elements.entrySet()) {
-			int counter2 = item.getValue().size();
-			String tempStr = "";
-			try {
-				tempStr = item.getKey().keySet().stream().collect(Collectors.joining());
-			}
-			catch(Exception E) {
-				System.out.println("ERROR: "+E);
-			}
-			//System.out.println("counter: "+bigCounter);
-			indent("\""+tempStr+"\":{\n ", writer, level);
+		int putSqigBracketComma = elements.size();
+		for(Entry<String, ? extends Map<String, ? extends Collection<Integer>>> item : elements.entrySet()) {
+			int putBraketComma = item.getValue().size();
+			indent("\""+item.getKey()+"\":{\n",writer, level);
+			putSqigBracketComma--;
 			level++;
-			indent("\""+item.getKey().get(tempStr)+"\": ", writer, level);
-			level++;
-			boolean revfirstTimer2 = true;
-			writer.write("[\n");
-			for(Integer i:item.getValue()) {
-				indent(i.toString(), writer, level);
-				if(counter2>1) {
-					writer.write(",\n");
-					counter2--;
-				}
-				//revfirstTimer = true;
-				
+			for(Entry<? extends Map<String, ? extends Collection<Integer>>> nestedItem:item.getValue().entrySet()) {
 				
 			}
-			if(!item.getValue().isEmpty()) {
-				writer.write("\n");
-			}
-			level--;
-			if(revfirstTimer2&&counter1>1) {
-				indent("],\n", writer, level);
-				level--;
-				counter1--;
-				if(bigCounter>1) {
-					indent("},", writer, level);
-				}
-			}
-			else {
-				indent("]", writer, level);
-			}
-			bigCounter--;
-			writer.write("\n");
-			
-			
 			
 		}
 		writer.write("\t}\n");
@@ -199,7 +161,7 @@ public class SimpleJsonWriter {
 	 * @see #asNestedArray(Map, Writer, int)
 	 */
 	public static void asNestedArray(
-			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements, Path path)
+			Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements, Path path)
 			throws IOException {
 		try (
 				BufferedWriter writer = Files.newBufferedWriter(path,
@@ -256,7 +218,7 @@ public class SimpleJsonWriter {
 	 * @see #asNestedArray(Map, Writer, int)
 	 */
 	public static String asNestedArray(
-			Map<? extends Map<String, String>, ? extends Collection<Integer>> elements) {
+			Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements) {
 		try {
 			StringWriter writer = new StringWriter();
 			asNestedArray(elements, writer, 0);
