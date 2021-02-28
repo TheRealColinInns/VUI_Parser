@@ -66,7 +66,7 @@ public class TextFileStemmer {
 			for(String i:tempList2) {
 				try {
 					if(Character.isLetter(i.charAt(0))) {
-						tempList.add(i);
+						tempList.add(stemmer.stem(i).toString());
 						tempList.add(String.valueOf(lineNum+=1));
 					}
 
@@ -179,12 +179,10 @@ public class TextFileStemmer {
 		int lineNum = 0;
 		try (BufferedReader mybr = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
 			for(String line = mybr.readLine(); line !=null; line = mybr.readLine()) {
-				
 				for(String i:listStems(line, lineNum)) {
-					
 					mylist.add(i);
-					
 				}
+				lineNum = Integer.parseInt(mylist.get(mylist.size()-1));
 			}
 		}
 		//System.out.println("mylist: " + mylist.toString());

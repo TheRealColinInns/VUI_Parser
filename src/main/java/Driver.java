@@ -1,6 +1,9 @@
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,6 +43,7 @@ public class Driver {
 		//Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
+		//System.out.println(myArgMapStem.toString());
 		if(myArgMapStem.hasFlag("-text")) {
 			myPath = Path.of(myArgMapStem.getString("-text"));
 			ArrayList<Path> generalList = new ArrayList<Path>();
@@ -60,7 +64,7 @@ public class Driver {
 							}
 						}
 						catch(Exception e5) {
-							System.out.println("Problem here");
+							//System.out.println("Problem here: "+e5);
 						}
 					}
 					else {
@@ -90,8 +94,11 @@ public class Driver {
 		}
 		//dirAt = new HashSet<Path>();
 		//myPath = Path.of(myArgMapStem.getString("-text"));
-		else if(myArgMapStem.hasFlag("-index")) {
+		if(myArgMapStem.hasFlag("-index")) {
 			filename = myArgMapStem.getString("-index");
+			if(filename==null) {
+				filename = "index.json";
+			}
 			toWrite = true;
 		}
 		//System.out.println(temp.toString());
@@ -100,6 +107,7 @@ public class Driver {
 		for(int i = 1; i<temp.size(); i++) {
 			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
 			Collection<Integer> colToAdd = new TreeSet<Integer>();
+			//System.out.println("Current: "+temp.get(i));
 			if(temp.get(i).contains("/")) {
 				pathname = temp.get(i);
 			}
@@ -109,7 +117,8 @@ public class Driver {
 						myMap.get(temp.get(i)).get(pathname).add(Integer.parseInt(temp.get(++i)));
 					}
 					else {
-						System.out.println("Impossible");
+						colToAdd.add(Integer.parseInt(temp.get(i+1)));
+						myMap.get(temp.get(i++)).put(pathname, colToAdd);
 					}
 				}
 				else {
@@ -120,7 +129,18 @@ public class Driver {
 			}
 			
 		}
-		
+		//System.out.println("HERE: "+toWrite);
+		 
+		if(toWrite) {
+			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(filename),StandardCharsets.UTF_8)){
+				writer.write(SimpleJsonWriter.asNestedArray(myMap).toString());
+			} catch (IOException e) {
+				toWrite = false;
+				System.out.println("Invalid Path");
+			}
+			
+			
+		}
 		/*
 		for(int i = 0; i<temp.size(); i++) {
 			if(Character.isLetter(temp.get(i).charAt(0))) {
@@ -145,9 +165,9 @@ public class Driver {
 			}
 		}
 		*/
-		System.out.println(temp.toString());
-		System.out.println(myMap.toString());
-		System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
+		//System.out.println(temp.toString());
+		//System.out.println(myMap.toString());
+		//System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
 		/*
 		if(filename==null) {
 			filename="index.json";

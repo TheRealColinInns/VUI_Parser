@@ -100,16 +100,42 @@ public class SimpleJsonWriter {
 		writer.write("{\n");
 		int putSqigBracketComma = elements.size();
 		for(Entry<String, ? extends Map<String, ? extends Collection<Integer>>> item : elements.entrySet()) {
-			int putBraketComma = item.getValue().size();
-			indent("\""+item.getKey()+"\":{\n",writer, level);
-			putSqigBracketComma--;
+			int putBracketComma = item.getValue().size();
+			indent("\""+item.getKey()+"\": {\n",writer, level);
 			level++;
-			for(Entry<? extends Map<String, ? extends Collection<Integer>>> nestedItem:item.getValue().entrySet()) {
-				
+			for(Entry<String, ? extends Collection<Integer>> nestedItem:item.getValue().entrySet()) {
+				int putNumberComma = nestedItem.getValue().size();
+				indent("\""+nestedItem.getKey()+"\": [\n",writer, level);
+				level++;
+				for(Integer nestedInt:nestedItem.getValue()) {
+					if(putNumberComma>1) {
+						indent(nestedInt.toString()+",\n",writer, level);
+					}
+					else {
+						indent(nestedInt.toString()+"\n",writer, level);
+						level--;
+					}
+					putNumberComma--;
+				}
+				if(putBracketComma>1) {
+					indent("],\n",writer, level);
+				}
+				else {
+					indent("]\n",writer, level);
+					level--;
+				}
+				putBracketComma--;
 			}
+			if(putSqigBracketComma>1) {
+				indent("},\n",writer,level);
+			}
+			else {
+				indent("}\n",writer,level);
+			}
+			putSqigBracketComma--;
 			
 		}
-		writer.write("\t}\n");
+		
 		writer.write("}");
 	}
 
