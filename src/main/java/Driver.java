@@ -55,6 +55,7 @@ public class Driver {
 				for(int i = 0; i<generalList.size(); i++) {
 					//System.out.println("Looping general: length: "+generalList.size()+"     iteration: "+i);
 					if(generalList.get(i).toFile().isDirectory()) {
+						//System.out.println("Directory: "+generalList.get(i));
 						dirAt.remove(generalList.get(i));
 						//System.out.println("Removed: "+generalList.get(i).toString());
 						try {
@@ -68,15 +69,23 @@ public class Driver {
 						}
 					}
 					else {
+						//if(generalList.get(i).toString().toLowerCase().endsWith(".txt")||generalList.get(i).toString().toLowerCase().endsWith(".text")) {
+						//System.out.println("2: "+generalList.get(i).toString().toLowerCase());
+						//String genListString = generalList.get(i).toString().toLowerCase();
+						
 						try {
-							temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
+							//if(generalList.get(i).toString().toLowerCase().endsWith(".txt")||generalList.get(i).toString().toLowerCase().endsWith(".text")) {
+								temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
+							//}
 							//System.out.println("Wrote + Removed: "+generalList.get(i).toString());
 							dirAt.remove(generalList.get(i));
 							
 						} catch (IOException e) {
-							System.out.println("Big Error");
-							e.printStackTrace();
+							dirAt.remove(generalList.get(i));
+							System.out.println("Invalid Path");
+							//e.printStackTrace();
 						}
+						//}
 					}
 				}
 				

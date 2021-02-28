@@ -179,10 +179,16 @@ public class TextFileStemmer {
 		int lineNum = 0;
 		try (BufferedReader mybr = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
 			for(String line = mybr.readLine(); line !=null; line = mybr.readLine()) {
+				try {
+					lineNum = Integer.parseInt(mylist.get(mylist.size()-1));
+				}
+				catch(Exception e1) {
+					//System.out.println("Order Error");
+				}
 				for(String i:listStems(line, lineNum)) {
 					mylist.add(i);
 				}
-				lineNum = Integer.parseInt(mylist.get(mylist.size()-1));
+				
 			}
 		}
 		//System.out.println("mylist: " + mylist.toString());
