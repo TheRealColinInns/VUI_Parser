@@ -1,16 +1,17 @@
 import java.io.BufferedWriter;
-import java.io.File;
+//import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+//import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+//import java.util.HashMap;
+//import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -24,7 +25,54 @@ import java.util.TreeSet;
  * @version Spring 2021
  */
 public class Driver {
+	static ArrayList<String> temp = new ArrayList<String>();
 
+	/**
+	 * Traverses through the directory and its subdirectories, outputting all
+	 * paths to the console. For files, also includes the file size in bytes.
+	 *
+	 * @param start the initial path to traverse
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void printListing(Path start) throws IOException {
+		// use the Files class to get information about a path
+		if (Files.isDirectory(start)) {
+			// output trailing slash to indicate directory
+			// start directory traversal
+			traverseDirectory(start);
+		}
+		else {
+			// output the file path and file size in bytes
+			if(start.toString().toLowerCase().endsWith(".txt")||start.toString().toLowerCase().endsWith(".text")) {
+				temp.addAll(TextFileStemmer.listStems(start));
+			}
+			
+		}
+	}
+	/**
+	 * Traverses through the directory and its subdirectories, outputting all
+	 * paths to the console. For files, also includes the file size in bytes.
+	 *
+	 * @param directory the directory to traverse
+	 * @throws IOException if an I/O error occurs
+	 */
+	private static void traverseDirectory(Path directory) throws IOException {
+		/*
+		 * The try-with-resources block makes sure we close the directory stream
+		 * when done, to make sure there aren't any issues later when accessing this
+		 * directory.
+		 *
+		 * Note, however, we are still not catching any exceptions. This type of try
+		 * block does not have to be accompanied with a catch block. (You should,
+		 * however, do something about the exception.)
+		 */
+		try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
+			// use an enhanced-for or for-each loop for efficiency and simplicity
+			for (Path path : listing) {
+				printListing(path);
+			}
+		}
+	}
 	/**
 	 * Initializes the classes necessary based on the provided command-line
 	 * arguments. This includes (but is not limited to) how to build or search an
@@ -38,14 +86,47 @@ public class Driver {
 		Path myPath = null;
 		ArgumentMap myArgMapStem = new ArgumentMap();
 		String filename = null;
-		ArrayList<String> temp = new ArrayList<String>();
+		temp = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
 		//Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
-		//System.out.println(myArgMapStem.toString());
+		boolean notPath = true;
 		if(myArgMapStem.hasFlag("-text")) {
-			myPath = Path.of(myArgMapStem.getString("-text"));
+			try {
+				myPath = Path.of(myArgMapStem.getString("-text"));
+			}
+			catch(Exception e7) {
+				notPath = false;
+			}
+			if(notPath) {
+				if(Files.isRegularFile(myPath)) {
+					try {
+						temp.addAll(TextFileStemmer.listStems(myPath));
+					} catch (IOException e) {
+						System.out.println("Falure while getting printing single file");
+					}
+				}
+				else {
+					try {
+						printListing(myPath);
+					} catch (IOException e) {
+						System.out.println("Falure while getting directory");
+					}
+				}
+			}
+			/*
+			if(Files.isRegularFile(myPath)) {
+				try {
+					temp = (TextFileStemmer.listStems(myPath));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if(Files.isDirectory(myPath)){
+				
+				
+			}
 			ArrayList<Path> generalList = new ArrayList<Path>();
 			ArrayList<Path> dirAt = new ArrayList<Path>();
 			generalList.add(myPath);
@@ -60,7 +141,9 @@ public class Driver {
 						//System.out.println("Removed: "+generalList.get(i).toString());
 						try {
 							for(File tempFile:generalList.get(i).toFile().listFiles()) {
-								dirAt.add(tempFile.toPath());
+								if(tempFile.toString().toLowerCase().endsWith(".txt")||tempFile.toString().toLowerCase().endsWith(".text")) {
+									dirAt.add(tempFile.toPath());
+								}
 								//System.out.println("Added: "+tempFile.toPath().toString());
 							}
 						}
@@ -74,9 +157,9 @@ public class Driver {
 						//String genListString = generalList.get(i).toString().toLowerCase();
 						
 						try {
-							//if(generalList.get(i).toString().toLowerCase().endsWith(".txt")||generalList.get(i).toString().toLowerCase().endsWith(".text")) {
-								temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
-							//}
+							
+							temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
+							
 							//System.out.println("Wrote + Removed: "+generalList.get(i).toString());
 							dirAt.remove(generalList.get(i));
 							
@@ -98,7 +181,7 @@ public class Driver {
 				}
 				
 			}
-			
+			*/
 			
 		}
 		//dirAt = new HashSet<Path>();
@@ -111,7 +194,10 @@ public class Driver {
 			toWrite = true;
 		}
 		//System.out.println(temp.toString());
-		String pathname = temp.get(0);
+		String pathname = null;
+		if(!temp.isEmpty()) {
+			pathname = temp.get(0);
+		}
 		
 		for(int i = 1; i<temp.size(); i++) {
 			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
