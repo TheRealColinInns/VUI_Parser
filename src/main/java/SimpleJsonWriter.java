@@ -6,13 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
@@ -285,31 +281,4 @@ public class SimpleJsonWriter {
 		writer.write(element);
 		writer.write('"');
 	}
-
-	/**
-	 * Demonstrates this class.
-	 * 
-	 * @param args unused
-	 
-	public static void main(String[] args) {
-		Set<Integer> empty = Collections.emptySet();
-		Set<Integer> single = Set.of(42);
-		List<Integer> simple = List.of(65, 66, 67);
-		
-		System.out.println("\nArrays:");
-		System.out.println(asArray(empty));
-		System.out.println(asArray(single));
-		System.out.println(asArray(simple));
-
-		System.out.println("\nObjects:");
-		System.out.println(asObject(Collections.emptyMap()));
-		System.out.println(asObject(Map.of("hello", 42)));
-		System.out.println(asObject(Map.of("hello", 42, "world", 67)));
-
-		System.out.println("\nNested Arrays:");
-		System.out.println(asNestedArray(Collections.emptyMap()));
-		System.out.println(asNestedArray(Map.of("hello", single)));
-		System.out.println(asNestedArray(Map.of("hello", single, "world", simple)));
-	}
-	*/
 }

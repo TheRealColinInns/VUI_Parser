@@ -1,7 +1,5 @@
 import java.io.BufferedWriter;
-//import java.io.File;
 import java.io.IOException;
-//import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -10,8 +8,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-//import java.util.HashMap;
-//import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -42,7 +38,7 @@ public class Driver {
 			traverseDirectory(start);
 		}
 		else {
-			// output the file path and file size in bytes
+			// and to the placeholder arraylist, make sure it is a text file because this is in a directory
 			if(start.toString().toLowerCase().endsWith(".txt")||start.toString().toLowerCase().endsWith(".text")) {
 				temp.addAll(TextFileStemmer.listStems(start));
 			}
@@ -85,13 +81,15 @@ public class Driver {
 		boolean toWrite = false;
 		Path myPath = null;
 		ArgumentMap myArgMapStem = new ArgumentMap();
+		//stores the filename to add into temp
 		String filename = null;
+		//reset the temporary arraylist
 		temp = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
-		//Map<Map<String, String>, Collection<Integer>> myMap = new HashMap<Map<String, String>, Collection<Integer>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
 		boolean notPath = true;
+		//this gets and adds all the elements from all files and directories located at the input file
 		if(myArgMapStem.hasFlag("-text")) {
 			try {
 				myPath = Path.of(myArgMapStem.getString("-text"));
@@ -115,77 +113,9 @@ public class Driver {
 					}
 				}
 			}
-			/*
-			if(Files.isRegularFile(myPath)) {
-				try {
-					temp = (TextFileStemmer.listStems(myPath));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if(Files.isDirectory(myPath)){
-				
-				
-			}
-			ArrayList<Path> generalList = new ArrayList<Path>();
-			ArrayList<Path> dirAt = new ArrayList<Path>();
-			generalList.add(myPath);
-			dirAt.add(myPath);
-			while(!generalList.isEmpty()) {
-				//System.out.println("BIG LOOP-------------------------------+");
-				for(int i = 0; i<generalList.size(); i++) {
-					//System.out.println("Looping general: length: "+generalList.size()+"     iteration: "+i);
-					if(generalList.get(i).toFile().isDirectory()) {
-						//System.out.println("Directory: "+generalList.get(i));
-						dirAt.remove(generalList.get(i));
-						//System.out.println("Removed: "+generalList.get(i).toString());
-						try {
-							for(File tempFile:generalList.get(i).toFile().listFiles()) {
-								if(tempFile.toString().toLowerCase().endsWith(".txt")||tempFile.toString().toLowerCase().endsWith(".text")) {
-									dirAt.add(tempFile.toPath());
-								}
-								//System.out.println("Added: "+tempFile.toPath().toString());
-							}
-						}
-						catch(Exception e5) {
-							//System.out.println("Problem here: "+e5);
-						}
-					}
-					else {
-						//if(generalList.get(i).toString().toLowerCase().endsWith(".txt")||generalList.get(i).toString().toLowerCase().endsWith(".text")) {
-						//System.out.println("2: "+generalList.get(i).toString().toLowerCase());
-						//String genListString = generalList.get(i).toString().toLowerCase();
-						
-						try {
-							
-							temp.addAll(TextFileStemmer.listStems(generalList.get(i)));
-							
-							//System.out.println("Wrote + Removed: "+generalList.get(i).toString());
-							dirAt.remove(generalList.get(i));
-							
-						} catch (IOException e) {
-							dirAt.remove(generalList.get(i));
-							System.out.println("Invalid Path");
-							//e.printStackTrace();
-						}
-						//}
-					}
-				}
-				
-			
-				try {
-					generalList = dirAt;
-				}
-				catch(Exception E){
-					System.out.println("Cant change");
-				}
-				
-			}
-			*/
 			
 		}
-		//dirAt = new HashSet<Path>();
-		//myPath = Path.of(myArgMapStem.getString("-text"));
+		//gets the path in which to later print the json file
 		if(myArgMapStem.hasFlag("-index")) {
 			filename = myArgMapStem.getString("-index");
 			if(filename==null) {
@@ -193,16 +123,14 @@ public class Driver {
 			}
 			toWrite = true;
 		}
-		//System.out.println(temp.toString());
 		String pathname = null;
 		if(!temp.isEmpty()) {
 			pathname = temp.get(0);
 		}
-		
+		//converts the temporary arraylist into the datastructure that I want to use, a nested map
 		for(int i = 1; i<temp.size(); i++) {
 			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
 			Collection<Integer> colToAdd = new TreeSet<Integer>();
-			//System.out.println("Current: "+temp.get(i));
 			if(temp.get(i).contains("/")) {
 				pathname = temp.get(i);
 			}
@@ -224,8 +152,7 @@ public class Driver {
 			}
 			
 		}
-		//System.out.println("HERE: "+toWrite);
-		 
+		 //checks if we are supposed to be writing and then writes the datastructure
 		if(toWrite) {
 			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(filename),StandardCharsets.UTF_8)){
 				writer.write(SimpleJsonWriter.asNestedArray(myMap).toString());
@@ -236,52 +163,7 @@ public class Driver {
 			
 			
 		}
-		/*
-		for(int i = 0; i<temp.size(); i++) {
-			if(Character.isLetter(temp.get(i).charAt(0))) {
-				ArrayList<String> tempList = new ArrayList<String>();
-				tempList.add(temp.get(i));
-				tempList.add(temp.get(++i));
-				if(myMap.containsKey(tempList)) {
-					i++;
-					myMap.get(tempList).add(Integer.parseInt(temp.get(i+1)));
-					i++;
-					
-				}
-				else {
-					ArrayList<Integer> tempList2 = new ArrayList<Integer>();
-					//ArrayList<String> tempList3 = new ArrayList<String>();
-					System.out.println(temp.get(i));
-					tempList2.add(Integer.parseInt(temp.get(i++)));
-					System.out.println(temp.get(i));;
-					myMap.put(tempList, tempList2);
-					System.out.println(temp.get(i));
-				}
-			}
-		}
-		*/
-		//System.out.println(temp.toString());
-		//System.out.println(myMap.toString());
-		//System.out.println(SimpleJsonWriter.asNestedArray(myMap).toString());
-		/*
-		if(filename==null) {
-			filename="index.json";
-		}
-		if(toWrite) {
-		System.out.println("Writing...");
-		try (PrintWriter out = new PrintWriter(filename)) {
-			System.out.println("Writing2...");
-			out.write(SimpleJsonWriter.asNestedArray(myMap).toString());
-			
-		}
-		catch(Exception E) {
-			System.out.println("Error: "+E);
-		}
-		}
-		*/
 		
-		
-
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
 		double seconds = (double) elapsed.toMillis() / Duration.ofSeconds(1).toMillis();

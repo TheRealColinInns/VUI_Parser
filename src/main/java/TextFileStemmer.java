@@ -1,7 +1,5 @@
 //Colin Inns
 import java.io.BufferedReader;
-//import java.io.File;
-//import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,28 +39,7 @@ public class TextFileStemmer {
 		String[] tempList2;
 		String temp = line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase();
 		tempList2 = TextParser.parse(temp);
-		/*
-		temp = temp.replaceAll("\t", "");
-		temp = temp.replaceAll("ö", "o");
-		temp = temp.replaceAll("é", "e");
-		tempList2 = temp.split(" ");
-		*/
-		/*
-		for(String item:tempList2) {
-			try {
-			if(Character.isLetter(item.charAt(0))) {
-				System.out.print(item+" ");
-			}
-			}
-			catch(Exception E) {
-				System.out.println("Error: "+E);
-			}
-			
-		}
-		System.out.print("\tBREAK");
-		*/
 		if(tempList2.length>0) {
-			//System.out.println(tempList2.length);
 			for(String i:tempList2) {
 				try {
 					if(Character.isLetter(i.charAt(0))) {
@@ -76,76 +53,7 @@ public class TextFileStemmer {
 				}
 			}
 		}
-		//System.out.println(tempList.toString());
-		
 		return tempList;
-		
-		/*
-		boolean spacetracker = false;
-		boolean spacetracker2 = true;
-		for(int j = 0; j<line.length(); j++) {
-			if(line.charAt(j)==' ') {
-				toSplit+=' ';
-				if(spacetracker2) {
-					spacetracker = true;
-				}
-				else {
-					spacetracker = false;
-				}
-			}
-			else if(line.charAt(j)==',') {
-				toSplit+=',';
-				if(spacetracker2) {
-					spacetracker = true;
-				}
-				else {
-					spacetracker = false;
-				}
-				spacetracker2 = false;
-			}
-			else if(spacetracker&&!Character.isLetter(line.charAt(j))) {
-				if(line.charAt(j)=='*'||line.charAt(j)=='+') {
-					toSplit+="\\";
-				}
-				spacetracker2 = false;
-				toSplit+=line.charAt(j);
-			}
-			else if(spacetracker&&Character.isLetter(line.charAt(j))) {
-				break;
-			}
-			else {
-				if(!spacetracker&&!spacetracker2) {
-					break;
-				}
-			}
-		}
-		
-		ArrayList<String> mylist = new ArrayList<String>();
-		
-		if(!toSplit.equals("")) {
-			tempList = line.split(toSplit);
-		}
-		else if(line.equals("")) {
-			tempList = new String[] {};
-		}
-		else {
-			tempList = new String[] {line.toString()};
-		}
-		
-		
-		for(String i:tempList) {
-			String noSymbols = "";
-			for(int j = 0; j<i.length(); j++) {
-				if(Character.isLetter(i.charAt(j))) {
-					noSymbols+=i.charAt(j);
-				}
-			}
-			noSymbols=noSymbols.replaceAll("ö", "o");
-			noSymbols=noSymbols.replaceAll("é", "e");
-			mylist.add(stemmer.stem(noSymbols.toLowerCase()).toString());
-		}
-		return mylist;
-		*/
 	}
 
 	/**
@@ -183,7 +91,7 @@ public class TextFileStemmer {
 					lineNum = Integer.parseInt(mylist.get(mylist.size()-1));
 				}
 				catch(Exception e1) {
-					//System.out.println("Order Error");
+					
 				}
 				for(String i:listStems(line, lineNum)) {
 					mylist.add(i);
@@ -191,7 +99,6 @@ public class TextFileStemmer {
 				
 			}
 		}
-		//System.out.println("mylist: " + mylist.toString());
 		return mylist;
 		
 	}
@@ -231,7 +138,6 @@ public class TextFileStemmer {
 			}
 		}
 		return myset;
-		//throw new UnsupportedOperationException("Not yet implemented.");
 	}
 	
 
@@ -255,28 +161,5 @@ public class TextFileStemmer {
 		}
 		
 		return myset;
-		//throw new UnsupportedOperationException("Not yet implemented.");
 	}
-
-	/**
-	 * Demonstrates this class.
-	 *
-	 * @param args unused
-	 * @throws IOException if an I/O error occurs
-	 
-	public static void main(String[] args) throws IOException {
-		String text = """
-				practic practical practice practiced practicer practices
-				practicing practis practisants practise practised practiser
-				practisers practises practising practitioner practitioners
-				""";
-
-		System.out.println(listStems(text));
-		System.out.println(uniqueStems(text));
-
-		Path base = Path.of("src", "test", "resources");
-		System.out.println(listStems(base.resolve("words.tExT")));
-		System.out.println(uniqueStems(base.resolve("symbols.txt")));
-	}
-	*/
 }
