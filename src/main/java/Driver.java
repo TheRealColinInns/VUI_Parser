@@ -21,7 +21,7 @@ import java.util.TreeSet;
  * @version Spring 2021
  */
 public class Driver {
-	/*
+	/**
 	 * temporary list that stores the raw data from other classes to be cleaned up into my datastructure
 	 */
 	static ArrayList<String> temp = new ArrayList<String>();
