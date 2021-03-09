@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.TreeSet;
-
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
@@ -29,6 +28,7 @@ public class TextFileStemmer {
 	 *
 	 * @param line the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
+	 * @param lineNum line number
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
@@ -60,6 +60,7 @@ public class TextFileStemmer {
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
 	 * @param line the line of words to clean, split, and stem
+	 * @param lineNum line number
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see SnowballStemmer
