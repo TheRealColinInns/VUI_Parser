@@ -21,11 +21,26 @@ import java.util.TreeSet;
  * @version Spring 2021
  */
 public class Driver {
+	
+	// TODO Exception handling
+	// TODO Fix exception handling (don't throw in Driver.main but throw in most methods) 
+	// TODO user output (user friendly and informative)
+	// TODO Try to have 2 try/catch blocks, one per flag you have to process
+	
+	// TODO What to include in Driver
+	// TODO Driver is usually programmer-specific and not shared. Try to keep project-specific logic in Driver only, so all other classes are as general as possible for other developers to use *and* move any generally-useful code outside of Driver so it can be reused.
+
+	// TODO Static variables
+	// TODO Avoid static data when possible, local variables often do the trick
+	
+	// TODO Variable naming (self-documenting variable names without "temp" numbers, or abbreviations)
+	
 	/**
 	 * temporary list that stores the raw data from other classes to be cleaned up into my datastructure
 	 */
 	static ArrayList<String> temp = new ArrayList<String>();
 
+	// TODO If you pass the list as a parameter, it doesn't have to be static
 	/**
 	 * Traverses through the directory and its subdirectories, outputting all
 	 * paths to the console. For files, also includes the file size in bytes.
@@ -80,6 +95,40 @@ public class Driver {
 	 * @param args flag/value pairs used to start this program
 	 */
 	public static void main(String[] args) {
+		/*
+		 * TODO Try to simplify
+		 * 
+
+		declare your argument map
+		declare your inverted index data structure
+		
+		if (-text flag) {
+			path value is of the -text flag
+			
+			try {
+					1-2 method calls inside to trigger building
+			 }
+			 catch (  ) {
+			 
+			 }
+			
+		}
+		
+		if (-index flag) {
+			path value is of the -index flag
+			
+			try {
+					1-2 method calls inside to trigger writing
+			 }
+			 catch (  ) {
+			 
+			 }
+		}
+
+		 */
+		
+		
+		
 		// store initial start time
 		boolean toWrite = false;
 		Path myPath = null;
@@ -162,6 +211,8 @@ public class Driver {
 			} catch (IOException e) {
 				toWrite = false;
 				System.out.println("Invalid Path");
+				
+				// Unable to write the inverted to JSON file from -index value: + path (-index value was)
 			}
 			
 			
