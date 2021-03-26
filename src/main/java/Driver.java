@@ -35,10 +35,6 @@ public class Driver {
 	
 	// TODO Variable naming (self-documenting variable names without "temp" numbers, or abbreviations)
 	
-	/**
-	 * temporary list that stores the raw data from other classes to be cleaned up into my datastructure
-	 */
-	static ArrayList<String> temp = new ArrayList<String>();
 
 	// TODO If you pass the list as a parameter, it doesn't have to be static
 	/**
@@ -48,17 +44,17 @@ public class Driver {
 	 * @param start the initial path to traverse
 	 * @throws IOException if an I/O error occurs
 	 */
-	public static void printListing(Path start) throws IOException {
+	public static void printListing(Path start, ArrayList<String> myStorage) throws IOException {
 		// use the Files class to get information about a path
 		if (Files.isDirectory(start)) {
 			// output trailing slash to indicate directory
 			// start directory traversal
-			traverseDirectory(start);
+			traverseDirectory(start, myStorage);
 		}
 		else {
 			// and to the placeholder arraylist, make sure it is a text file because this is in a directory
 			if(start.toString().toLowerCase().endsWith(".txt")||start.toString().toLowerCase().endsWith(".text")) {
-				temp.addAll(TextFileStemmer.listStems(start));
+				myStorage.addAll(TextFileStemmer.listStems(start));
 			}
 			
 		}
@@ -70,7 +66,7 @@ public class Driver {
 	 * @param directory the directory to traverse
 	 * @throws IOException if an I/O error occurs
 	 */
-	private static void traverseDirectory(Path directory) throws IOException {
+	private static void traverseDirectory(Path directory, ArrayList<String> myStorage) throws IOException {
 		/*
 		 * The try-with-resources block makes sure we close the directory stream
 		 * when done, to make sure there aren't any issues later when accessing this
@@ -80,10 +76,10 @@ public class Driver {
 		 * block does not have to be accompanied with a catch block. (You should,
 		 * however, do something about the exception.)
 		 */
-		try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
+		try (DirectoryStream<Path> myDirectoryStream = Files.newDirectoryStream(directory)) {
 			// use an enhanced-for or for-each loop for efficiency and simplicity
-			for (Path path : listing) {
-				printListing(path);
+			for (Path temporaryPath : myDirectoryStream) {
+				printListing(temporaryPath, myStorage);
 			}
 		}
 	}
@@ -136,7 +132,7 @@ public class Driver {
 		//stores the filename to add into temp
 		String filename = null;
 		//reset the temporary arraylist
-		temp = new ArrayList<String>();
+		ArrayList<String> myStorage = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
@@ -152,14 +148,14 @@ public class Driver {
 			if(notPath) {
 				if(Files.isRegularFile(myPath)) {
 					try {
-						temp.addAll(TextFileStemmer.listStems(myPath));
+						myStorage.addAll(TextFileStemmer.listStems(myPath));
 					} catch (IOException e) {
 						System.out.println("Falure while getting printing single file");
 					}
 				}
 				else {
 					try {
-						printListing(myPath);
+						printListing(myPath, myStorage);
 					} catch (IOException e) {
 						System.out.println("Falure while getting directory");
 					}
@@ -176,30 +172,30 @@ public class Driver {
 			toWrite = true;
 		}
 		String pathname = null;
-		if(!temp.isEmpty()) {
-			pathname = temp.get(0);
+		if(!myStorage.isEmpty()) {
+			pathname = myStorage.get(0);
 		}
 		//converts the temporary arraylist into the datastructure that I want to use, a nested map
-		for(int i = 1; i<temp.size(); i++) {
+		for(int i = 1; i<myStorage.size(); i++) {
 			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
 			Collection<Integer> colToAdd = new TreeSet<Integer>();
-			if(temp.get(i).contains("/")) {
-				pathname = temp.get(i);
+			if(myStorage.get(i).contains("/")) {
+				pathname = myStorage.get(i);
 			}
 			else {
-				if(myMap.containsKey(temp.get(i))) {
-					if(myMap.get(temp.get(i)).containsKey(pathname)) {
-						myMap.get(temp.get(i)).get(pathname).add(Integer.parseInt(temp.get(++i)));
+				if(myMap.containsKey(myStorage.get(i))) {
+					if(myMap.get(myStorage.get(i)).containsKey(pathname)) {
+						myMap.get(myStorage.get(i)).get(pathname).add(Integer.parseInt(myStorage.get(++i)));
 					}
 					else {
-						colToAdd.add(Integer.parseInt(temp.get(i+1)));
-						myMap.get(temp.get(i++)).put(pathname, colToAdd);
+						colToAdd.add(Integer.parseInt(myStorage.get(i+1)));
+						myMap.get(myStorage.get(i++)).put(pathname, colToAdd);
 					}
 				}
 				else {
-					colToAdd.add(Integer.parseInt(temp.get(i+1)));
+					colToAdd.add(Integer.parseInt(myStorage.get(i+1)));
 					valueToAdd.put(pathname, colToAdd);
-					myMap.put(temp.get(i++), valueToAdd);
+					myMap.put(myStorage.get(i++), valueToAdd);
 				}
 			}
 			
