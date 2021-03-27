@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -44,17 +45,22 @@ public class Driver {
 	 * @param start the initial path to traverse
 	 * @throws IOException if an I/O error occurs
 	 */
-	public static void printListing(Path start, ArrayList<String> myStorage) throws IOException {
+	public static void printListing(Path start, ArrayList<String> myStorage, Map<String, Integer> myWordCountMap) throws IOException {
 		// use the Files class to get information about a path
 		if (Files.isDirectory(start)) {
 			// output trailing slash to indicate directory
 			// start directory traversal
-			traverseDirectory(start, myStorage);
+			traverseDirectory(start, myStorage, myWordCountMap);
 		}
 		else {
 			// and to the placeholder arraylist, make sure it is a text file because this is in a directory
 			if(start.toString().toLowerCase().endsWith(".txt")||start.toString().toLowerCase().endsWith(".text")) {
-				myStorage.addAll(TextFileStemmer.listStems(start));
+				int wordCount = 0;
+				for(String myString:TextFileStemmer.listStems(start)) {
+					myStorage.add(myString);
+					wordCount++;
+				}
+				myWordCountMap.put(start.toString(), (wordCount-1)/2);
 			}
 			
 		}
@@ -66,7 +72,7 @@ public class Driver {
 	 * @param directory the directory to traverse
 	 * @throws IOException if an I/O error occurs
 	 */
-	private static void traverseDirectory(Path directory, ArrayList<String> myStorage) throws IOException {
+	private static void traverseDirectory(Path directory, ArrayList<String> myStorage, Map<String, Integer> myWordCountMap) throws IOException {
 		/*
 		 * The try-with-resources block makes sure we close the directory stream
 		 * when done, to make sure there aren't any issues later when accessing this
@@ -79,7 +85,7 @@ public class Driver {
 		try (DirectoryStream<Path> myDirectoryStream = Files.newDirectoryStream(directory)) {
 			// use an enhanced-for or for-each loop for efficiency and simplicity
 			for (Path temporaryPath : myDirectoryStream) {
-				printListing(temporaryPath, myStorage);
+				printListing(temporaryPath, myStorage, myWordCountMap);
 			}
 		}
 	}
@@ -126,14 +132,19 @@ public class Driver {
 		
 		
 		// store initial start time
+		QueryParser myQueryParser = new QueryParser();
+		boolean queryExist = false;
 		boolean toWrite = false;
 		Path myPath = null;
 		ArgumentMap myArgMapStem = new ArgumentMap();
 		//stores the filename to add into temp
 		String filename = null;
+		Path queryPath = null;
 		//reset the temporary arraylist
 		ArrayList<String> myStorage = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
+		Map<String, Integer> myWordCountMap = new TreeMap<String, Integer>();
+		HashSet<? extends TreeSet<String>> myQuerySet = new HashSet<TreeSet<String>>();
 		Instant start = Instant.now();
 		myArgMapStem.parse(args);
 		boolean notPath = true;
@@ -148,14 +159,19 @@ public class Driver {
 			if(notPath) {
 				if(Files.isRegularFile(myPath)) {
 					try {
-						myStorage.addAll(TextFileStemmer.listStems(myPath));
+						int wordCount = 0;
+						for(String myString:TextFileStemmer.listStems(myPath)) {
+							myStorage.add(myString);
+							wordCount++;
+						}
+						myWordCountMap.put(myPath.toString(), (wordCount-1)/2);
 					} catch (IOException e) {
 						System.out.println("Falure while getting printing single file");
 					}
 				}
 				else {
 					try {
-						printListing(myPath, myStorage);
+						printListing(myPath, myStorage, myWordCountMap);
 					} catch (IOException e) {
 						System.out.println("Falure while getting directory");
 					}
@@ -174,6 +190,10 @@ public class Driver {
 		String pathname = null;
 		if(!myStorage.isEmpty()) {
 			pathname = myStorage.get(0);
+		}
+		if(myArgMapStem.hasFlag("-query")) {
+			queryPath = Path.of(myArgMapStem.getString("-query"));
+			queryExist = true;
 		}
 		//converts the temporary arraylist into the datastructure that I want to use, a nested map
 		for(int i = 1; i<myStorage.size(); i++) {
@@ -200,6 +220,9 @@ public class Driver {
 			}
 			
 		}
+		if(queryExist) {
+			myQuerySet = myQueryParser.parse(queryPath);
+		}
 		 //checks if we are supposed to be writing and then writes the datastructure
 		if(toWrite) {
 			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(filename),StandardCharsets.UTF_8)){
@@ -213,7 +236,7 @@ public class Driver {
 			
 			
 		}
-		
+		System.out.println(myWordCountMap.toString());
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
 		double seconds = (double) elapsed.toMillis() / Duration.ofSeconds(1).toMillis();
