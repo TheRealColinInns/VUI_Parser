@@ -195,6 +195,7 @@ public class Driver {
 			queryPath = Path.of(myArgMapStem.getString("-query"));
 			queryExist = true;
 		}
+		
 		//converts the temporary arraylist into the datastructure that I want to use, a nested map
 		for(int i = 1; i<myStorage.size(); i++) {
 			Map<String, Collection<Integer>> valueToAdd = new TreeMap<String, Collection<Integer>>();
@@ -222,7 +223,33 @@ public class Driver {
 		}
 		if(queryExist) {
 			myQuerySet = myQueryParser.parse(queryPath);
+			if(myArgMapStem.hasFlag("-exact")) {
+				for(TreeSet<String> singleQuery:myQuerySet) {
+					SearchQuery.exactSearch(myMap, myWordCountMap, singleQuery);
+				}
+			}
 		}
+		
+		String countPath;
+		if(myArgMapStem.hasFlag("-counts")) {
+			countPath = myArgMapStem.getString("-counts");
+			if(countPath==null) {
+				countPath = "counts.json";
+			}
+			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(countPath),StandardCharsets.UTF_8)){
+				writer.write(SimpleJsonWriter.asWordCountNestedArray(myWordCountMap).toString());
+			} catch (IOException e) {
+				toWrite = false;
+				System.out.println("Invalid Path");
+				
+				// Unable to write the inverted to JSON file from -index value: + path (-index value was)
+			}
+		}
+		
+		
+		
+		
+		
 		 //checks if we are supposed to be writing and then writes the datastructure
 		if(toWrite) {
 			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(filename),StandardCharsets.UTF_8)){

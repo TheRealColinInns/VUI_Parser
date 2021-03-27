@@ -281,4 +281,29 @@ public class SimpleJsonWriter {
 		writer.write(element);
 		writer.write('"');
 	}
+	
+	public static String asWordCountNestedArray(Map<String, Integer> wordCountMap) {
+		int counter = wordCountMap.keySet().size();
+		try {
+			StringWriter writer = new StringWriter();
+			writer.write("{\n");
+			for(String mapKey:wordCountMap.keySet()) {
+				if(wordCountMap.get(mapKey)!=0) {
+					if(counter>2) {
+						indent("\""+mapKey+"\": "+wordCountMap.get(mapKey)+",\n", writer, 1);
+					}
+					else {
+						indent("\""+mapKey+"\": "+wordCountMap.get(mapKey)+"\n", writer, 1);
+					}
+					counter--;
+				}
+			}
+			writer.write("}");
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+
+	}
 }
