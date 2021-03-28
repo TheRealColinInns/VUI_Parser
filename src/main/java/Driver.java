@@ -142,7 +142,7 @@ public class Driver {
 		//stores the filename to add into temp
 		String filename = null;
 		Path queryPath = null;
-		Map<String, ArrayList<ArrayList<String>>> searchResults = new HashMap<String, ArrayList<ArrayList<String>>>();
+		Map<String, ArrayList<ArrayList<String>>> searchResults = new TreeMap<String, ArrayList<ArrayList<String>>>();
 		//reset the temporary arraylist
 		ArrayList<String> myStorage = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
@@ -234,7 +234,6 @@ public class Driver {
 			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(countPath),StandardCharsets.UTF_8)){
 				writer.write(SimpleJsonWriter.asWordCountNestedArray(myWordCountMap).toString());
 			} catch (IOException e) {
-				toWrite = false;
 				System.out.println("Invalid Path");
 				
 				// Unable to write the inverted to JSON file from -index value: + path (-index value was)
@@ -281,10 +280,18 @@ public class Driver {
 					searchResults.put(textQuery, SearchQuery.partialSearch(myMap, myWordCountMap, singleQuery));
 				}
 			}
+			
 		}
 		if(myArgMapStem.hasFlag("-results")) {
-			String resultPath = myArgMapStem.getString("-counts");
-			
+			String resultPath = myArgMapStem.getString("-results");
+			//System.out.println("Results: "+searchResults.toString());
+			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(resultPath),StandardCharsets.UTF_8)){
+				writer.write(SimpleJsonWriter.asResultNestedArray(searchResults).toString());
+			} catch (IOException e) {
+				System.out.println("Invalid Path");
+				
+				// Unable to write the inverted to JSON file from -index value: + path (-index value was)
+			}
 		}
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());

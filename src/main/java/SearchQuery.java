@@ -95,16 +95,12 @@ public class SearchQuery {
 			
 			}
 		}
-		for(int i = 0; i<queryResult.size(); i++) {
-			if(queryResult.get(i).isEmpty()) {
-				queryResult.remove(i);
-			}
-		}
+		
 		return resultSorter(queryResult);
 	}
 	private static ArrayList<ArrayList<String>> resultSorter(ArrayList<ArrayList<String>> helperList){
 		ArrayList<ArrayList<String>> sortedList = new ArrayList<ArrayList<String>>();
-		//System.out.println("Original List: "+helperList.toString());
+		System.out.println("Original List: "+helperList.toString());
 		sortedList.add(helperList.get(0));
 		//System.out.println("Helper size: "+helperList.size());
 		int maxCount = helperList.size();

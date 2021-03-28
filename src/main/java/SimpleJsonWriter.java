@@ -310,30 +310,51 @@ public class SimpleJsonWriter {
 	}
 	public static String asResultNestedArray(Map<String, ArrayList<ArrayList<String>>> dirtyResults) {
 		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		boolean noSkipSingle = true;
 		try {
 			StringWriter writer = new StringWriter();
-			int counter = dirtyResults.keySet().size();
+			writer.write("{\n");
+			int counter = 0;
+			if(dirtyResults.keySet()!=null) {
+				counter = dirtyResults.keySet().size();
+			}
+			//System.out.println("Key Set: "+dirtyResults.keySet().toString());
 			for(String myKey:dirtyResults.keySet()) {
+				noSkipSingle = true;
+				//System.out.println(myKey+": "+dirtyResults.get(myKey));
 				counter--;
 				int level = 1;
-				writer.write("\""+myKey+"\": [\n");
-				int queryCounter = dirtyResults.get(myKey).size();
-				for(ArrayList<String> singleQuery:dirtyResults.get(myKey)) {
-					indent("{\n", writer, level);
-					level++;
-					queryCounter--;
-					indent("\"where\": \""+singleQuery.get(2)+"\",\n", writer, level);
-					indent("\"count\": "+singleQuery.get(1)+",\n", writer, level);
-					indent("\"score\": "+FORMATTER.format(singleQuery.get(0))+"\n", writer, level);
-					level--;
-					if(queryCounter>0) {
-						indent("},\n", writer, level);
-					}
-					else {
-						indent("}\n", writer, level);
-					}
+				indent("\""+myKey+"\": [\n", writer, level);
+				int queryCounter = 0;
+				if(dirtyResults.get(myKey)!=null) {
+					queryCounter = dirtyResults.get(myKey).size();
 				}
-				level--;
+				else {
+					noSkipSingle = false;
+				}
+				if(noSkipSingle) {
+					level = 2;
+					//System.out.println("Array: "+dirtyResults.get(myKey).toString());
+					for(ArrayList<String> singleQuery:dirtyResults.get(myKey)) {
+						//System.out.println(level);
+						indent("{\n", writer, level);
+						level = 3;
+						queryCounter--;
+						indent("\"where\": \""+singleQuery.get(2)+"\",\n", writer, level);
+						indent("\"count\": "+(int)(Math.round(Double.valueOf(singleQuery.get(1))))+",\n", writer, level);
+						indent("\"score\": "+FORMATTER.format(Double.valueOf(singleQuery.get(0)))+"\n", writer, level);
+						level = 2;
+						if(queryCounter>0) {
+							indent("},\n", writer, level);
+						}
+						else {
+							indent("}\n", writer, level);
+						}
+						
+					}
+					
+				}
+				level = 1;
 				if(counter>0) {
 					indent("],\n", writer, level);
 				}
@@ -341,8 +362,9 @@ public class SimpleJsonWriter {
 					indent("]\n", writer, level);
 				}
 				
+				
 			}
-			
+			writer.write("}");
 			return writer.toString();
 		}
 		catch (IOException e) {
