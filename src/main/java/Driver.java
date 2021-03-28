@@ -8,7 +8,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -140,7 +142,7 @@ public class Driver {
 		//stores the filename to add into temp
 		String filename = null;
 		Path queryPath = null;
-		ArrayList<ArrayList<String>> searchResults = new ArrayList<ArrayList<String>>();
+		Map<String, ArrayList<ArrayList<String>>> searchResults = new HashMap<String, ArrayList<ArrayList<String>>>();
 		//reset the temporary arraylist
 		ArrayList<String> myStorage = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
@@ -261,19 +263,29 @@ public class Driver {
 			myQuerySet = myQueryParser.parse(queryPath);
 			if(myArgMapStem.hasFlag("-exact")) {
 				for(TreeSet<String> singleQuery:myQuerySet) {
-					searchResults.addAll(SearchQuery.exactSearch(myMap, myWordCountMap, singleQuery));
+					String textQuery = "";
+					for(String myQuery:singleQuery) {
+						textQuery += myQuery+" ";
+					}
+					textQuery = textQuery.substring(0, textQuery.length() - 1);
+					searchResults.put(textQuery, SearchQuery.exactSearch(myMap, myWordCountMap, singleQuery));
 				}
 			}
 			else {
 				for(TreeSet<String> singleQuery:myQuerySet) {
-					searchResults.addAll(SearchQuery.partialSearch(myMap, myWordCountMap, singleQuery));
+					String textQuery = "";
+					for(String myQuery:singleQuery) {
+						textQuery += myQuery+" ";
+					}
+					textQuery = textQuery.substring(0, textQuery.length() - 1);
+					searchResults.put(textQuery, SearchQuery.partialSearch(myMap, myWordCountMap, singleQuery));
 				}
 			}
 		}
-		System.out.println(searchResults.toString());
-		
-		
-		//System.out.println(myWordCountMap.toString());
+		if(myArgMapStem.hasFlag("-results")) {
+			String resultPath = myArgMapStem.getString("-counts");
+			
+		}
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
 		double seconds = (double) elapsed.toMillis() / Duration.ofSeconds(1).toMillis();

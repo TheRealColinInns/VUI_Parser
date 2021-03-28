@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -305,5 +306,23 @@ public class SimpleJsonWriter {
 			return null;
 		}
 
+	}
+	public static String asResultNestedArray(Map<String, ArrayList<ArrayList<String>>> dirtyResults) {
+		try {
+			StringWriter writer = new StringWriter();
+			
+			for(String myKey:dirtyResults.keySet()) {
+				int level = 1;
+				writer.write("\""+myKey+"\": [");
+				indent("{", writer, level);
+				level++;
+				//for()
+			}
+			
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
 	}
 }
