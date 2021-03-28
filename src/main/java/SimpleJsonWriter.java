@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -308,15 +309,38 @@ public class SimpleJsonWriter {
 
 	}
 	public static String asResultNestedArray(Map<String, ArrayList<ArrayList<String>>> dirtyResults) {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		try {
 			StringWriter writer = new StringWriter();
-			
+			int counter = dirtyResults.keySet().size();
 			for(String myKey:dirtyResults.keySet()) {
+				counter--;
 				int level = 1;
-				writer.write("\""+myKey+"\": [");
-				indent("{", writer, level);
-				level++;
-				//for()
+				writer.write("\""+myKey+"\": [\n");
+				int queryCounter = dirtyResults.get(myKey).size();
+				for(ArrayList<String> singleQuery:dirtyResults.get(myKey)) {
+					indent("{\n", writer, level);
+					level++;
+					queryCounter--;
+					indent("\"where\": \""+singleQuery.get(2)+"\",\n", writer, level);
+					indent("\"count\": "+singleQuery.get(1)+",\n", writer, level);
+					indent("\"score\": "+FORMATTER.format(singleQuery.get(0))+"\n", writer, level);
+					level--;
+					if(queryCounter>0) {
+						indent("},\n", writer, level);
+					}
+					else {
+						indent("}\n", writer, level);
+					}
+				}
+				level--;
+				if(counter>0) {
+					indent("],\n", writer, level);
+				}
+				else {
+					indent("]\n", writer, level);
+				}
+				
 			}
 			
 			return writer.toString();
