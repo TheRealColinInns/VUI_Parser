@@ -27,7 +27,7 @@ public class QueryParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(querySet.toString());
+		//System.out.println(querySet.toString());
 		return querySet;
 	}
 	private TreeSet<String> parseHelper(String line){

@@ -140,6 +140,7 @@ public class Driver {
 		//stores the filename to add into temp
 		String filename = null;
 		Path queryPath = null;
+		ArrayList<ArrayList<String>> searchResults = new ArrayList<ArrayList<String>>();
 		//reset the temporary arraylist
 		ArrayList<String> myStorage = new ArrayList<String>();
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
@@ -221,14 +222,6 @@ public class Driver {
 			}
 			
 		}
-		if(queryExist) {
-			myQuerySet = myQueryParser.parse(queryPath);
-			if(myArgMapStem.hasFlag("-exact")) {
-				for(TreeSet<String> singleQuery:myQuerySet) {
-					SearchQuery.exactSearch(myMap, myWordCountMap, singleQuery);
-				}
-			}
-		}
 		
 		String countPath;
 		if(myArgMapStem.hasFlag("-counts")) {
@@ -263,7 +256,24 @@ public class Driver {
 			
 			
 		}
-		System.out.println(myWordCountMap.toString());
+		
+		if(queryExist) {
+			myQuerySet = myQueryParser.parse(queryPath);
+			if(myArgMapStem.hasFlag("-exact")) {
+				for(TreeSet<String> singleQuery:myQuerySet) {
+					searchResults.addAll(SearchQuery.exactSearch(myMap, myWordCountMap, singleQuery));
+				}
+			}
+			else {
+				for(TreeSet<String> singleQuery:myQuerySet) {
+					searchResults.addAll(SearchQuery.partialSearch(myMap, myWordCountMap, singleQuery));
+				}
+			}
+		}
+		System.out.println(searchResults.toString());
+		
+		
+		//System.out.println(myWordCountMap.toString());
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
 		double seconds = (double) elapsed.toMillis() / Duration.ofSeconds(1).toMillis();
