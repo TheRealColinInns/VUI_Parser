@@ -195,8 +195,15 @@ public class Driver {
 			pathname = myStorage.get(0);
 		}
 		if(myArgMapStem.hasFlag("-query")) {
-			queryPath = Path.of(myArgMapStem.getString("-query"));
-			queryExist = true;
+			try {
+				queryPath = Path.of(myArgMapStem.getString("-query"));
+				queryExist = true;
+				
+			}
+			catch(Exception e) {
+				queryExist = false;
+			}
+			
 		}
 		
 		//converts the temporary arraylist into the datastructure that I want to use, a nested map
@@ -260,6 +267,7 @@ public class Driver {
 		
 		if(queryExist) {
 			myQuerySet = myQueryParser.parse(queryPath);
+			if(!myQuerySet.isEmpty()) {
 			if(myArgMapStem.hasFlag("-exact")) {
 				for(TreeSet<String> singleQuery:myQuerySet) {
 					String textQuery = "";
@@ -280,18 +288,35 @@ public class Driver {
 					searchResults.put(textQuery, SearchQuery.partialSearch(myMap, myWordCountMap, singleQuery));
 				}
 			}
+			}
+			else {
+				System.out.println("Empty Query");
+			}
 			
 		}
 		if(myArgMapStem.hasFlag("-results")) {
-			String resultPath = myArgMapStem.getString("-results");
+			
+			String resultPath = null; 
+			try {
+				resultPath = myArgMapStem.getString("-results");
+			}
+			catch (Exception e) {
+				System.out.println("Unable to Retrieve Result Path");
+			}
+			if(resultPath==null) {
+				resultPath = "results.json";
+			}
 			//System.out.println("Results: "+searchResults.toString());
 			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(resultPath),StandardCharsets.UTF_8)){
-				writer.write(SimpleJsonWriter.asResultNestedArray(searchResults).toString());
+				if(queryExist) {
+					writer.write(SimpleJsonWriter.asResultNestedArray(searchResults).toString());
+				}
 			} catch (IOException e) {
 				System.out.println("Invalid Path");
 				
 				// Unable to write the inverted to JSON file from -index value: + path (-index value was)
 			}
+			
 		}
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());

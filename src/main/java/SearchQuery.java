@@ -133,14 +133,18 @@ public class SearchQuery {
 	}
 	private static ArrayList<ArrayList<String>> resultSorter(ArrayList<ArrayList<String>> helperList){
 		ArrayList<ArrayList<String>> sortedList = new ArrayList<ArrayList<String>>();
+		boolean foundPosition = false;
 		//System.out.println("Original List: "+helperList.toString());
 		sortedList.add(helperList.get(0));
 		//System.out.println("Helper size: "+helperList.size());
 		int maxCount = helperList.size();
 		for(int i = 1; i<helperList.size(); i++) {
+			foundPosition = false;
 			for(int j = 0; j<sortedList.size(); j++) {
+				if(!sortedList.contains(helperList.get(i))) {
 				if(Double.compare(Double.valueOf(sortedList.get(j).get(0)), Double.valueOf(helperList.get(i).get(0)))<0) {
 					sortedList.add(j, helperList.get(i));
+					foundPosition = true;
 					maxCount--;
 					if (maxCount<=1) {
 						break;
@@ -150,6 +154,7 @@ public class SearchQuery {
 				else if(Double.compare(Double.valueOf(sortedList.get(j).get(0)), Double.valueOf(helperList.get(i).get(0)))==0) {
 					if(Double.compare(Double.valueOf(sortedList.get(j).get(1)), Double.valueOf(helperList.get(i).get(1)))<0) {
 						sortedList.add(j, helperList.get(i));
+						foundPosition = true;
 						maxCount--;
 						if (maxCount<=1) {
 							break;
@@ -159,6 +164,7 @@ public class SearchQuery {
 					else if(Double.compare(Double.valueOf(sortedList.get(j).get(1)), Double.valueOf(helperList.get(i).get(1)))==0) {
 						if(myCompareTo(helperList.get(i).get(2), sortedList.get(j).get(2))>0) {
 							sortedList.add(j, helperList.get(i));
+							foundPosition = true;
 							maxCount--;
 							if (maxCount<=1) {
 								break;
@@ -169,33 +175,43 @@ public class SearchQuery {
 							System.out.println("DUPLICATE ERROR| helper: "+helperList.get(i)+"    sorted: "+sortedList.get(j));
 						}
 						else  {
+							/*
 							sortedList.add(helperList.get(i));
 							maxCount--;
 							if (maxCount<=2) {
 								break;
 							}
+							*/
 							//System.out.println("New Sorted List 4: "+sortedList.toString());
 						}
 						
 					}
 					else {
+						/*
 						sortedList.add(helperList.get(i));
 						maxCount--;
 						if (maxCount<=2) {
 							break;
 						}
+						*/
 						//System.out.println("New Sorted List 5: "+sortedList.toString());
 					}
 					
 				}
 				else {
+					/*
 					sortedList.add(helperList.get(i));
 					maxCount--;
 					if (maxCount<=2) {
 						break;
 					}
+					*/
 					//System.out.println("New Sorted List 6: "+sortedList.toString());
 				}
+				}
+			}
+			if(!foundPosition) {
+				sortedList.add(helperList.get(i));
 			}
 			
 		}
