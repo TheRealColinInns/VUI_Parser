@@ -83,7 +83,7 @@ public class SearchQuery {
 				//System.out.println("keySet: "+flippedMap.get(mainKey).keySet());
 				for(String queryWord:querySet) {
 					//System.out.println("Result Count Check: "+queryWord+" | "+wordKey);
-					if(queryWord.contains(wordKey)) {
+					if(partialSearcher(wordKey, queryWord)) {
 						int resultCount = 0;
 						if(pathCount.containsKey(pathKey)) {
 							if(pathCount.get(pathKey)!=null) {
@@ -139,7 +139,7 @@ public class SearchQuery {
 		int maxCount = helperList.size();
 		for(int i = 1; i<helperList.size(); i++) {
 			for(int j = 0; j<sortedList.size(); j++) {
-				if(Double.valueOf(helperList.get(i).get(0))>Double.valueOf(sortedList.get(j).get(0))) {
+				if(Double.compare(Double.valueOf(sortedList.get(j).get(0)), Double.valueOf(helperList.get(i).get(0)))<0) {
 					sortedList.add(j, helperList.get(i));
 					maxCount--;
 					if (maxCount<=1) {
@@ -147,8 +147,8 @@ public class SearchQuery {
 					}
 					//System.out.println("New Sorted List 1: "+sortedList.toString());
 				}
-				else if(Double.valueOf(helperList.get(i).get(0))==Double.valueOf(sortedList.get(j).get(0))) {
-					if(Double.valueOf(helperList.get(i).get(1))>Double.valueOf(sortedList.get(j).get(1))) {
+				else if(Double.compare(Double.valueOf(sortedList.get(j).get(0)), Double.valueOf(helperList.get(i).get(0)))==0) {
+					if(Double.compare(Double.valueOf(sortedList.get(j).get(1)), Double.valueOf(helperList.get(i).get(1)))<0) {
 						sortedList.add(j, helperList.get(i));
 						maxCount--;
 						if (maxCount<=1) {
@@ -156,7 +156,7 @@ public class SearchQuery {
 						}
 						//System.out.println("New Sorted List 2: "+sortedList.toString());
 					}
-					else if(Double.valueOf(helperList.get(i).get(1))==Double.valueOf(sortedList.get(j).get(1))) {
+					else if(Double.compare(Double.valueOf(sortedList.get(j).get(1)), Double.valueOf(helperList.get(i).get(1)))==0) {
 						if(myCompareTo(helperList.get(i).get(2), sortedList.get(j).get(2))>0) {
 							sortedList.add(j, helperList.get(i));
 							maxCount--;
@@ -203,12 +203,26 @@ public class SearchQuery {
 		return sortedList;
 	}
 	private static int myCompareTo(String firstString, String secondString) {
+		/*
 		firstString = TextParser.clean(firstString);
 		secondString = TextParser.clean(secondString);
-		return firstString.compareToIgnoreCase(secondString);
+		*/
+		return secondString.compareToIgnoreCase(firstString);
 	}
 	private static boolean partialSearcher(String wordKey, String query) {
-		
+		String compareWord;
+		if(wordKey.equals(query)) {
+			return true;
+		}
+		if(query.length()<wordKey.length()){
+			compareWord = wordKey.substring(0, query.length());
+		}
+		else {
+			return false;
+		}
+		if(compareWord.equals(query)) {
+			return true;
+		}
 		return false;
 	}
 }
