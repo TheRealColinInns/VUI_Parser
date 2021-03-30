@@ -33,15 +33,15 @@ public class SimpleJsonWriter {
 	public static void asArray(Collection<Integer> elements, Writer writer,
 			int level) throws IOException {
 		level++;
-		boolean revfirstTimer = false;
+		boolean firstTimer = false;
 		
 		writer.write("[\n");
 		for(Integer item:elements) {
-			if(revfirstTimer) {
+			if(firstTimer) {
 				writer.write(",\n");
 			}
 			indent(item.toString(), writer, level);
-			revfirstTimer = true;
+			firstTimer = true;
 		}
 		if(!elements.isEmpty()) {
 			writer.write("\n");
@@ -62,15 +62,15 @@ public class SimpleJsonWriter {
 	public static void asObject(Map<String, Integer> elements, Writer writer,
 			int level) throws IOException {
 		level++;
-		boolean revfirstTimer = false;
+		boolean firstTimer = false;
 		writer.write("{\n");
 		for(Map.Entry<String,Integer> item : elements.entrySet()) {
-			if(revfirstTimer) {
+			if(firstTimer) {
 				writer.write(",\n");
 			}
 			
 			indent("\""+item.getKey()+"\": "+item.getValue(), writer, level);
-			revfirstTimer = true;
+			firstTimer = true;
 		}
 		if(!elements.isEmpty()) {
 			writer.write("\n");
