@@ -22,6 +22,9 @@ import java.util.Map.Entry;
  * @version Spring 2021
  */
 public class SimpleJsonWriter {
+	// TODO Try to re-think by removing any kind of conditional within a loop here. See CampusWire #346: https://campuswire.com/c/G2DE6C962/feed/346
+	// TODO Try to use this same approach for all these methods
+	
 	/**
 	 * Writes the elements as a pretty JSON array.
 	 *
@@ -92,6 +95,9 @@ public class SimpleJsonWriter {
 			Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements, Writer writer,
 			int level) throws IOException {
 		level++;
+		
+		// TODO Make sure your methods are general enough you can call them here
+		
 		//boolean revfirstTimer = false;
 		writer.write("{\n");
 		int putSqigBracketComma = elements.size();

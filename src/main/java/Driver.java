@@ -42,7 +42,9 @@ public class Driver {
 		//Map that the ArrayList will eventually convert itself into
 		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
 		
-		
+		// TODO Split the data storage versus data parsing logic into separate classes (e.g. a data structure class that focuses on storage with as few assumptions as possible, and a "builder" or "factory" class that creates that data structure in a specific way)
+
+		// TODO What this means is put myMap in an "InvertedIndex" class and moving more of this to your DataConverter class.
 		
 		//this gets and adds all the elements from all files and directories located at the input file into the simple storage system
 		if(myArgumentMapStem.hasFlag("-text")) {

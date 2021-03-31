@@ -42,7 +42,8 @@ public class ArgumentMap {
 	 *
 	 * @param args the command line arguments to parse
 	 */
-	public void parse(String[] args) {	
+	public void parse(String[] args) { // TODO Formatted
+		// TODO Can simplify (can remove the replace methods)
 		for (int i = 0; i<args.length; i++) {
 			if(isFlag(args[i])) {
 				try {
@@ -64,7 +65,7 @@ public class ArgumentMap {
 						}
 					}
 				}
-				catch (Exception IndexOutOfBoundsException) {
+				catch (Exception IndexOutOfBoundsException) { // TODO Avoid the exception in this case
 					if(hasFlag(args[i])) {
 						map.replace(args[i], null);
 					}
@@ -89,6 +90,10 @@ public class ArgumentMap {
 	 * @see Character#isLetter(int)
 	 */
 	public static boolean isFlag(String arg) {
+		// TODO 
+//		return arg != null && arg.length() > 1 && arg.startsWith("-") 
+//				&& Character.isLetter(arg.codePointAt(1));
+		
 		try {
 			if(arg.length()>1) {
 				if (arg.startsWith("-")) {
@@ -99,7 +104,7 @@ public class ArgumentMap {
 			}
 		return false;
 		}
-		catch(Exception e){
+		catch(Exception e){ // TODO This is tricky but could actually hide a bug
 			return false;
 		}
 	}
@@ -131,6 +136,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag exists
 	 */
 	public boolean hasFlag(String flag) {
+		// TODO Simplify
 		try {
 			if (map.containsKey(flag)) {
 				return true;
@@ -151,6 +157,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
+		// TODO Simplify
 		try {
 			if(map.get(flag)!=null) {
 				return true;
