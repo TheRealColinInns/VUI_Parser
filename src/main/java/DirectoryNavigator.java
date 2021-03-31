@@ -18,6 +18,7 @@ public class DirectoryNavigator {
 	 * paths to the console. For files, also includes the file size in bytes.
 	 *
 	 * @param start the initial path to traverse
+	 * @param myStorage the data structure in which the data is stored
 	 * @throws IOException if an I/O error occurs
 	 */
 	public static void printListing(Path start, ArrayList<String> myStorage) throws IOException {
@@ -40,6 +41,7 @@ public class DirectoryNavigator {
 	 * paths to the console. For files, also includes the file size in bytes.
 	 *
 	 * @param directory the directory to traverse
+	 * @param myStorage the data structure in which the data is stored
 	 * @throws IOException if an I/O error occurs
 	 */
 	private static void traverseDirectory(Path directory, ArrayList<String> myStorage) throws IOException {

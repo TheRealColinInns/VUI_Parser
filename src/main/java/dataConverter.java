@@ -5,7 +5,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Class responsible for converting an array list into the map<string, map<string, collection<integer>>> data structure
+ * Class responsible for converting an array list into the map data structure desired
  * that will be very important later for creating the json file
  *
  * @author CS 212 Software Development
@@ -17,6 +17,7 @@ public class dataConverter {
 	 * Converts the array list into our desired data structure using what we know about the indexes of specific pieces of data
 	 *
 	 * @param myStorage the array list that will be converted into the more useful data structure
+	 * @return a nested map in the correct data structure for the json file
 	 */
 	public static Map<String, Map<String, Collection<Integer>>> arrayListToMap(ArrayList<String> myStorage) {
 		//myMap the data structure we want, will be filled and returned
