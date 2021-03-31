@@ -1,4 +1,3 @@
-//Colin Inns
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,16 +34,15 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static ArrayList<String> listStems(String line, Stemmer stemmer, int lineNum) {
-		ArrayList<String> tempList = new ArrayList<String>();
-		String[] tempList2;
-		String temp = line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase();
-		tempList2 = TextParser.parse(temp);
-		if(tempList2.length>0) {
-			for(String i:tempList2) {
+		ArrayList<String> myList = new ArrayList<String>();
+		String[] helperList;
+		helperList = TextParser.parse(line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase());
+		if(helperList.length>0) {
+			for(String i:helperList) {
 				try {
 					if(Character.isLetter(i.charAt(0))) {
-						tempList.add(stemmer.stem(i).toString());
-						tempList.add(String.valueOf(lineNum+=1));
+						myList.add(stemmer.stem(i).toString());
+						myList.add(String.valueOf(lineNum+=1));
 					}
 
 				}
@@ -53,7 +51,7 @@ public class TextFileStemmer {
 				}
 			}
 		}
-		return tempList;
+		return myList;
 	}
 
 	/**
