@@ -45,7 +45,6 @@ public class TextFileStemmer {
 	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
 	 * @param stems   the mutable collection we will edit
-	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 * @see TextParser#parse(String)
@@ -59,14 +58,13 @@ public class TextFileStemmer {
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
-	 * @param line    the line of words to clean, split, and stem
-	 * @param lineNum line number
-	 * @param stems   the collection
+	 * @param line  the line of words to clean, split, and stem
+	 * @param stems the collection
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see SnowballStemmer
 	 * @see #DEFAULT
-	 * @see #listStems(String, Stemmer, int)
+	 * @see #listStems(String, Stemmer, Collection)
 	 */
 	public static Collection<String> listStems(String line, Collection<String> stems) {
 		return listStems(line, new SnowballStemmer(DEFAULT), stems);

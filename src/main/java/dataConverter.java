@@ -23,7 +23,6 @@ public class dataConverter {
 	 * @param myStorage       the array list that will be converted into the more
 	 *                        useful data structure
 	 * @param myInvertedIndex the inverted index where out data structure is
-	 * @return a nested map in the correct data structure for the json file
 	 */
 	public static void arrayListToMap(ArrayList<String> myStorage, InvertedIndex myInvertedIndex) {
 		// myMap the data structure we want, will be filled and returned
@@ -71,7 +70,6 @@ public class dataConverter {
 	 * @param myStorage the array list that will be converted into the more useful
 	 *                  data structure
 	 * @param myPath    the path that the arraylist is going to grab the data from
-	 * @return a nested map in the correct data structure for the json file
 	 * @throws IOException it really shouldn't throw tho
 	 */
 	public static void createStorage(Path myPath, ArrayList<String> myStorage) throws IOException {
