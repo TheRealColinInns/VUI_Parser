@@ -26,7 +26,7 @@ public class TextFileStemmer {
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
-	 * @param line the line of words to clean, split, and stem
+	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
 	 * @return a list of cleaned and stemmed words
 	 *
@@ -35,15 +35,15 @@ public class TextFileStemmer {
 	public static Collection<String> listStems(String line, Stemmer stemmer, Collection<String> stems) {
 		stemLine(line, stemmer, stems);
 		return stems;
-		
+
 	}
-	
+
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
-	 * @param line the line of words to clean, split, and stem
+	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
-	 * @param stems the mutable collection we will edit
+	 * @param stems   the mutable collection we will edit
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
@@ -54,12 +54,11 @@ public class TextFileStemmer {
 			stems.add(stemmer.stem(word).toString());
 		}
 	}
-	
 
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
-	 * @param line the line of words to clean, split, and stem
+	 * @param line    the line of words to clean, split, and stem
 	 * @param lineNum line number
 	 * @return a list of cleaned and stemmed words
 	 *
@@ -70,7 +69,6 @@ public class TextFileStemmer {
 	public static Collection<String> listStems(String line, Collection<String> stems) {
 		return listStems(line, new SnowballStemmer(DEFAULT), stems);
 	}
-
 
 	/**
 	 * Reads a file line by line, parses each line into cleaned and stemmed words,
@@ -84,21 +82,22 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static ArrayList<String> listStems(Path inputFile) throws IOException {
-		//you suggested to create another stemmer here however I don't see the purpose, wouldn't that be inneficient
-		ArrayList<String> stems = new ArrayList<String>(); 
+		// you suggested to create another stemmer here however I don't see the purpose,
+		// wouldn't that be inneficient
+		ArrayList<String> stems = new ArrayList<String>();
 		stems.add(inputFile.toString());
-		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
-			for(String line = myBufferedReader.readLine(); line !=null; line = myBufferedReader.readLine()) {
+		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
+			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
 				listStems(line, stems);
 			}
 		}
 		return stems;
-		
+
 	}
 
 	/**
-	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed
-	 * from the provided line.
+	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
+	 * the provided line.
 	 *
 	 * @param line the line of words to clean, split, and stem
 	 * @return a sorted set of unique cleaned and stemmed words
@@ -112,10 +111,10 @@ public class TextFileStemmer {
 	}
 
 	/**
-	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed
-	 * from the provided line.
+	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
+	 * the provided line.
 	 *
-	 * @param line the line of words to clean, split, and stem
+	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
 	 * @return a sorted set of unique cleaned and stemmed words
 	 *
@@ -127,7 +126,6 @@ public class TextFileStemmer {
 		stems.addAll(listStems(line, stemmer, stems));
 		return stems;
 	}
-	
 
 	/**
 	 * Reads a file line by line, parses each line into cleaned and stemmed words,

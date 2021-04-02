@@ -14,10 +14,10 @@ import java.util.ArrayList;
  */
 public class DirectoryNavigator {
 	/**
-	 * Traverses through the directory and its subdirectories, outputting all
-	 * paths to the console. For files, also includes the file size in bytes.
+	 * Traverses through the directory and its subdirectories, outputting all paths
+	 * to the console. For files, also includes the file size in bytes.
 	 *
-	 * @param start the initial path to traverse
+	 * @param start     the initial path to traverse
 	 * @param myStorage the data structure in which the data is stored
 	 * @throws IOException if an I/O error occurs
 	 */
@@ -27,18 +27,19 @@ public class DirectoryNavigator {
 			// output trailing slash to indicate directory
 			// start directory traversal
 			traverseDirectory(start, myStorage);
-		}
-		else {
-			// and to the placeholder arraylist, make sure it is a text file because this is in a directory
-			if(start.toString().toLowerCase().endsWith(".txt")||start.toString().toLowerCase().endsWith(".text")) {
+		} else {
+			// and to the placeholder arraylist, make sure it is a text file because this is
+			// in a directory
+			if (start.toString().toLowerCase().endsWith(".txt") || start.toString().toLowerCase().endsWith(".text")) {
 				myStorage.addAll(TextFileStemmer.listStems(start));
 			}
-			
+
 		}
 	}
+
 	/**
-	 * Traverses through the directory and its subdirectories, outputting all
-	 * paths to the console. For files, also includes the file size in bytes.
+	 * Traverses through the directory and its subdirectories, outputting all paths
+	 * to the console. For files, also includes the file size in bytes.
 	 *
 	 * @param directory the directory to traverse
 	 * @param myStorage the data structure in which the data is stored
@@ -46,8 +47,8 @@ public class DirectoryNavigator {
 	 */
 	private static void traverseDirectory(Path directory, ArrayList<String> myStorage) throws IOException {
 		/*
-		 * The try-with-resources block makes sure we close the directory stream
-		 * when done, to make sure there aren't any issues later when accessing this
+		 * The try-with-resources block makes sure we close the directory stream when
+		 * done, to make sure there aren't any issues later when accessing this
 		 * directory.
 		 *
 		 * Note, however, we are still not catching any exceptions. This type of try

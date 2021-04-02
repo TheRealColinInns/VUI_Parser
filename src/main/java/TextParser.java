@@ -17,8 +17,8 @@ public class TextParser {
 
 	/**
 	 * Cleans the text by removing any non-alphabetic characters (e.g. non-letters
-	 * like digits, punctuation, symbols, and diacritical marks like the umlaut)
-	 * and converting the remaining characters to lowercase.
+	 * like digits, punctuation, symbols, and diacritical marks like the umlaut) and
+	 * converting the remaining characters to lowercase.
 	 *
 	 * @param text the text to clean
 	 * @return cleaned text
