@@ -72,7 +72,7 @@ public class dataConverter {
 	 *                  data structure
 	 * @param myPath    the path that the arraylist is going to grab the data from
 	 * @return a nested map in the correct data structure for the json file
-	 * @throws IOException
+	 * @throws IOException it really shouldn't throw tho
 	 */
 	public static void createStorage(Path myPath, ArrayList<String> myStorage) throws IOException {
 		if (Files.isRegularFile(myPath)) {

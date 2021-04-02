@@ -15,7 +15,9 @@ import java.util.TreeMap;
  * @version Spring 2021
  */
 public class InvertedIndex {
-	// this is the form our inverted index is going to follow
+	/**
+	 * this is our data structure
+	 */
 	public Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
 
 	/**
