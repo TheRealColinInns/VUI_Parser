@@ -28,6 +28,7 @@ public class TextFileStemmer {
 	 *
 	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
+	 * @param stems   the collection
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
@@ -60,6 +61,7 @@ public class TextFileStemmer {
 	 *
 	 * @param line    the line of words to clean, split, and stem
 	 * @param lineNum line number
+	 * @param stems   the collection
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see SnowballStemmer

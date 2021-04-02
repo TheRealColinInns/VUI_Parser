@@ -7,6 +7,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Class responsible for storing the data structure See the README for details.
+ *
+ * @author CS 212 Software Development, Colin Inns
+ * @author University of San Francisco
+ * @version Spring 2021
+ */
 public class InvertedIndex {
 	// this is the form our inverted index is going to follow
 	public Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
