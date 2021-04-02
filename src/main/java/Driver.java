@@ -31,17 +31,7 @@ public class Driver {
 		// ArrayList myStorage is used as a temporary basic data structure that will be
 		// converted to a map later
 		ArrayList<String> myStorage = new ArrayList<String>();
-		// Map that the ArrayList will eventually convert itself into
 
-		// TODO Split the data storage versus data parsing logic into separate classes
-		// (e.g. a data structure class that focuses on storage with as few assumptions
-		// as possible, and a "builder" or "factory" class that creates that data
-		// structure in a specific way)
-
-		// TODO What this means is put myMap in an "InvertedIndex" class and moving more
-		// of this to your DataConverter class.
-
-		// this gets and adds all the elements from all files and directories located at
 		// the input file into the simple storage system
 		if (myArgumentMapStem.hasFlag("-text")) {
 			Path myPath = null;
