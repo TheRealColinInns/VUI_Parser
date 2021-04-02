@@ -1,14 +1,9 @@
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
+
 
 
 /**
@@ -40,7 +35,7 @@ public class Driver {
 		//ArrayList myStorage is used as a temporary basic data structure that will be converted to a map later
 		ArrayList<String> myStorage = new ArrayList<String>();
 		//Map that the ArrayList will eventually convert itself into
-		Map<String, Map<String, Collection<Integer>>> myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
+		
 		
 		// TODO Split the data storage versus data parsing logic into separate classes (e.g. a data structure class that focuses on storage with as few assumptions as possible, and a "builder" or "factory" class that creates that data structure in a specific way)
 
@@ -56,39 +51,32 @@ public class Driver {
 					pathExist = false;
 				}
 				if(pathExist) {
-					if(Files.isRegularFile(myPath)) {
-						myStorage.addAll(TextFileStemmer.listStems(myPath));
-						System.out.println("Falure while getting path: "+myPath.toString());
 					
-					}
-					else {
+					dataConverter.createStorage(myPath, myStorage);
 					
-						DirectoryNavigator.printListing(myPath, myStorage);
-						System.out.println("Falure while getting directory at path: "+myPath.toString());
-					}
+					
 				}
 			}
 			catch(Exception e) {
-				
+				System.out.println("There was an IO exception while creating the data structure from path a null path");
 			}
+			
+			
 			
 		}
 		
 		//This step converts the basic arraylist into a more complex map data structure which will be much more useful later
-		myMap = dataConverter.arrayListToMap(myStorage);
+		InvertedIndex myInvertedIndex = new InvertedIndex();
+		dataConverter.arrayListToMap(myStorage, myInvertedIndex);
 		
 		
-		//This gets the path and prints to that path a pretty json file of the map data structure previously created in the last step
+		
 		if(myArgumentMapStem.hasFlag("-index")) {
 			String filename = myArgumentMapStem.getString("-index");
 			if(filename==null) {
 				filename = "index.json";
 			}
-			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(filename),StandardCharsets.UTF_8)){
-				writer.write(SimpleJsonWriter.asNestedArray(myMap).toString());
-			} catch (IOException e) {
-				System.out.println("Unable to write the inverted to JSON file from -index value: "+filename);
-			}
+			myInvertedIndex.dataWriter(filename);
 		}
 		
 		 

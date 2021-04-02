@@ -42,37 +42,21 @@ public class ArgumentMap {
 	 *
 	 * @param args the command line arguments to parse
 	 */
-	public void parse(String[] args) { // TODO Formatted
-		// TODO Can simplify (can remove the replace methods)
+	public void parse(String[] args) { 
 		for (int i = 0; i<args.length; i++) {
 			if(isFlag(args[i])) {
-				try {
+				if(i!=args.length-1) {
 					if(isValue(args[i+1])) {
-						if(hasFlag(args[i])) {
-							map.replace(args[i], args[++i]);
-						}
-						else {
-							map.put(args[i], args[++i]);
-						}
-					
-					}
-					else {
-						if(hasFlag(args[i])) {
-							map.replace(args[i], null);
-						}
-						else {
-							map.put(args[i], null);
-						}
-					}
-				}
-				catch (Exception IndexOutOfBoundsException) { // TODO Avoid the exception in this case
-					if(hasFlag(args[i])) {
-						map.replace(args[i], null);
+						map.put(args[i], args[++i]);
 					}
 					else {
 						map.put(args[i], null);
 					}
 				}
+				else {
+					map.put(args[i], null);
+				}
+				
 			}
 		}
 	}
@@ -90,23 +74,7 @@ public class ArgumentMap {
 	 * @see Character#isLetter(int)
 	 */
 	public static boolean isFlag(String arg) {
-		// TODO 
-//		return arg != null && arg.length() > 1 && arg.startsWith("-") 
-//				&& Character.isLetter(arg.codePointAt(1));
-		
-		try {
-			if(arg.length()>1) {
-				if (arg.startsWith("-")) {
-					if(Character.isLetter(arg.codePointAt(1))) {
-						return true;
-					}
-				}
-			}
-		return false;
-		}
-		catch(Exception e){ // TODO This is tricky but could actually hide a bug
-			return false;
-		}
+		return arg != null && arg.length() > 1 && arg.startsWith("-") && Character.isLetter(arg.codePointAt(1));
 	}
 
 	/**
@@ -136,18 +104,14 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag exists
 	 */
 	public boolean hasFlag(String flag) {
-		// TODO Simplify
-		try {
-			if (map.containsKey(flag)) {
-				return true;
-			}
-			else {
-				return false;
-			}
+		if (map.containsKey(flag)) {
+			return true;
 		}
-		catch (Exception ClassCastException) {
+		else {
 			return false;
 		}
+		
+		
 	}
 
 	/**
@@ -157,16 +121,10 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-		// TODO Simplify
-		try {
-			if(map.get(flag)!=null) {
-				return true;
-			}
-			else {
-				return false;
-			}
+		if(map.get(flag)!=null) {
+			return true;
 		}
-		catch(Exception e) {
+		else {
 			return false;
 		}
 	}

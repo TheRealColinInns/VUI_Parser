@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 /**
@@ -35,23 +35,16 @@ public class SimpleJsonWriter {
 	 */
 	public static void asArray(Collection<Integer> elements, Writer writer,
 			int level) throws IOException {
-		level++;
-		boolean firstTimer = false;
-		
-		writer.write("[\n");
-		for(Integer item:elements) {
-			if(firstTimer) {
+		Iterator<Integer> elementsIterator = elements.iterator();
+		while(elementsIterator.hasNext()) {
+			indent(elementsIterator.next().toString(), writer, level);
+			if(elementsIterator.hasNext()) {
 				writer.write(",\n");
 			}
-			indent(item.toString(), writer, level);
-			firstTimer = true;
+			else {
+				writer.write("\n");
+			}
 		}
-		if(!elements.isEmpty()) {
-			writer.write("\n");
-		}
-		writer.write("]");
-
-		
 	}
 
 	/**
@@ -64,21 +57,21 @@ public class SimpleJsonWriter {
 	 */
 	public static void asObject(Map<String, Integer> elements, Writer writer,
 			int level) throws IOException {
+		indent("{\n", writer, level);
 		level++;
-		boolean firstTimer = false;
-		writer.write("{\n");
-		for(Map.Entry<String,Integer> item : elements.entrySet()) {
-			if(firstTimer) {
+		Iterator<String> keyIterator = elements.keySet().iterator();
+		while(keyIterator.hasNext()) {
+			String next = keyIterator.next();
+			indent("\""+next+"\": "+elements.get(next), writer, level);
+			if(keyIterator.hasNext()) {
 				writer.write(",\n");
 			}
-			
-			indent("\""+item.getKey()+"\": "+item.getValue(), writer, level);
-			firstTimer = true;
+			else {
+				writer.write("\n");
+			}
 		}
-		if(!elements.isEmpty()) {
-			writer.write("\n");
-		}
-		writer.write("}");
+		level--;
+		indent("}", writer, level);
 	}
 
 	/**
@@ -94,50 +87,37 @@ public class SimpleJsonWriter {
 	public static void asNestedArray(
 			Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements, Writer writer,
 			int level) throws IOException {
+		indent("{\n", writer, level);
 		level++;
-		
-		// TODO Make sure your methods are general enough you can call them here
-		
-		//boolean revfirstTimer = false;
-		writer.write("{\n");
-		int putSqigBracketComma = elements.size();
-		for(Entry<String, ? extends Map<String, ? extends Collection<Integer>>> item : elements.entrySet()) {
-			int putBracketComma = item.getValue().size();
-			indent("\""+item.getKey()+"\": {\n",writer, level);
+		Iterator<String> wordIterator = elements.keySet().iterator();
+		while(wordIterator.hasNext()) {
+			String wordNext = wordIterator.next();
+			indent("\""+wordNext+"\": {\n", writer, level);
 			level++;
-			for(Entry<String, ? extends Collection<Integer>> nestedItem:item.getValue().entrySet()) {
-				int putNumberComma = nestedItem.getValue().size();
-				indent("\""+nestedItem.getKey()+"\": [\n",writer, level);
+			Iterator<String> pathIterator = elements.get(wordNext).keySet().iterator();
+			while(pathIterator.hasNext()) {
+				String pathNext = pathIterator.next();
+				indent("\""+pathNext+"\": [\n", writer, level);
 				level++;
-				for(Integer nestedInt:nestedItem.getValue()) {
-					if(putNumberComma>1) {
-						indent(nestedInt.toString()+",\n",writer, level);
-					}
-					else {
-						indent(nestedInt.toString()+"\n",writer, level);
-						level--;
-					}
-					putNumberComma--;
-				}
-				if(putBracketComma>1) {
-					indent("],\n",writer, level);
+				asArray(elements.get(wordNext).get(pathNext), writer, level);
+				level--;
+				indent("]", writer, level);
+				if(pathIterator.hasNext()) {
+					writer.write(",\n");
 				}
 				else {
-					indent("]\n",writer, level);
-					level--;
+					writer.write("\n");
 				}
-				putBracketComma--;
 			}
-			if(putSqigBracketComma>1) {
-				indent("},\n",writer,level);
+			level--;
+			indent("}", writer, level);
+			if(wordIterator.hasNext()) {
+				writer.write(",\n");
 			}
 			else {
-				indent("}\n",writer,level);
+				writer.write("\n");
 			}
-			putSqigBracketComma--;
-			
 		}
-		
 		writer.write("}");
 	}
 
@@ -287,4 +267,5 @@ public class SimpleJsonWriter {
 		writer.write(element);
 		writer.write('"');
 	}
+	
 }

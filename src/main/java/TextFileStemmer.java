@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeSet;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -27,48 +28,33 @@ public class TextFileStemmer {
 	 *
 	 * @param line the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
-	 * @param lineNum line number
+	 * @return a list of cleaned and stemmed words
+	 *
+	 * @see Stemmer#stem(CharSequence)
+	 */
+	public static Collection<String> listStems(String line, Stemmer stemmer, Collection<String> stems) {
+		stemLine(line, stemmer, stems);
+		return stems;
+		
+	}
+	
+	/**
+	 * Returns a list of cleaned and stemmed words parsed from the provided line.
+	 *
+	 * @param line the line of words to clean, split, and stem
+	 * @param stemmer the stemmer to use
+	 * @param stems the mutable collection we will edit
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 * @see TextParser#parse(String)
 	 */
-	// TODO Need to make this more general and object-oriented
-	public static ArrayList<String> listStems(String line, Stemmer stemmer, int lineNum) {
-		ArrayList<String> myList = new ArrayList<String>();
-		String[] helperList;
-		// TODO Could just call TextParser.parse
-		helperList = TextParser.parse(line.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+","").toLowerCase());
-		if(helperList.length>0) { // TODO Remove
-			for(String i:helperList) {
-				try {
-					if(Character.isLetter(i.charAt(0))) {
-						myList.add(stemmer.stem(i).toString());
-						myList.add(String.valueOf(lineNum+=1));
-					}
-
-				}
-				catch(Exception E) { // TODO Remove the try/catch
-					
-				}
-			}
-		}
-		return myList;
-		
-		/* TODO 
-		ArrayList<String> stems = new ArrayList<String>();
-		stemLine(line, stemmer, stems);
-		return stems;
-		*/
-	}
-	
-	/* TODO 
 	public static void stemLine(String line, Stemmer stemmer, Collection<String> stems) {
 		for (String word : TextParser.parse(line)) {
 			stems.add(stemmer.stem(word).toString());
 		}
 	}
-	*/
+	
 
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
@@ -81,11 +67,11 @@ public class TextFileStemmer {
 	 * @see #DEFAULT
 	 * @see #listStems(String, Stemmer, int)
 	 */
-	public static ArrayList<String> listStems(String line, int lineNum) {
-		return listStems(line, new SnowballStemmer(DEFAULT), lineNum);
+	public static Collection<String> listStems(String line, Collection<String> stems) {
+		return listStems(line, new SnowballStemmer(DEFAULT), stems);
 	}
 
-	// TODO Better variable names
+
 	/**
 	 * Reads a file line by line, parses each line into cleaned and stemmed words,
 	 * and then adds those words to a set.
@@ -98,31 +84,15 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static ArrayList<String> listStems(Path inputFile) throws IOException {
-		// TODO Make general where not worried about line numbers
-		ArrayList<String> mylist = new ArrayList<String>(); // TODO stems
-		mylist.add(inputFile.toString());
-		int lineNum = 0;
-		// TODO Stemmer stemmer = ...
-		try (BufferedReader mybr = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
-			for(String line = mybr.readLine(); line !=null; line = mybr.readLine()) {
-				// TODO Call stemLine(line, stemmer, mylist);
-				try {
-					lineNum = Integer.parseInt(mylist.get(mylist.size()-1));
-				}
-				catch(Exception e1) {
-					
-				}
-				// TODO Inefficient (3 reasons)
-				// TODO 1) Usually slower to add 1 at a time versus call an addAll method
-				// TODO 2) Avoid copying entirely when possible
-				// TODO 3) Creates so many unused objects!
-				for(String i:listStems(line, lineNum)) {
-					mylist.add(i);
-				}
-				
+		//you suggested to create another stemmer here however I don't see the purpose, wouldn't that be inneficient
+		ArrayList<String> stems = new ArrayList<String>(); 
+		stems.add(inputFile.toString());
+		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);){
+			for(String line = myBufferedReader.readLine(); line !=null; line = myBufferedReader.readLine()) {
+				listStems(line, stems);
 			}
 		}
-		return mylist;
+		return stems;
 		
 	}
 
@@ -152,16 +122,10 @@ public class TextFileStemmer {
 	 * @see Stemmer#stem(CharSequence)
 	 * @see TextParser#parse(String)
 	 */
-	
 	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {
-		TreeSet<String> myset = new TreeSet<String>();
-		// TODO There is a way to reuse code without introducing an efficiency issue
-		for(String i:listStems(line, stemmer, 0)){
-			if(!myset.contains(i)) { // TODO Remove
-				myset.add(i);
-			}
-		}
-		return myset;
+		TreeSet<String> stems = new TreeSet<String>();
+		stems.addAll(listStems(line, stemmer, stems));
+		return stems;
 	}
 	
 
@@ -177,13 +141,8 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static TreeSet<String> uniqueStems(Path inputFile) throws IOException {
-		TreeSet<String> myset = new TreeSet<String>();
-		for(String i:listStems(inputFile)){ // TODO Similar issues
-			if(!myset.contains(i)) {
-				myset.add(i);
-			}
-		}
-		
-		return myset;
+		TreeSet<String> stems = new TreeSet<String>();
+		stems.addAll(listStems(inputFile));
+		return stems;
 	}
 }
