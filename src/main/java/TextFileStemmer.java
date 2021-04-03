@@ -9,6 +9,14 @@ import java.util.TreeSet;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
+/*
+ * TODO Only stemLine needs to pass in a collection. The other listStems and uniqueStems
+ * methods should not---changes those back to the original method declarations. 
+ * 
+ * If you aren't quite clear on what the original issues were and how to fix them, please
+ * stop by office hours or post on CampusWire!
+ */
+
 /**
  * Utility class for parsing and stemming text and text files into collections
  * of stemmed words.
@@ -88,7 +96,7 @@ public class TextFileStemmer {
 		stems.add(inputFile.toString());
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
-				listStems(line, stems);
+				listStems(line, stems); // TODO Call stemLine instead
 			}
 		}
 		return stems;
@@ -123,7 +131,7 @@ public class TextFileStemmer {
 	 */
 	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {
 		TreeSet<String> stems = new TreeSet<String>();
-		stems.addAll(listStems(line, stemmer, stems));
+		stems.addAll(listStems(line, stemmer, stems)); // TODO Same efficiency issue we already discussed?
 		return stems;
 	}
 
@@ -140,7 +148,7 @@ public class TextFileStemmer {
 	 */
 	public static TreeSet<String> uniqueStems(Path inputFile) throws IOException {
 		TreeSet<String> stems = new TreeSet<String>();
-		stems.addAll(listStems(inputFile));
+		stems.addAll(listStems(inputFile)); // TODO Same efficiency issue we already discussed?
 		return stems;
 	}
 }

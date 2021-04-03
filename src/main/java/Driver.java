@@ -25,15 +25,32 @@ public class Driver {
 		Instant start = Instant.now();
 
 		// Creates my argument map and parses the command line arguments
-		ArgumentMap myArgumentMapStem = new ArgumentMap();
+		ArgumentMap myArgumentMapStem = new ArgumentMap(); // TODO Rethink name
 		myArgumentMapStem.parse(args);
 
 		// ArrayList myStorage is used as a temporary basic data structure that will be
 		// converted to a map later
-		ArrayList<String> myStorage = new ArrayList<String>();
+		ArrayList<String> myStorage = new ArrayList<String>(); // TODO Remove, only storage needed up here should be the inverted index
 
 		// the input file into the simple storage system
 		if (myArgumentMapStem.hasFlag("-text")) {
+			// TODO Simplify!
+			/*
+			 * TODO Path input = ...
+			 * 
+			 * if (input is null) { warn }
+			 * else {
+			 * 	try {
+			 * 		call 1 method here
+			 * 	}
+			 * 	catch ( ) {
+			 * 		user friendly output
+			 * 	}
+			 * }
+			 * 
+			 * No need for the boolean variable.
+			 *
+			 */
 			Path myPath = null;
 			boolean pathExist = true;
 			try {
@@ -47,6 +64,7 @@ public class Driver {
 
 				}
 			} catch (Exception e) {
+				// TODO Are you sure that is what happened? Is this really that user friendly?
 				System.out.println("There was an IO exception while creating the data structure from path a null path");
 			}
 
@@ -58,11 +76,14 @@ public class Driver {
 		dataConverter.arrayListToMap(myStorage, myInvertedIndex);
 
 		if (myArgumentMapStem.hasFlag("-index")) {
+			// TODO Use getPath(-index, Path.of(index.json)) here instead
 			String filename = myArgumentMapStem.getString("-index");
 			if (filename == null) {
 				filename = "index.json";
 			}
 			myInvertedIndex.dataWriter(filename);
+			
+			// TODO Should be a try/catch here
 		}
 
 		// calculate time elapsed and output
