@@ -13,6 +13,7 @@ import java.util.ArrayList;
  * @version Spring 2021
  */
 public class DirectoryNavigator {
+	// TODO Does this print a listing anymore? Fix name of method (and of the myStorage list)
 	/**
 	 * Traverses through the directory and its subdirectories, outputting all paths
 	 * to the console. For files, also includes the file size in bytes.
@@ -31,11 +32,14 @@ public class DirectoryNavigator {
 			// and to the placeholder arraylist, make sure it is a text file because this is
 			// in a directory
 			if (start.toString().toLowerCase().endsWith(".txt") || start.toString().toLowerCase().endsWith(".text")) {
+				// TODO Wait, I'm lost. This doesn't look like it is storing filess... it is storing stems? How does one tell which happened?
 				myStorage.addAll(TextFileStemmer.listStems(start));
 			}
 
 		}
 	}
+	
+	// TODO Pull out the test for text file into a separate public static method (makes it reusable)
 
 	/**
 	 * Traverses through the directory and its subdirectories, outputting all paths
@@ -62,4 +66,9 @@ public class DirectoryNavigator {
 			}
 		}
 	}
+	
+	/*
+	 * TODO Either make this class a "DirectoryNavigator" or combine it with
+	 * the dataConverter.java class.
+	 */
 }

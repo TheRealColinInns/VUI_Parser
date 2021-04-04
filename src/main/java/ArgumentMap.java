@@ -44,6 +44,16 @@ public class ArgumentMap {
 	public void parse(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			if (isFlag(args[i])) {
+				/*
+				 * TODO Can condense below into 2 conditions...
+				 * 
+				 * if (i != args.length - 1 && isValue(...)) {
+				 * 
+				 * }
+				 * else {
+				 * 		case where you put the null
+				 * }
+				 */
 				if (i != args.length - 1) {
 					if (isValue(args[i + 1])) {
 						map.put(args[i], args[++i]);
@@ -101,7 +111,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag exists
 	 */
 	public boolean hasFlag(String flag) {
-		if (map.containsKey(flag)) {
+		if (map.containsKey(flag)) { // TODO Make a single return statement
 			return true;
 		} else {
 			return false;
@@ -116,7 +126,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-		if (map.get(flag) != null) {
+		if (map.get(flag) != null) { // TODO Make a single return statement
 			return true;
 		} else {
 			return false;
@@ -133,7 +143,7 @@ public class ArgumentMap {
 	 */
 	public String getString(String flag) {
 		try {
-			return map.get(flag);
+			return map.get(flag); // TODO The try catch is completely unnecessary here, only this line needed
 		} catch (Exception e) {
 			return null;
 		}
