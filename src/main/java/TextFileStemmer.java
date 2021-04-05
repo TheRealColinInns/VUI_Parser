@@ -9,14 +9,7 @@ import java.util.TreeSet;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/*
- * TODO Only stemLine needs to pass in a collection. The other listStems and uniqueStems
- * methods should not---changes those back to the original method declarations. 
- * 
- * If you aren't quite clear on what the original issues were and how to fix them, please
- * stop by office hours or post on CampusWire!
- */
-
+//class is not used see InvertedIndexCreator for actually stemming
 /**
  * Utility class for parsing and stemming text and text files into collections
  * of stemmed words.
@@ -36,22 +29,6 @@ public class TextFileStemmer {
 	 *
 	 * @param line    the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
-	 * @param stems   the collection
-	 * @return a list of cleaned and stemmed words
-	 *
-	 * @see Stemmer#stem(CharSequence)
-	 */
-	public static Collection<String> listStems(String line, Stemmer stemmer, Collection<String> stems) {
-		stemLine(line, stemmer, stems);
-		return stems;
-
-	}
-
-	/**
-	 * Returns a list of cleaned and stemmed words parsed from the provided line.
-	 *
-	 * @param line    the line of words to clean, split, and stem
-	 * @param stemmer the stemmer to use
 	 * @param stems   the mutable collection we will edit
 	 *
 	 * @see Stemmer#stem(CharSequence)
@@ -64,23 +41,7 @@ public class TextFileStemmer {
 	}
 
 	/**
-	 * Returns a list of cleaned and stemmed words parsed from the provided line.
-	 *
-	 * @param line  the line of words to clean, split, and stem
-	 * @param stems the collection
-	 * @return a list of cleaned and stemmed words
-	 *
-	 * @see SnowballStemmer
-	 * @see #DEFAULT
-	 * @see #listStems(String, Stemmer, Collection)
-	 */
-	public static Collection<String> listStems(String line, Collection<String> stems) {
-		return listStems(line, new SnowballStemmer(DEFAULT), stems);
-	}
-
-	/**
-	 * Reads a file line by line, parses each line into cleaned and stemmed words,
-	 * and then adds those words to a set.
+	 * Reads an input file specifically into an array list
 	 *
 	 * @param inputFile the input file to parse
 	 * @return a sorted set of stems from file
@@ -90,54 +51,13 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static ArrayList<String> listStems(Path inputFile) throws IOException {
-		// you suggested to create another stemmer here however I don't see the purpose,
-		// wouldn't that be inneficient
 		ArrayList<String> stems = new ArrayList<String>();
-		stems.add(inputFile.toString());
-		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
-			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
-				listStems(line, stems); // TODO Call stemLine instead
-			}
-		}
-		return stems;
-
-	}
-
-	/**
-	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
-	 * the provided line.
-	 *
-	 * @param line the line of words to clean, split, and stem
-	 * @return a sorted set of unique cleaned and stemmed words
-	 *
-	 * @see SnowballStemmer
-	 * @see #DEFAULT
-	 * @see #uniqueStems(String, Stemmer)
-	 */
-	public static TreeSet<String> uniqueStems(String line) {
-		return uniqueStems(line, new SnowballStemmer(DEFAULT));
-	}
-
-	/**
-	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
-	 * the provided line.
-	 *
-	 * @param line    the line of words to clean, split, and stem
-	 * @param stemmer the stemmer to use
-	 * @return a sorted set of unique cleaned and stemmed words
-	 *
-	 * @see Stemmer#stem(CharSequence)
-	 * @see TextParser#parse(String)
-	 */
-	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {
-		TreeSet<String> stems = new TreeSet<String>();
-		stems.addAll(listStems(line, stemmer, stems)); // TODO Same efficiency issue we already discussed?
+		stemsPath(inputFile, stems);
 		return stems;
 	}
 
 	/**
-	 * Reads a file line by line, parses each line into cleaned and stemmed words,
-	 * and then adds those words to a set.
+	 * Reads an input file specifically into a treeset
 	 *
 	 * @param inputFile the input file to parse
 	 * @return a sorted set of stems from file
@@ -148,7 +68,26 @@ public class TextFileStemmer {
 	 */
 	public static TreeSet<String> uniqueStems(Path inputFile) throws IOException {
 		TreeSet<String> stems = new TreeSet<String>();
-		stems.addAll(listStems(inputFile)); // TODO Same efficiency issue we already discussed?
+		stemsPath(inputFile, stems);
 		return stems;
+	}
+
+	/**
+	 * Takes in an inputfile and reads it into a collection
+	 *
+	 * @param inputFile the input path
+	 * @param stems     the mutible collection
+	 * @return a sorted set of unique cleaned and stemmed words
+	 * @throws IOException
+	 *
+	 * @see Stemmer#stem(CharSequence)
+	 * @see TextParser#parse(String)
+	 */
+	public static void stemsPath(Path inputFile, Collection<String> stems) throws IOException {
+		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
+			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
+				stemLine(line, new SnowballStemmer(DEFAULT), stems);
+			}
+		}
 	}
 }

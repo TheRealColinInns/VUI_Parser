@@ -1,7 +1,6 @@
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -25,65 +24,36 @@ public class Driver {
 		Instant start = Instant.now();
 
 		// Creates my argument map and parses the command line arguments
-		ArgumentMap myArgumentMapStem = new ArgumentMap(); // TODO Rethink name
-		myArgumentMapStem.parse(args);
+		ArgumentMap flagValuePairs = new ArgumentMap();
+		flagValuePairs.parse(args);
 
-		// ArrayList myStorage is used as a temporary basic data structure that will be
-		// converted to a map later
-		ArrayList<String> myStorage = new ArrayList<String>(); // TODO Remove, only storage needed up here should be the inverted index
+		// the inverted index data structure that we will store all of the data in
+		InvertedIndex myInvertedIndex = new InvertedIndex();
 
-		// the input file into the simple storage system
-		if (myArgumentMapStem.hasFlag("-text")) {
-			// TODO Simplify!
-			/*
-			 * TODO Path input = ...
-			 * 
-			 * if (input is null) { warn }
-			 * else {
-			 * 	try {
-			 * 		call 1 method here
-			 * 	}
-			 * 	catch ( ) {
-			 * 		user friendly output
-			 * 	}
-			 * }
-			 * 
-			 * No need for the boolean variable.
-			 *
-			 */
-			Path myPath = null;
-			boolean pathExist = true;
-			try {
-				myPath = Path.of(myArgumentMapStem.getString("-text"));
-				if (myPath == null) {
-					pathExist = false;
+		// the input file into the inverted index
+		if (flagValuePairs.hasFlag("-text")) {
+			Path inputPath = Path.of(flagValuePairs.getString("-text", "INVALID"));
+			if (inputPath == Path.of("INVALID")) {
+				System.out.println("The input file was null");
+			} else {
+				try {
+					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+				} catch (Exception e) {
+					System.out.println("IO Exception for input path: " + inputPath.toString());
 				}
-				if (pathExist) {
-
-					dataConverter.createStorage(myPath, myStorage);
-
-				}
-			} catch (Exception e) {
-				// TODO Are you sure that is what happened? Is this really that user friendly?
-				System.out.println("There was an IO exception while creating the data structure from path a null path");
 			}
 
 		}
 
-		// This step converts the basic arraylist into a more complex map data structure
-		// which will be much more useful later
-		InvertedIndex myInvertedIndex = new InvertedIndex();
-		dataConverter.arrayListToMap(myStorage, myInvertedIndex);
-
-		if (myArgumentMapStem.hasFlag("-index")) {
-			// TODO Use getPath(-index, Path.of(index.json)) here instead
-			String filename = myArgumentMapStem.getString("-index");
-			if (filename == null) {
-				filename = "index.json";
+		// writes the inverted index to the desired location
+		if (flagValuePairs.hasFlag("-index")) {
+			Path filename = flagValuePairs.getPath("-index", Path.of("index.json"));
+			try {
+				myInvertedIndex.dataWriter(filename);
+			} catch (Exception e) {
+				System.out.println("IOException while writing to " + filename.toString());
 			}
-			myInvertedIndex.dataWriter(filename);
-			
-			// TODO Should be a try/catch here
+
 		}
 
 		// calculate time elapsed and output

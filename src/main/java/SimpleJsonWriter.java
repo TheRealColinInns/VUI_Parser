@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-// TODO Test your code here; make sure it passes for empty data structures, different nest levels, etc.
-
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
  * are used to separate elements and nested elements are indented using tabs.
@@ -33,6 +31,7 @@ public class SimpleJsonWriter {
 	 * @throws IOException if an IO error occurs
 	 */
 	public static void asArray(Collection<Integer> elements, Writer writer, int level) throws IOException {
+		writer.write("[\n");
 		Iterator<Integer> elementsIterator = elements.iterator();
 		if (elementsIterator.hasNext()) {
 			indent(elementsIterator.next().toString(), writer, level);
@@ -42,8 +41,8 @@ public class SimpleJsonWriter {
 			indent(elementsIterator.next().toString(), writer, level);
 		}
 		writer.write("\n");
-		
-		// TODO Does this actually pass the original homework tests? It doesn't look like it.
+		level--;
+		indent("]", writer, level);
 	}
 
 	/**
@@ -82,37 +81,29 @@ public class SimpleJsonWriter {
 	 * @param level  the initial indent level
 	 * @throws IOException if an IO error occurs
 	 */
-	public static void nestedMapHelper(Map<String, ? extends Collection<Integer>> nested, Writer writer, int level)
+	public static void asNestedMap(Map<String, ? extends Collection<Integer>> nested, Writer writer, int level)
 			throws IOException {
 		Iterator<String> pathIterator = nested.keySet().iterator();
 		String pathNext;
 		if (pathIterator.hasNext()) {
 			pathNext = pathIterator.next();
-			indent("\"" + pathNext + "\": [\n", writer, level); // TODO The [ ] output should be in asArray, not here...
+			indent("\"" + pathNext + "\": ", writer, level);
 			level++;
 			asArray(nested.get(pathNext), writer, level);
 			level--;
-			indent("]", writer, level);
 		}
 		while (pathIterator.hasNext()) {
 			writer.write(",\n");
 			pathNext = pathIterator.next();
-			indent("\"" + pathNext + "\": [\n", writer, level);
+			indent("\"" + pathNext + "\": ", writer, level);
 			level++;
 			asArray(nested.get(pathNext), writer, level);
 			level--;
-			indent("]", writer, level);
 		}
 
 		writer.write("\n");
 
 	}
-	
-	/*
-	 * TODO Rethink the names here. asNestedArray is more than outputting a nested array,
-	 * which is what nestedMapHelper is now doing. That is useful beyond just being called
-	 * inside your asNestedArray method! 
-	 */
 
 	/**
 	 * Writes the elements as a pretty JSON object with a nested array. The generic
@@ -137,7 +128,7 @@ public class SimpleJsonWriter {
 				wordNext = wordIterator.next();
 				indent("\"" + wordNext + "\": {\n", writer, level);
 				level++;
-				nestedMapHelper(elements.get(wordNext), writer, level);
+				asNestedMap(elements.get(wordNext), writer, level);
 				level--;
 				indent("}", writer, level);
 			}
@@ -146,7 +137,7 @@ public class SimpleJsonWriter {
 				wordNext = wordIterator.next();
 				indent("\"" + wordNext + "\": {\n", writer, level);
 				level++;
-				nestedMapHelper(elements.get(wordNext), writer, level);
+				asNestedMap(elements.get(wordNext), writer, level);
 				level--;
 				indent("}", writer, level);
 			}

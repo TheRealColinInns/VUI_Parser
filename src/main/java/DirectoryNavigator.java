@@ -13,43 +13,57 @@ import java.util.ArrayList;
  * @version Spring 2021
  */
 public class DirectoryNavigator {
-	// TODO Does this print a listing anymore? Fix name of method (and of the myStorage list)
 	/**
 	 * Traverses through the directory and its subdirectories, outputting all paths
-	 * to the console. For files, also includes the file size in bytes.
+	 * to an array list filled with all the paths
 	 *
-	 * @param start     the initial path to traverse
-	 * @param myStorage the data structure in which the data is stored
+	 * @param start      the initial path to traverse
+	 * @param pathsFound an array list full of all of the paths found
 	 * @throws IOException if an I/O error occurs
 	 */
-	public static void printListing(Path start, ArrayList<String> myStorage) throws IOException {
+	public static void findPaths(Path start, ArrayList<Path> pathsFound) throws IOException {
 		// use the Files class to get information about a path
-		if (Files.isDirectory(start)) {
+		if (isDirectory(start)) {
 			// output trailing slash to indicate directory
 			// start directory traversal
-			traverseDirectory(start, myStorage);
+			traverseDirectory(start, pathsFound);
 		} else {
-			// and to the placeholder arraylist, make sure it is a text file because this is
-			// in a directory
-			if (start.toString().toLowerCase().endsWith(".txt") || start.toString().toLowerCase().endsWith(".text")) {
-				// TODO Wait, I'm lost. This doesn't look like it is storing filess... it is storing stems? How does one tell which happened?
-				myStorage.addAll(TextFileStemmer.listStems(start));
+			if (isTextFile(start)) {
+				pathsFound.add(start);
 			}
-
 		}
 	}
-	
-	// TODO Pull out the test for text file into a separate public static method (makes it reusable)
+
+	/**
+	 * Checks if directory
+	 *
+	 * @param inputFile the path to check if it is a directory
+	 * @return {@code true} if the path is a directory
+	 */
+	public static boolean isDirectory(Path inputFile) {
+		return Files.isDirectory(inputFile);
+	}
+
+	/**
+	 * Checks if text file
+	 *
+	 * @param inputFile the path to check if it is a text file
+	 * @return {@code true} if the path is text file
+	 */
+	public static boolean isTextFile(Path inputFile) {
+		return inputFile.toString().toLowerCase().endsWith(".txt")
+				|| inputFile.toString().toLowerCase().endsWith(".text");
+	}
 
 	/**
 	 * Traverses through the directory and its subdirectories, outputting all paths
-	 * to the console. For files, also includes the file size in bytes.
+	 * back into the finds path method
 	 *
 	 * @param directory the directory to traverse
 	 * @param myStorage the data structure in which the data is stored
 	 * @throws IOException if an I/O error occurs
 	 */
-	private static void traverseDirectory(Path directory, ArrayList<String> myStorage) throws IOException {
+	private static void traverseDirectory(Path directory, ArrayList<Path> pathsFound) throws IOException {
 		/*
 		 * The try-with-resources block makes sure we close the directory stream when
 		 * done, to make sure there aren't any issues later when accessing this
@@ -62,13 +76,8 @@ public class DirectoryNavigator {
 		try (DirectoryStream<Path> myDirectoryStream = Files.newDirectoryStream(directory)) {
 			// use an enhanced-for or for-each loop for efficiency and simplicity
 			for (Path temporaryPath : myDirectoryStream) {
-				printListing(temporaryPath, myStorage);
+				findPaths(temporaryPath, pathsFound);
 			}
 		}
 	}
-	
-	/*
-	 * TODO Either make this class a "DirectoryNavigator" or combine it with
-	 * the dataConverter.java class.
-	 */
 }
