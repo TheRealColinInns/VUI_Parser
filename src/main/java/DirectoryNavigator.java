@@ -59,8 +59,8 @@ public class DirectoryNavigator {
 	 * Traverses through the directory and its subdirectories, outputting all paths
 	 * back into the finds path method
 	 *
-	 * @param directory the directory to traverse
-	 * @param myStorage the data structure in which the data is stored
+	 * @param directory  the directory to traverse
+	 * @param pathsFound the data structure in which the data is stored
 	 * @throws IOException if an I/O error occurs
 	 */
 	private static void traverseDirectory(Path directory, ArrayList<Path> pathsFound) throws IOException {

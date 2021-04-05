@@ -27,9 +27,10 @@ public class InvertedIndexCreator {
 	/**
 	 * the method that calls all the other methods
 	 *
-	 * @param myStorage the array list that will be converted into the more useful
-	 *                  data structure
-	 * @param myPath    the path that the arraylist is going to grab the data from
+	 * @param myInvertedIndex the array list that will be converted into the more
+	 *                        useful data structure
+	 * @param inputPath       the path that the arraylist is going to grab the data
+	 *                        from
 	 * @throws IOException in case of io exception
 	 */
 	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
@@ -85,7 +86,6 @@ public class InvertedIndexCreator {
 	 *                        from
 	 * @param lineCounter     counts how many words have already been added
 	 * @param word            the word we gotta add
-	 * @throws IOException it really shouldn't throw tho
 	 */
 	private static void stemWord(String word, InvertedIndex myInvertedIndex, int lineCounter, Path inputPath) {
 		if (myInvertedIndex.containsKeyInvertedIndex(word)) {

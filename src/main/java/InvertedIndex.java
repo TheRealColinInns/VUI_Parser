@@ -129,6 +129,8 @@ public class InvertedIndex {
 
 	/**
 	 * size method for the entire inverted index
+	 * 
+	 * @return int the size of the map
 	 */
 	public int sizeInvertedIndex() {
 		return this.myMap.size();
@@ -138,6 +140,7 @@ public class InvertedIndex {
 	 * size method for the entire inverted index
 	 * 
 	 * @param key key to acces the nested map
+	 * @return int the size of the map
 	 */
 	public int sizeNestedMap(String key) {
 		return this.myMap.get(key).size();
@@ -148,6 +151,7 @@ public class InvertedIndex {
 	 * 
 	 * @param outerKey key to access the nested map
 	 * @param innerKey key to access the nested array
+	 * @return int the size of the arraylist
 	 */
 	public int sizeNestedArray(String outerKey, String innerKey) {
 		return this.myMap.get(outerKey).get(innerKey).size();

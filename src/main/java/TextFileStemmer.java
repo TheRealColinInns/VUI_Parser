@@ -47,7 +47,6 @@ public class TextFileStemmer {
 	 * @return a sorted set of stems from file
 	 * @throws IOException if unable to read or parse file
 	 *
-	 * @see #uniqueStems(String)
 	 * @see TextParser#parse(String)
 	 */
 	public static ArrayList<String> listStems(Path inputFile) throws IOException {
@@ -63,7 +62,6 @@ public class TextFileStemmer {
 	 * @return a sorted set of stems from file
 	 * @throws IOException if unable to read or parse file
 	 *
-	 * @see #uniqueStems(String)
 	 * @see TextParser#parse(String)
 	 */
 	public static TreeSet<String> uniqueStems(Path inputFile) throws IOException {
@@ -77,8 +75,7 @@ public class TextFileStemmer {
 	 *
 	 * @param inputFile the input path
 	 * @param stems     the mutible collection
-	 * @return a sorted set of unique cleaned and stemmed words
-	 * @throws IOException
+	 * @throws IOException to be caught later in driver
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 * @see TextParser#parse(String)
