@@ -1,11 +1,10 @@
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
 /**
  * Parses and stores command-line arguments into simple flag/value pairs.
  *
- * @author CS 212 Software Development
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  */

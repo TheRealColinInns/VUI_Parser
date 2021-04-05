@@ -15,7 +15,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * Class responsible for converting an array list into the map data structure
  * desired that will be very important later for creating the json file
  *
- * @author CS 212 Software Development
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  */

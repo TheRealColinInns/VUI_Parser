@@ -6,7 +6,7 @@ import java.time.Instant;
  * Class responsible for running this project based on the provided command-line
  * arguments. See the README for details.
  *
- * @author CS 212 Software Development, Colin Inns
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  */

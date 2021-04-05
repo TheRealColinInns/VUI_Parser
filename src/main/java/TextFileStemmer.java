@@ -14,7 +14,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * Utility class for parsing and stemming text and text files into collections
  * of stemmed words.
  *
- * @author CS 212 Software Development
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  *

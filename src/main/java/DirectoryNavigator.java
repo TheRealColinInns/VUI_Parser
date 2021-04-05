@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Class responsible for navigating the directories found in the command line
  * arguments.
  *
- * @author CS 212 Software Development
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  */

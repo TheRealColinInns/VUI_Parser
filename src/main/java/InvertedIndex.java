@@ -8,7 +8,7 @@ import java.util.TreeMap;
 /**
  * Class responsible for storing the data structure See the README for details.
  *
- * @author CS 212 Software Development, Colin Inns
+ * @author CS 212 Software Development - Colin Inns
  * @author University of San Francisco
  * @version Spring 2021
  */
