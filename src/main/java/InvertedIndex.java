@@ -1,8 +1,8 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -13,72 +13,59 @@ import java.util.TreeMap;
  * @version Spring 2021
  */
 public class InvertedIndex {
-	// TODO Upcasting is almost always the right approach, but you'll want a TreeMap reference for project 2.
+
 	/**
 	 * this is our data structure
 	 */
-	private Map<String, Map<String, Collection<Integer>>> myMap; // TODO Final
+	private final TreeMap<String, TreeMap<String, Collection<Integer>>> myMap;
 
 	/**
 	 * Constructor for inverted index
 	 */
 	public InvertedIndex() {
-		myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
+		myMap = new TreeMap<String, TreeMap<String, Collection<Integer>>>();
 	}
 
-	/*
-	 * TODO You cannot return nested data safely, ever. Both of these get methods
-	 * below break encapsulation!
-	 */
-	
-	// TODO Make this get method return an unmodifiable view of the outer keyset
 	/**
 	 * Getter for the inverted index
 	 * 
 	 * @return my inverted index for a specific instance
 	 * 
 	 */
-	public Map<String, Map<String, Collection<Integer>>> getInvertedIndex() {
-		return Collections.unmodifiableMap(this.myMap);
+	public Collection<String> getInvertedIndex() {
+		return Collections.unmodifiableCollection(this.myMap.keySet());
 	}
 
-	// TODO Make this get method return an unmodifiable view of the inner keyset
 	/**
 	 * Getter for the nested map inside the inverted index
 	 * 
-	 * @param key the specified key
+	 * @param key word
 	 * @return the nested map inside the inverted index for a specified key
 	 * 
 	 */
-	public Map<String, Collection<Integer>> getNestedMap(String key) {
-		return Collections.unmodifiableMap(this.myMap.get(key));
+	public Collection<String> getNestedMap(String key) {
+		return Collections.unmodifiableCollection(this.myMap.get(key).keySet());
 	}
-	
-	/*
-	 * TODO Try to give your parameters meanings describing what they store.
-	 * key --> word
-	 * outerKey --> word, innerKey --> location
-	 * etc.
-	 */
 
 	/**
 	 * Getter for the nested array inside the inverted index
 	 * 
-	 * @param outerKey the specified key for the outer nest
-	 * @param innerKey the specified key for the inner nest
+	 * @param outerKey word
+	 * @param innerKey location
 	 * @return the nested array inside the inverted index
-	 * 
+	 * @throws NullPointerException if inner or outer key dont exist
 	 */
 	public Collection<Integer> getNestedArray(String outerKey, String innerKey) {
-		// TODO What if outerKey or innerKey aren't in your data? Then this throws a null pointer exception.
-		// TODO Use your contains method to test when you should return Collections.emptySet instead to avoid this problem.
-		return Collections.unmodifiableCollection(this.myMap.get(outerKey).get(innerKey));
+		if (this.containsKeyNestedMap(outerKey, innerKey)) {
+			return Collections.unmodifiableCollection(this.myMap.get(outerKey).get(innerKey));
+		}
+		return Collections.emptySet();
 	}
 
 	/**
 	 * Contains method for the entire inverted index
 	 * 
-	 * @param key the specified key
+	 * @param key word
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
@@ -89,24 +76,25 @@ public class InvertedIndex {
 	/**
 	 * Contains method for the nested map
 	 * 
-	 * @param outerKey the specified key to get to the nested structure
-	 * @param innerKey the specific key to test
+	 * @param outerKey word
+	 * @param innerKey location
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
 	public boolean containsKeyNestedMap(String outerKey, String innerKey) {
-		// TODO Null pointer if get(outerKey) is null, but should return false in that case
-		return this.myMap.get(outerKey).containsKey(innerKey);
+		if (this.containsKeyInvertedIndex(outerKey)) {
+			return this.myMap.get(outerKey).containsKey(innerKey);
+		} else {
+			return false;
+		}
 	}
-	
-	// TODO Fix all the null pointer issues. Test your methods on an empty index!
 
 	/**
 	 * contains method for the nested array
 	 * 
-	 * @param outerKey the specified key to get to the nested structure
-	 * @param innerKey the specific key to get to the nested structure
-	 * @param value    the specific Integer value to test
+	 * @param outerKey word
+	 * @param innerKey location
+	 * @param value    position
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
@@ -114,46 +102,31 @@ public class InvertedIndex {
 		return this.myMap.get(outerKey).get(innerKey).contains(value);
 	}
 
-	/* 
-	 * TODO Remove these unsafe add methods, that replace data without checking if something already exists.
-	 * That is not safe to have as public methods. Make ONE add(String word, location, position) method
-	 * that does all the initialization safely.
-	 */
-	/**
-	 * add method for the entire inverted index
-	 * 
-	 * @param key   the specified key
-	 * @param value the specified value
-	 * 
-	 */
-	public void addInvertedIndex(String key, Map<String, Collection<Integer>> value) {
-		this.myMap.put(key, value);
-	}
-
-	/**
-	 * add method for the nested map
-	 * 
-	 * @param outerKey the key to get the nested map
-	 * @param innerKey the specified key
-	 * @param value    the specified value
-	 */
-	public void addNestedMap(String outerKey, String innerKey, Collection<Integer> value) {
-		this.myMap.get(outerKey).put(innerKey, value);
-	}
-
 	/**
 	 * add method for the nested array
 	 * 
-	 * @param outerKey the key to get the nested map
-	 * @param innerKey the key to get the nested array
-	 * @param value    the specified value
+	 * @param outerKey word
+	 * @param innerKey location
+	 * @param value    position
 	 */
-	public void addNestedArray(String outerKey, String innerKey, Integer value) {
-		this.myMap.get(outerKey).get(innerKey).add(value);
+	public void add(String outerKey, String innerKey, Integer value) {
+		if (this.containsKeyInvertedIndex(outerKey)) {
+			if (this.containsKeyNestedMap(outerKey, innerKey)) {
+				this.myMap.get(outerKey).get(innerKey).add(value);
+			} else {
+				Collection<Integer> nestedArrayList = new ArrayList<Integer>();
+				nestedArrayList.add(value);
+				this.myMap.get(outerKey).put(innerKey, nestedArrayList);
+			}
+		} else {
+			Collection<Integer> nestedArrayList = new ArrayList<Integer>();
+			TreeMap<String, Collection<Integer>> nestedMap = new TreeMap<String, Collection<Integer>>();
+			nestedArrayList.add(value);
+			nestedMap.put(innerKey, nestedArrayList);
+			this.myMap.put(outerKey, nestedMap);
+		}
 	}
 
-	// TODO Same comments about nulls and naming things for your size methods below
-	
 	/**
 	 * size method for the entire inverted index
 	 * 
@@ -166,22 +139,30 @@ public class InvertedIndex {
 	/**
 	 * size method for the entire inverted index
 	 * 
-	 * @param key key to acces the nested map
+	 * @param key word
 	 * @return int the size of the map
 	 */
 	public int sizeNestedMap(String key) {
-		return this.myMap.get(key).size();
+		if (this.containsKeyInvertedIndex(key)) {
+			return this.myMap.get(key).size();
+		} else {
+			return -1;
+		}
 	}
 
 	/**
 	 * size method for the entire inverted index
 	 * 
-	 * @param outerKey key to access the nested map
-	 * @param innerKey key to access the nested array
+	 * @param outerKey word
+	 * @param innerKey location
 	 * @return int the size of the arraylist
 	 */
 	public int sizeNestedArray(String outerKey, String innerKey) {
-		return this.myMap.get(outerKey).get(innerKey).size();
+		if (this.containsKeyNestedMap(outerKey, innerKey)) {
+			return this.myMap.get(outerKey).get(innerKey).size();
+		} else {
+			return -1;
+		}
 	}
 
 	@Override
@@ -199,13 +180,7 @@ public class InvertedIndex {
 	public void dataWriter(Path filename) throws IOException {
 		SimpleJsonWriter.asNestedArray(this.myMap, filename);
 	}
-
-	
-/*
- * TODO 
- * Consider also adding an addAll convenience method such that given a list of
- * words and the location/path they came from, it adds each to the inverted
- * index using the list index as the position.
- */
-	
+	// not exactly sure what the addAll function would be for? I think I will leave
+	// it out for now and add it when I need it and know exactly what I want it to
+	// do.
 }

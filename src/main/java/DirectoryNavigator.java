@@ -23,7 +23,7 @@ public class DirectoryNavigator {
 	 */
 	public static void findPaths(Path start, ArrayList<Path> pathsFound) throws IOException {
 		// use the Files class to get information about a path
-		if (isDirectory(start)) {
+		if (Files.isDirectory(start)) {
 			// output trailing slash to indicate directory
 			// start directory traversal
 			traverseDirectory(start, pathsFound);
@@ -34,17 +34,6 @@ public class DirectoryNavigator {
 		}
 	}
 
-	// TODO Remove this one, call Files.isDirectory where needed
-	/**
-	 * Checks if directory
-	 *
-	 * @param inputFile the path to check if it is a directory
-	 * @return {@code true} if the path is a directory
-	 */
-	public static boolean isDirectory(Path inputFile) {
-		return Files.isDirectory(inputFile);
-	}
-
 	/**
 	 * Checks if text file
 	 *
@@ -52,9 +41,8 @@ public class DirectoryNavigator {
 	 * @return {@code true} if the path is text file
 	 */
 	public static boolean isTextFile(Path inputFile) {
-		// TODO String lower = inputFile.toString.toLowerCase <--- and reuse the value below instead of calling this twice
-		return inputFile.toString().toLowerCase().endsWith(".txt")
-				|| inputFile.toString().toLowerCase().endsWith(".text");
+		String lower = inputFile.toString().toLowerCase();
+		return lower.endsWith(".txt") || lower.endsWith(".text");
 	}
 
 	/**

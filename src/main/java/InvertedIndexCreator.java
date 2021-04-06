@@ -4,9 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -34,14 +31,13 @@ public class InvertedIndexCreator {
 	 * @throws IOException in case of io exception
 	 */
 	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
-		if (DirectoryNavigator.isDirectory(inputPath)) {
+		if (Files.isDirectory(inputPath)) {
 			directoryStemmer(inputPath, myInvertedIndex);
 		} else {
 			singleFileStemmer(inputPath, myInvertedIndex);
 		}
 	}
 
-	// TODO Make public! Its useful!
 	/**
 	 * stems a single file
 	 *
@@ -50,7 +46,7 @@ public class InvertedIndexCreator {
 	 * @param myInvertedIndex the data structure we are building
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	private static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
+	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		int counter = 0;
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8);) {
@@ -89,22 +85,7 @@ public class InvertedIndexCreator {
 	 * @param word            the word we gotta add
 	 */
 	private static void stemWord(String word, InvertedIndex myInvertedIndex, int lineCounter, Path inputPath) {
-		// TODO This method and logic should be unnecessary here. You should have an add method in your index that initializes the inner data structures as needed.
-		if (myInvertedIndex.containsKeyInvertedIndex(word)) {
-			if (myInvertedIndex.containsKeyNestedMap(word, inputPath.toString())) {
-				myInvertedIndex.addNestedArray(word, inputPath.toString(), lineCounter);
-			} else {
-				Collection<Integer> nestedArrayList = new ArrayList<Integer>();
-				nestedArrayList.add(lineCounter);
-				myInvertedIndex.addNestedMap(word, inputPath.toString(), nestedArrayList);
-			}
-		} else {
-			Collection<Integer> nestedArrayList = new ArrayList<Integer>();
-			Map<String, Collection<Integer>> nestedMap = new TreeMap<String, Collection<Integer>>();
-			nestedArrayList.add(lineCounter);
-			nestedMap.put(inputPath.toString(), nestedArrayList);
-			myInvertedIndex.addInvertedIndex(word, nestedMap);
-		}
+		myInvertedIndex.add(word, inputPath.toString(), lineCounter);
 	}
 
 }

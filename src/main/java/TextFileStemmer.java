@@ -82,12 +82,43 @@ public class TextFileStemmer {
 	 */
 	public static void stemsPath(Path inputFile, Collection<String> stems) throws IOException {
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
-			// TODO Create a stemmer here! Still creating too many objects below.
+			Stemmer stemmer = new SnowballStemmer(DEFAULT);
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
-				stemLine(line, new SnowballStemmer(DEFAULT), stems);
+				stemLine(line, stemmer, stems);
 			}
 		}
 	}
-	
-	// TODO Still missing your other methods! The ones that return lists or sets! (Really, I promise, one or more of them will be useful in the future.)
+
+	/**
+	 * Returns a list of cleaned and stemmed words parsed from the provided line.
+	 *
+	 * @param line    the line of words to clean, split, and stem
+	 * @param stemmer the stemmer to use
+	 * @param stems   the collection
+	 * @return a list of cleaned and stemmed words
+	 *
+	 * @see Stemmer#stem(CharSequence)
+	 */
+	public static ArrayList<String> listStems(String line, Stemmer stemmer, ArrayList<String> stems) {
+		stemLine(line, stemmer, stems);
+		return stems;
+
+	}
+
+	/**
+	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
+	 * the provided line.
+	 *
+	 * @param line    the line of words to clean, split, and stem
+	 * @param stemmer the stemmer to use
+	 * @param stems   a treeset of stems
+	 * @return a sorted set of unique cleaned and stemmed words
+	 * @param inputFile the input file to parse
+	 *
+	 * @see Stemmer#stem(CharSequence)
+	 */
+	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer, TreeSet<String> stems) {
+		stemLine(line, stemmer, stems);
+		return stems;
+	}
 }
