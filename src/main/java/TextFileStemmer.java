@@ -82,9 +82,12 @@ public class TextFileStemmer {
 	 */
 	public static void stemsPath(Path inputFile, Collection<String> stems) throws IOException {
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);) {
+			// TODO Create a stemmer here! Still creating too many objects below.
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
 				stemLine(line, new SnowballStemmer(DEFAULT), stems);
 			}
 		}
 	}
+	
+	// TODO Still missing your other methods! The ones that return lists or sets! (Really, I promise, one or more of them will be useful in the future.)
 }

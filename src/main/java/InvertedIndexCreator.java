@@ -41,6 +41,7 @@ public class InvertedIndexCreator {
 		}
 	}
 
+	// TODO Make public! Its useful!
 	/**
 	 * stems a single file
 	 *
@@ -88,6 +89,7 @@ public class InvertedIndexCreator {
 	 * @param word            the word we gotta add
 	 */
 	private static void stemWord(String word, InvertedIndex myInvertedIndex, int lineCounter, Path inputPath) {
+		// TODO This method and logic should be unnecessary here. You should have an add method in your index that initializes the inner data structures as needed.
 		if (myInvertedIndex.containsKeyInvertedIndex(word)) {
 			if (myInvertedIndex.containsKeyNestedMap(word, inputPath.toString())) {
 				myInvertedIndex.addNestedArray(word, inputPath.toString(), lineCounter);

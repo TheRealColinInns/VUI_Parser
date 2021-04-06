@@ -32,6 +32,7 @@ public class Driver {
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
+			// TODO Could use getPath(-text) and test if inputPath was null instead of the specific INVALID string
 			Path inputPath = Path.of(flagValuePairs.getString("-text", "INVALID"));
 			if (inputPath == Path.of("INVALID")) {
 				System.out.println("The input file was null");

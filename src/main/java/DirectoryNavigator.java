@@ -34,6 +34,7 @@ public class DirectoryNavigator {
 		}
 	}
 
+	// TODO Remove this one, call Files.isDirectory where needed
 	/**
 	 * Checks if directory
 	 *
@@ -51,6 +52,7 @@ public class DirectoryNavigator {
 	 * @return {@code true} if the path is text file
 	 */
 	public static boolean isTextFile(Path inputFile) {
+		// TODO String lower = inputFile.toString.toLowerCase <--- and reuse the value below instead of calling this twice
 		return inputFile.toString().toLowerCase().endsWith(".txt")
 				|| inputFile.toString().toLowerCase().endsWith(".text");
 	}
