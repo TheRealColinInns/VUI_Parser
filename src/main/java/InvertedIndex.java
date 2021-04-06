@@ -13,10 +13,11 @@ import java.util.TreeMap;
  * @version Spring 2021
  */
 public class InvertedIndex {
+	// TODO Upcasting is almost always the right approach, but you'll want a TreeMap reference for project 2.
 	/**
 	 * this is our data structure
 	 */
-	private Map<String, Map<String, Collection<Integer>>> myMap;
+	private Map<String, Map<String, Collection<Integer>>> myMap; // TODO Final
 
 	/**
 	 * Constructor for inverted index
@@ -25,6 +26,12 @@ public class InvertedIndex {
 		myMap = new TreeMap<String, Map<String, Collection<Integer>>>();
 	}
 
+	/*
+	 * TODO You cannot return nested data safely, ever. Both of these get methods
+	 * below break encapsulation!
+	 */
+	
+	// TODO Make this get method return an unmodifiable view of the outer keyset
 	/**
 	 * Getter for the inverted index
 	 * 
@@ -35,6 +42,7 @@ public class InvertedIndex {
 		return Collections.unmodifiableMap(this.myMap);
 	}
 
+	// TODO Make this get method return an unmodifiable view of the inner keyset
 	/**
 	 * Getter for the nested map inside the inverted index
 	 * 
@@ -45,6 +53,13 @@ public class InvertedIndex {
 	public Map<String, Collection<Integer>> getNestedMap(String key) {
 		return Collections.unmodifiableMap(this.myMap.get(key));
 	}
+	
+	/*
+	 * TODO Try to give your parameters meanings describing what they store.
+	 * key --> word
+	 * outerKey --> word, innerKey --> location
+	 * etc.
+	 */
 
 	/**
 	 * Getter for the nested array inside the inverted index
@@ -55,6 +70,8 @@ public class InvertedIndex {
 	 * 
 	 */
 	public Collection<Integer> getNestedArray(String outerKey, String innerKey) {
+		// TODO What if outerKey or innerKey aren't in your data? Then this throws a null pointer exception.
+		// TODO Use your contains method to test when you should return Collections.emptySet instead to avoid this problem.
 		return Collections.unmodifiableCollection(this.myMap.get(outerKey).get(innerKey));
 	}
 
@@ -78,8 +95,11 @@ public class InvertedIndex {
 	 * 
 	 */
 	public boolean containsKeyNestedMap(String outerKey, String innerKey) {
+		// TODO Null pointer if get(outerKey) is null, but should return false in that case
 		return this.myMap.get(outerKey).containsKey(innerKey);
 	}
+	
+	// TODO Fix all the null pointer issues. Test your methods on an empty index!
 
 	/**
 	 * contains method for the nested array
@@ -94,6 +114,11 @@ public class InvertedIndex {
 		return this.myMap.get(outerKey).get(innerKey).contains(value);
 	}
 
+	/* 
+	 * TODO Remove these unsafe add methods, that replace data without checking if something already exists.
+	 * That is not safe to have as public methods. Make ONE add(String word, location, position) method
+	 * that does all the initialization safely.
+	 */
 	/**
 	 * add method for the entire inverted index
 	 * 
@@ -127,6 +152,8 @@ public class InvertedIndex {
 		this.myMap.get(outerKey).get(innerKey).add(value);
 	}
 
+	// TODO Same comments about nulls and naming things for your size methods below
+	
 	/**
 	 * size method for the entire inverted index
 	 * 
@@ -173,4 +200,12 @@ public class InvertedIndex {
 		SimpleJsonWriter.asNestedArray(this.myMap, filename);
 	}
 
+	
+/*
+ * TODO 
+ * Consider also adding an addAll convenience method such that given a list of
+ * words and the location/path they came from, it adds each to the inverted
+ * index using the list index as the position.
+ */
+	
 }
