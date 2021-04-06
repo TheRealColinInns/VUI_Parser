@@ -113,7 +113,6 @@ public class TextFileStemmer {
 	 * @param stemmer the stemmer to use
 	 * @param stems   a treeset of stems
 	 * @return a sorted set of unique cleaned and stemmed words
-	 * @param inputFile the input file to parse
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 */
