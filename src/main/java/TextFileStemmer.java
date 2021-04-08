@@ -123,8 +123,8 @@ public class TextFileStemmer {
 
 	/**
 	 * 
-	 * @param line
-	 * @param stemmer
+	 * @param line    the string to stem
+	 * @param stemmer the stemmer
 	 * @return a list of stemmed words
 	 */
 	public static ArrayList<String> listStems(String line, Stemmer stemmer) {
@@ -135,8 +135,8 @@ public class TextFileStemmer {
 
 	/**
 	 * 
-	 * @param line
-	 * @param stemmer
+	 * @param line    the string to stem
+	 * @param stemmer the stemmer
 	 * @return a set of stemmed words
 	 */
 	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {

@@ -38,7 +38,7 @@ public class DirectoryNavigator {
 	 * 
 	 * @param start the starting path
 	 * @return the list of paths
-	 * @throws IOException
+	 * @throws IOException to catch in driver
 	 */
 	public static ArrayList<Path> findPaths(Path start) throws IOException {
 		ArrayList<Path> paths = new ArrayList<Path>();
