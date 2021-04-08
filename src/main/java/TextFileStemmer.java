@@ -120,4 +120,19 @@ public class TextFileStemmer {
 		stemLine(line, stemmer, stems);
 		return stems;
 	}
+	
+	/*
+	 * TODO 
+	 * The listStems and uniqueStems versions you have that require the list or set
+	 * as a parameter are just replicating the work exactly of stemLine.
+	 * 
+	 * It would be nice to have the convenience methods from the homework which
+	 * will save some work for other developers by creating the list and/or stemmer
+	 * objects:
+	 * 
+	 * public static ArrayList<String> listStems(String line)
+	 * public static ArrayList<String> listStems(String line, Stemmer stemmer)
+	 * public static TreeSet<String> uniqueStems(String line)
+	 * public static TreeSet<String> uniqueStems(String line, Stemmer stemmer)
+	 */
 }

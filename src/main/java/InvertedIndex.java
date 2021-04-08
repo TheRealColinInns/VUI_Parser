@@ -5,6 +5,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
 
+/*
+ * TODO Rethink your names. Describe the functionality of methods, not the 
+ * implementation. Describe the data stored by members, not the data type.
+ * 
+ * myMap --> index
+ * 
+ * containsKeyInvertedIndex --> containsWord or hasWord or just contains
+ * sizeNestedMap --> locationSize or numLocations or just size (let the parameters indicate the size of what)
+ * 
+ * Except your constructor, toString, and add method, all of the methods could
+ * use renaming. Use the refactor feature in Eclipse to make it easier! 
+ */
+
 /**
  * Class responsible for storing the data structure See the README for details.
  *
@@ -44,6 +57,17 @@ public class InvertedIndex {
 	 * 
 	 */
 	public Collection<String> getNestedMap(String key) {
+		/*
+		 * TODO Watch out for null pointer exceptions. When you call get(...) it
+		 * could return null if the key is missing. If you use your own contains
+		 * methods, you can avoid this problem. If the key is missing, return the
+		 * Collections.emptySet instead.
+		 * 
+		 * You'll need to fix this in all of your methods that call myMap.get(...)
+		 * without first testing if it is safe. (Some you are testing, some you are
+		 * not.)
+		 */
+
 		return Collections.unmodifiableCollection(this.myMap.get(key).keySet());
 	}
 
@@ -180,6 +204,15 @@ public class InvertedIndex {
 	public void dataWriter(Path filename) throws IOException {
 		SimpleJsonWriter.asNestedArray(this.myMap, filename);
 	}
+	
+	/*
+	 * TODO Nope! Add it now. Just because you don't need it immediately doesn't mean
+	 * it shouldn't be part of a general inverted index data structure that will be
+	 * used by other developers.
+	 * 
+	 * If you don't know, don't resubmit for another code review. Ask on CampusWire.
+	 * Otherwise, you risk needing yet another round of review.
+	 */
 	// not exactly sure what the addAll function would be for? I think I will leave
 	// it out for now and add it when I need it and know exactly what I want it to
 	// do.
