@@ -92,14 +92,14 @@ public class TextFileStemmer {
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.
 	 *
-	 * @param line    the line of words to clean, split, and stem
-	 * @param stemmer the stemmer to use
-	 * @param stems   the collection
+	 * @param line the line of words to clean, split, and stem
 	 * @return a list of cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 */
-	public static ArrayList<String> listStems(String line, Stemmer stemmer, ArrayList<String> stems) {
+	public static ArrayList<String> listStems(String line) {
+		Stemmer stemmer = new SnowballStemmer(DEFAULT);
+		ArrayList<String> stems = new ArrayList<String>();
 		stemLine(line, stemmer, stems);
 		return stems;
 
@@ -109,30 +109,39 @@ public class TextFileStemmer {
 	 * Returns a set of unique (no duplicates) cleaned and stemmed words parsed from
 	 * the provided line.
 	 *
-	 * @param line    the line of words to clean, split, and stem
-	 * @param stemmer the stemmer to use
-	 * @param stems   a treeset of stems
+	 * @param line the line of words to clean, split, and stem
 	 * @return a sorted set of unique cleaned and stemmed words
 	 *
 	 * @see Stemmer#stem(CharSequence)
 	 */
-	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer, TreeSet<String> stems) {
+	public static TreeSet<String> uniqueStems(String line) {
+		Stemmer stemmer = new SnowballStemmer(DEFAULT);
+		TreeSet<String> stems = new TreeSet<String>();
 		stemLine(line, stemmer, stems);
 		return stems;
 	}
-	
-	/*
-	 * TODO 
-	 * The listStems and uniqueStems versions you have that require the list or set
-	 * as a parameter are just replicating the work exactly of stemLine.
+
+	/**
 	 * 
-	 * It would be nice to have the convenience methods from the homework which
-	 * will save some work for other developers by creating the list and/or stemmer
-	 * objects:
-	 * 
-	 * public static ArrayList<String> listStems(String line)
-	 * public static ArrayList<String> listStems(String line, Stemmer stemmer)
-	 * public static TreeSet<String> uniqueStems(String line)
-	 * public static TreeSet<String> uniqueStems(String line, Stemmer stemmer)
+	 * @param line
+	 * @param stemmer
+	 * @return a list of stemmed words
 	 */
+	public static ArrayList<String> listStems(String line, Stemmer stemmer) {
+		ArrayList<String> stems = new ArrayList<String>();
+		stemLine(line, stemmer, stems);
+		return stems;
+	}
+
+	/**
+	 * 
+	 * @param line
+	 * @param stemmer
+	 * @return a set of stemmed words
+	 */
+	public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {
+		TreeSet<String> stems = new TreeSet<String>();
+		stemLine(line, stemmer, stems);
+		return stems;
+	}
 }

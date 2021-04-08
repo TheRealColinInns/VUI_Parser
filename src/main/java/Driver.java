@@ -32,16 +32,12 @@ public class Driver {
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
-			// TODO There SHOULDN'T be an exception when you make the changes correctly, unless there is a bug somewhere that would also need to be fixed.
-			// TODO You still need to fix it. "Invalid" could be a valid path name.
-			// the reason I am using the string INVALID istead of null is to avoid an
-			// exception thrown when you take the path of a null value
-			Path inputPath = Path.of(flagValuePairs.getString("-text", "INVALID"));
-			if (inputPath == Path.of("Invalid")) {
+			String inputPath = flagValuePairs.getString("-text");
+			if (inputPath == null) {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					InvertedIndexCreator.createInvertedIndex(Path.of(inputPath), myInvertedIndex);
 				} catch (Exception e) {
 					System.out.println("IO Exception for input path: " + inputPath.toString());
 				}
@@ -50,11 +46,11 @@ public class Driver {
 
 		// writes the inverted index to the desired location
 		if (flagValuePairs.hasFlag("-index")) {
-			Path filename = flagValuePairs.getPath("-index", Path.of("index.json"));
+			Path outputPath = flagValuePairs.getPath("-index", Path.of("index.json"));
 			try {
-				myInvertedIndex.dataWriter(filename);
+				myInvertedIndex.dataWriter(outputPath);
 			} catch (Exception e) {
-				System.out.println("IOException while writing to " + filename.toString());
+				System.out.println("IOException while writing to " + outputPath.toString());
 			}
 
 		}

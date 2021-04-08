@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -53,7 +52,7 @@ public class InvertedIndexCreator {
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
 				for (String word : TextParser.parse(line)) {
 					counter++;
-					stemWord(myStemmer.stem(word).toString(), myInvertedIndex, counter, inputPath);
+					myInvertedIndex.add(myStemmer.stem(word).toString(), inputPath.toString(), counter);
 				}
 			}
 		}
@@ -68,25 +67,9 @@ public class InvertedIndexCreator {
 	 * @throws IOException it really shouldn't throw tho
 	 */
 	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
-		ArrayList<Path> pathsFound = new ArrayList<Path>();
-		DirectoryNavigator.findPaths(inputPath, pathsFound);
-		for (Path currentPath : pathsFound) {
+		for (Path currentPath : DirectoryNavigator.findPaths(inputPath)) {
 			singleFileStemmer(currentPath, myInvertedIndex);
 		}
-	}
-
-	// TODO Remove stemWord and move the call to myInvertedIndex.add into your singleFileStemmer method instead
-	/**
-	 * adds a single word to the data structure
-	 *
-	 * @param myInvertedIndex the data structure
-	 * @param inputPath       the path that the arraylist is going to grab the data
-	 *                        from
-	 * @param lineCounter     counts how many words have already been added
-	 * @param word            the word we gotta add
-	 */
-	private static void stemWord(String word, InvertedIndex myInvertedIndex, int lineCounter, Path inputPath) {
-		myInvertedIndex.add(word, inputPath.toString(), lineCounter);
 	}
 
 }

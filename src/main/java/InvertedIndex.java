@@ -3,20 +3,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
-
-/*
- * TODO Rethink your names. Describe the functionality of methods, not the 
- * implementation. Describe the data stored by members, not the data type.
- * 
- * myMap --> index
- * 
- * containsKeyInvertedIndex --> containsWord or hasWord or just contains
- * sizeNestedMap --> locationSize or numLocations or just size (let the parameters indicate the size of what)
- * 
- * Except your constructor, toString, and add method, all of the methods could
- * use renaming. Use the refactor feature in Eclipse to make it easier! 
- */
 
 /**
  * Class responsible for storing the data structure See the README for details.
@@ -30,13 +18,13 @@ public class InvertedIndex {
 	/**
 	 * this is our data structure
 	 */
-	private final TreeMap<String, TreeMap<String, Collection<Integer>>> myMap;
+	private final TreeMap<String, TreeMap<String, Collection<Integer>>> index;
 
 	/**
 	 * Constructor for inverted index
 	 */
 	public InvertedIndex() {
-		myMap = new TreeMap<String, TreeMap<String, Collection<Integer>>>();
+		index = new TreeMap<String, TreeMap<String, Collection<Integer>>>();
 	}
 
 	/**
@@ -45,30 +33,24 @@ public class InvertedIndex {
 	 * @return my inverted index for a specific instance
 	 * 
 	 */
-	public Collection<String> getInvertedIndex() {
-		return Collections.unmodifiableCollection(this.myMap.keySet());
+	public Collection<String> getWords() {
+		return Collections.unmodifiableCollection(this.index.keySet());
 	}
 
 	/**
 	 * Getter for the nested map inside the inverted index
 	 * 
 	 * @param key word
-	 * @return the nested map inside the inverted index for a specified key
+	 * @return the nested map inside the inverted index for a specified key, null if
+	 *         it doesn't exist
 	 * 
 	 */
-	public Collection<String> getNestedMap(String key) {
-		/*
-		 * TODO Watch out for null pointer exceptions. When you call get(...) it
-		 * could return null if the key is missing. If you use your own contains
-		 * methods, you can avoid this problem. If the key is missing, return the
-		 * Collections.emptySet instead.
-		 * 
-		 * You'll need to fix this in all of your methods that call myMap.get(...)
-		 * without first testing if it is safe. (Some you are testing, some you are
-		 * not.)
-		 */
-
-		return Collections.unmodifiableCollection(this.myMap.get(key).keySet());
+	public Collection<String> getLocations(String key) {
+		if (this.containsWord(key)) {
+			return Collections.unmodifiableCollection(this.index.get(key).keySet());
+		} else {
+			return Collections.emptySet();
+		}
 	}
 
 	/**
@@ -79,9 +61,9 @@ public class InvertedIndex {
 	 * @return the nested array inside the inverted index
 	 * @throws NullPointerException if inner or outer key dont exist
 	 */
-	public Collection<Integer> getNestedArray(String outerKey, String innerKey) {
-		if (this.containsKeyNestedMap(outerKey, innerKey)) {
-			return Collections.unmodifiableCollection(this.myMap.get(outerKey).get(innerKey));
+	public Collection<Integer> getPositions(String outerKey, String innerKey) {
+		if (this.containsLocation(outerKey, innerKey)) {
+			return Collections.unmodifiableCollection(this.index.get(outerKey).get(innerKey));
 		}
 		return Collections.emptySet();
 	}
@@ -93,8 +75,8 @@ public class InvertedIndex {
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
-	public boolean containsKeyInvertedIndex(String key) {
-		return this.myMap.containsKey(key);
+	public boolean containsWord(String key) {
+		return this.index.containsKey(key);
 	}
 
 	/**
@@ -105,9 +87,9 @@ public class InvertedIndex {
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
-	public boolean containsKeyNestedMap(String outerKey, String innerKey) {
-		if (this.containsKeyInvertedIndex(outerKey)) {
-			return this.myMap.get(outerKey).containsKey(innerKey);
+	public boolean containsLocation(String outerKey, String innerKey) {
+		if (this.containsWord(outerKey)) {
+			return this.index.get(outerKey).containsKey(innerKey);
 		} else {
 			return false;
 		}
@@ -122,8 +104,12 @@ public class InvertedIndex {
 	 * @return {@code true} if the inverted index has a specified key
 	 * 
 	 */
-	public boolean containsIntNestedArray(String outerKey, String innerKey, Integer value) {
-		return this.myMap.get(outerKey).get(innerKey).contains(value);
+	public boolean containsPosition(String outerKey, String innerKey, Integer value) {
+		if (this.containsLocation(outerKey, innerKey)) {
+			return this.index.get(outerKey).get(innerKey).contains(value);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -134,20 +120,20 @@ public class InvertedIndex {
 	 * @param value    position
 	 */
 	public void add(String outerKey, String innerKey, Integer value) {
-		if (this.containsKeyInvertedIndex(outerKey)) {
-			if (this.containsKeyNestedMap(outerKey, innerKey)) {
-				this.myMap.get(outerKey).get(innerKey).add(value);
+		if (this.containsWord(outerKey)) {
+			if (this.containsLocation(outerKey, innerKey)) {
+				this.index.get(outerKey).get(innerKey).add(value);
 			} else {
 				Collection<Integer> nestedArrayList = new ArrayList<Integer>();
 				nestedArrayList.add(value);
-				this.myMap.get(outerKey).put(innerKey, nestedArrayList);
+				this.index.get(outerKey).put(innerKey, nestedArrayList);
 			}
 		} else {
 			Collection<Integer> nestedArrayList = new ArrayList<Integer>();
 			TreeMap<String, Collection<Integer>> nestedMap = new TreeMap<String, Collection<Integer>>();
 			nestedArrayList.add(value);
 			nestedMap.put(innerKey, nestedArrayList);
-			this.myMap.put(outerKey, nestedMap);
+			this.index.put(outerKey, nestedMap);
 		}
 	}
 
@@ -156,8 +142,8 @@ public class InvertedIndex {
 	 * 
 	 * @return int the size of the map
 	 */
-	public int sizeInvertedIndex() {
-		return this.myMap.size();
+	public int sizeWords() {
+		return this.index.size();
 	}
 
 	/**
@@ -166,9 +152,9 @@ public class InvertedIndex {
 	 * @param key word
 	 * @return int the size of the map
 	 */
-	public int sizeNestedMap(String key) {
-		if (this.containsKeyInvertedIndex(key)) {
-			return this.myMap.get(key).size();
+	public int sizeLocations(String key) {
+		if (this.containsWord(key)) {
+			return this.index.get(key).size();
 		} else {
 			return -1;
 		}
@@ -181,9 +167,9 @@ public class InvertedIndex {
 	 * @param innerKey location
 	 * @return int the size of the arraylist
 	 */
-	public int sizeNestedArray(String outerKey, String innerKey) {
-		if (this.containsKeyNestedMap(outerKey, innerKey)) {
-			return this.myMap.get(outerKey).get(innerKey).size();
+	public int sizePositions(String outerKey, String innerKey) {
+		if (this.containsLocation(outerKey, innerKey)) {
+			return this.index.get(outerKey).get(innerKey).size();
 		} else {
 			return -1;
 		}
@@ -191,7 +177,7 @@ public class InvertedIndex {
 
 	@Override
 	public String toString() {
-		return myMap.toString();
+		return index.toString();
 	}
 
 	/**
@@ -202,18 +188,19 @@ public class InvertedIndex {
 	 * @throws IOException Catch this is driver
 	 */
 	public void dataWriter(Path filename) throws IOException {
-		SimpleJsonWriter.asNestedArray(this.myMap, filename);
+		SimpleJsonWriter.asNestedArray(this.index, filename);
 	}
-	
-	/*
-	 * TODO Nope! Add it now. Just because you don't need it immediately doesn't mean
-	 * it shouldn't be part of a general inverted index data structure that will be
-	 * used by other developers.
+
+	/**
 	 * 
-	 * If you don't know, don't resubmit for another code review. Ask on CampusWire.
-	 * Otherwise, you risk needing yet another round of review.
+	 * @param words    the words to input
+	 * @param location the location the words were found
 	 */
-	// not exactly sure what the addAll function would be for? I think I will leave
-	// it out for now and add it when I need it and know exactly what I want it to
-	// do.
+	public void addAll(List<String> words, String location) {
+		int position = 0;
+		for (String word : words) {
+			position++;
+			this.add(word, location, position);
+		}
+	}
 }
