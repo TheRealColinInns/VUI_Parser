@@ -32,12 +32,12 @@ public class Driver {
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
-			String inputPath = flagValuePairs.getString("-text");
+			Path inputPath = flagValuePairs.getPath("-text");
 			if (inputPath == null) {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(Path.of(inputPath), myInvertedIndex);
+					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 				} catch (Exception e) {
 					System.out.println("IO Exception for input path: " + inputPath.toString());
 				}
