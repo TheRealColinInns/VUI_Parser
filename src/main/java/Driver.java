@@ -32,6 +32,8 @@ public class Driver {
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
+			// TODO There SHOULDN'T be an exception when you make the changes correctly, unless there is a bug somewhere that would also need to be fixed.
+			// TODO You still need to fix it. "Invalid" could be a valid path name.
 			// the reason I am using the string INVALID istead of null is to avoid an
 			// exception thrown when you take the path of a null value
 			Path inputPath = Path.of(flagValuePairs.getString("-text", "INVALID"));
@@ -44,7 +46,6 @@ public class Driver {
 					System.out.println("IO Exception for input path: " + inputPath.toString());
 				}
 			}
-
 		}
 
 		// writes the inverted index to the desired location

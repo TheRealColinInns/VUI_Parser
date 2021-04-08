@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+// TODO Make sure these still pass the original tests!
+
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
  * are used to separate elements and nested elements are indented using tabs.
@@ -32,6 +34,7 @@ public class SimpleJsonWriter {
 	 */
 	public static void asArray(Collection<Integer> elements, Writer writer, int level) throws IOException {
 		writer.write("[\n");
+		// TODO Did you forget a level++ here?
 		Iterator<Integer> elementsIterator = elements.iterator();
 		if (elementsIterator.hasNext()) {
 			indent(elementsIterator.next().toString(), writer, level);

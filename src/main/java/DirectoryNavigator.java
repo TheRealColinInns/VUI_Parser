@@ -33,6 +33,19 @@ public class DirectoryNavigator {
 			}
 		}
 	}
+	
+	/*
+	 * TODO It would simplify your code in creator if you create this 
+	 * convenience method here:
+	 * 
+	 * public static void findPaths(Path start) throws IOException {
+	 * 		create list of paths
+	 * 		call findPaths(start, paths)
+	 * 		return paths
+	 * }
+	 * 
+	 * (This is a pretty common use case.)
+	 */
 
 	/**
 	 * Checks if text file

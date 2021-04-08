@@ -75,6 +75,7 @@ public class InvertedIndexCreator {
 		}
 	}
 
+	// TODO Remove stemWord and move the call to myInvertedIndex.add into your singleFileStemmer method instead
 	/**
 	 * adds a single word to the data structure
 	 *
