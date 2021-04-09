@@ -28,13 +28,14 @@ public class DirectoryNavigator {
 			// start directory traversal
 			traverseDirectory(start, pathsFound);
 		} else {
-			if (isTextFile(start)) {
+			if (isTextFile(start)) { // TODO Combine into an "else if"
 				pathsFound.add(start);
 			}
 		}
 	}
 
 	/**
+	 * TODO Description
 	 * 
 	 * @param start the starting path
 	 * @return the list of paths

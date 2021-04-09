@@ -48,6 +48,7 @@ public class InvertedIndexCreator {
 	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		int counter = 0;
+		// TODO String location = inputPath.toString() <--- and reuse below to avoid calling over and over again in the loop
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8);) {
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
 				for (String word : TextParser.parse(line)) {
