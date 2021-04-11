@@ -1,9 +1,11 @@
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -120,24 +122,11 @@ public class InvertedIndex {
 	 * @param value    position
 	 */
 	public void add(String outerKey, String innerKey, Integer value) {
-		/*
-		 * TODO THis can be 3 lines of code if you use putIfAbsent
-		 * Ask for help if you can't figure it out (but link to this TODO commnet)
-		 */
-		if (this.containsWord(outerKey)) {
-			if (this.containsLocation(outerKey, innerKey)) {
+		if (this.index.putIfAbsent(outerKey, new TreeMap<String, Collection<Integer>>(
+				Map.of(innerKey, new ArrayList<Integer>(Arrays.asList(value))))) != null) {
+			if (this.index.get(outerKey).putIfAbsent(innerKey, new ArrayList<Integer>(Arrays.asList(value))) != null) {
 				this.index.get(outerKey).get(innerKey).add(value);
-			} else {
-				Collection<Integer> nestedArrayList = new ArrayList<Integer>();
-				nestedArrayList.add(value);
-				this.index.get(outerKey).put(innerKey, nestedArrayList);
 			}
-		} else {
-			Collection<Integer> nestedArrayList = new ArrayList<Integer>();
-			TreeMap<String, Collection<Integer>> nestedMap = new TreeMap<String, Collection<Integer>>();
-			nestedArrayList.add(value);
-			nestedMap.put(innerKey, nestedArrayList);
-			this.index.put(outerKey, nestedMap);
 		}
 	}
 

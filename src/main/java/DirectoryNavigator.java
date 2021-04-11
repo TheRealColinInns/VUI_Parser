@@ -27,15 +27,13 @@ public class DirectoryNavigator {
 			// output trailing slash to indicate directory
 			// start directory traversal
 			traverseDirectory(start, pathsFound);
-		} else {
-			if (isTextFile(start)) { // TODO Combine into an "else if"
-				pathsFound.add(start);
-			}
+		} else if (isTextFile(start)) {
+			pathsFound.add(start);
 		}
 	}
 
 	/**
-	 * TODO Description
+	 * Method that helps original findPaths recursively find the paths
 	 * 
 	 * @param start the starting path
 	 * @return the list of paths

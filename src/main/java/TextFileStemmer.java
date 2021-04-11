@@ -98,12 +98,7 @@ public class TextFileStemmer {
 	 * @see Stemmer#stem(CharSequence)
 	 */
 	public static ArrayList<String> listStems(String line) {
-		// TODO Reuse your code, return listStems(line, new SnowballStemmer(DEFAULT));
-		Stemmer stemmer = new SnowballStemmer(DEFAULT);
-		ArrayList<String> stems = new ArrayList<String>();
-		stemLine(line, stemmer, stems);
-		return stems;
-
+		return listStems(line, new SnowballStemmer(DEFAULT));
 	}
 
 	/**
@@ -116,15 +111,11 @@ public class TextFileStemmer {
 	 * @see Stemmer#stem(CharSequence)
 	 */
 	public static TreeSet<String> uniqueStems(String line) {
-		// TODO Reuse code
-		Stemmer stemmer = new SnowballStemmer(DEFAULT);
-		TreeSet<String> stems = new TreeSet<String>();
-		stemLine(line, stemmer, stems);
-		return stems;
+		return uniqueStems(line, new SnowballStemmer(DEFAULT));
 	}
 
 	/**
-	 * TODO Fill in method description
+	 * Specifically stems into an ArrayList
 	 * 
 	 * @param line    the string to stem
 	 * @param stemmer the stemmer
@@ -137,7 +128,7 @@ public class TextFileStemmer {
 	}
 
 	/**
-	 * TODO Fill in method description
+	 * Specifically stems into a set
 	 * 
 	 * @param line    the string to stem
 	 * @param stemmer the stemmer

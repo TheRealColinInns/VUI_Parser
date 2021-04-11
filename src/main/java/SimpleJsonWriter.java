@@ -34,16 +34,14 @@ public class SimpleJsonWriter {
 		writer.write("[\n");
 		level++;
 		Iterator<Integer> elementsIterator = elements.iterator();
-		if (elementsIterator.hasNext()) { // TODO Put newline in here instead
+		if (elementsIterator.hasNext()) {
 			indent(elementsIterator.next().toString(), writer, level);
 		}
 		while (elementsIterator.hasNext()) {
 			writer.write(",\n");
 			indent(elementsIterator.next().toString(), writer, level);
 		}
-		if (!elements.isEmpty()) {
-			writer.write("\n"); // TODO Move this newline up then remove this check
-		}
+		writer.write("\n");
 		level--;
 		indent("]", writer, level);
 	}
@@ -70,9 +68,7 @@ public class SimpleJsonWriter {
 			next = keyIterator.next();
 			indent("\"" + next + "\": " + elements.get(next), writer, level);
 		}
-		if (!elements.isEmpty()) { // TODO Use same approach as asArray everywhere too
-			writer.write("\n");
-		}
+		writer.write("\n");
 		level--;
 		indent("}", writer, level);
 	}
@@ -89,15 +85,8 @@ public class SimpleJsonWriter {
 	 */
 	public static void asNestedMap(Map<String, ? extends Collection<Integer>> nested, Writer writer, int level)
 			throws IOException {
-		/*
-		 * TODO If I called
-		 * 
-		 * StringWriter writer = ...
-		 * asNestedMap(elements, writer, 0);
-		 * println(writer);
-		 * 
-		 * ...would it be in proper JSON output? What about the braces?
-		 */
+		writer.write("{\n");
+		level++;
 		Iterator<String> pathIterator = nested.keySet().iterator();
 		String pathNext;
 		if (pathIterator.hasNext()) {
@@ -111,8 +100,9 @@ public class SimpleJsonWriter {
 			indent("\"" + pathNext + "\": ", writer, level);
 			asArray(nested.get(pathNext), writer, level);
 		}
-
 		writer.write("\n");
+		level--;
+		indent("}", writer, level);
 
 	}
 
@@ -128,32 +118,23 @@ public class SimpleJsonWriter {
 	 */
 	public static void asNestedArray(Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements,
 			Writer writer, int level) throws IOException {
-		if (elements.isEmpty()) { // TODO See other comment, this doesn't need to be a special case
-			writer.write("{\n}");
-		} else {
-			indent("{\n", writer, level);
-			level++;
-			String wordNext;
-			Iterator<String> wordIterator = elements.keySet().iterator();
-			if (wordIterator.hasNext()) {
-				wordNext = wordIterator.next();
-				indent("\"" + wordNext + "\": {\n", writer, level);
-				level++;
-				asNestedMap(elements.get(wordNext), writer, level);
-				level--;
-				indent("}", writer, level);
-			}
-			while (wordIterator.hasNext()) {
-				writer.write(",\n");
-				wordNext = wordIterator.next();
-				indent("\"" + wordNext + "\": {\n", writer, level);
-				level++;
-				asNestedMap(elements.get(wordNext), writer, level);
-				level--;
-				indent("}", writer, level);
-			}
-			writer.write("\n}");
+		indent("{", writer, level);
+		level++;
+		String wordNext;
+		Iterator<String> wordIterator = elements.keySet().iterator();
+		if (wordIterator.hasNext()) {
+			writer.write("\n");
+			wordNext = wordIterator.next();
+			indent("\"" + wordNext + "\": ", writer, level);
+			asNestedMap(elements.get(wordNext), writer, level);
 		}
+		while (wordIterator.hasNext()) {
+			writer.write(",\n");
+			wordNext = wordIterator.next();
+			indent("\"" + wordNext + "\": ", writer, level);
+			asNestedMap(elements.get(wordNext), writer, level);
+		}
+		writer.write("\n}");
 	}
 
 	/**
