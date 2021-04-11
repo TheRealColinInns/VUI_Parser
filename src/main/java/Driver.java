@@ -52,7 +52,6 @@ public class Driver {
 			} catch (Exception e) {
 				System.out.println("IOException while writing to " + outputPath.toString());
 			}
-
 		}
 
 		// calculate time elapsed and output

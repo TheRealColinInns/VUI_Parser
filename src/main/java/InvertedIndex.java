@@ -120,6 +120,10 @@ public class InvertedIndex {
 	 * @param value    position
 	 */
 	public void add(String outerKey, String innerKey, Integer value) {
+		/*
+		 * TODO THis can be 3 lines of code if you use putIfAbsent
+		 * Ask for help if you can't figure it out (but link to this TODO commnet)
+		 */
 		if (this.containsWord(outerKey)) {
 			if (this.containsLocation(outerKey, innerKey)) {
 				this.index.get(outerKey).get(innerKey).add(value);
@@ -192,6 +196,7 @@ public class InvertedIndex {
 	}
 
 	/**
+	 * TODO Describe
 	 * 
 	 * @param words    the words to input
 	 * @param location the location the words were found

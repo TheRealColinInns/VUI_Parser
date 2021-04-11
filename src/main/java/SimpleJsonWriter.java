@@ -34,7 +34,7 @@ public class SimpleJsonWriter {
 		writer.write("[\n");
 		level++;
 		Iterator<Integer> elementsIterator = elements.iterator();
-		if (elementsIterator.hasNext()) {
+		if (elementsIterator.hasNext()) { // TODO Put newline in here instead
 			indent(elementsIterator.next().toString(), writer, level);
 		}
 		while (elementsIterator.hasNext()) {
@@ -42,7 +42,7 @@ public class SimpleJsonWriter {
 			indent(elementsIterator.next().toString(), writer, level);
 		}
 		if (!elements.isEmpty()) {
-			writer.write("\n");
+			writer.write("\n"); // TODO Move this newline up then remove this check
 		}
 		level--;
 		indent("]", writer, level);
@@ -70,7 +70,7 @@ public class SimpleJsonWriter {
 			next = keyIterator.next();
 			indent("\"" + next + "\": " + elements.get(next), writer, level);
 		}
-		if (!elements.isEmpty()) {
+		if (!elements.isEmpty()) { // TODO Use same approach as asArray everywhere too
 			writer.write("\n");
 		}
 		level--;
@@ -89,6 +89,15 @@ public class SimpleJsonWriter {
 	 */
 	public static void asNestedMap(Map<String, ? extends Collection<Integer>> nested, Writer writer, int level)
 			throws IOException {
+		/*
+		 * TODO If I called
+		 * 
+		 * StringWriter writer = ...
+		 * asNestedMap(elements, writer, 0);
+		 * println(writer);
+		 * 
+		 * ...would it be in proper JSON output? What about the braces?
+		 */
 		Iterator<String> pathIterator = nested.keySet().iterator();
 		String pathNext;
 		if (pathIterator.hasNext()) {
@@ -119,7 +128,7 @@ public class SimpleJsonWriter {
 	 */
 	public static void asNestedArray(Map<String, ? extends Map<String, ? extends Collection<Integer>>> elements,
 			Writer writer, int level) throws IOException {
-		if (elements.isEmpty()) {
+		if (elements.isEmpty()) { // TODO See other comment, this doesn't need to be a special case
 			writer.write("{\n}");
 		} else {
 			indent("{\n", writer, level);
