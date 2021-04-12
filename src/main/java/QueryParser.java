@@ -3,7 +3,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 
@@ -12,13 +14,17 @@ public class QueryParser {
 	/**
 	 * the structure used to store the queries
 	 */
-	private HashSet<TreeSet<String>> querySet;
+	private Set<TreeSet<String>> querySet;
 	
 	/**
 	 * constructor for query parser class
 	 */
 	public QueryParser() {
 		querySet = new HashSet<TreeSet<String>>();
+	}
+	
+	public Set<TreeSet<String>> get(){
+		return Collections.unmodifiableSet(this.querySet);
 	}
 	
 	/**

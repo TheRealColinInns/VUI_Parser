@@ -5,6 +5,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -265,4 +267,69 @@ public class SimpleJsonWriter {
 		writer.write(element);
 		writer.write('"');
 	}
+	
+	public static String asResultNestedArray(Map<String, ArrayList<ArrayList<String>>> dirtyResults) {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		boolean noSkipSingle = true;
+		try {
+			StringWriter writer = new StringWriter();
+			writer.write("{\n");
+			int counter = 0;
+			if(dirtyResults.keySet()!=null) {
+				counter = dirtyResults.keySet().size();
+			}
+			//System.out.println("Key Set: "+dirtyResults.keySet().toString());
+			for(String myKey:dirtyResults.keySet()) {
+				noSkipSingle = true;
+				//System.out.println(myKey+": "+dirtyResults.get(myKey));
+				counter--;
+				int level = 1;
+				indent("\""+myKey+"\": [\n", writer, level);
+				int queryCounter = 0;
+				if(dirtyResults.get(myKey)!=null) {
+					queryCounter = dirtyResults.get(myKey).size();
+				}
+				else {
+					noSkipSingle = false;
+				}
+				if(noSkipSingle) {
+					level = 2;
+					//System.out.println("Array: "+dirtyResults.get(myKey).toString());
+					for(ArrayList<String> singleQuery:dirtyResults.get(myKey)) {
+						//System.out.println(level);
+						indent("{\n", writer, level);
+						level = 3;
+						queryCounter--;
+						indent("\"where\": \""+singleQuery.get(2)+"\",\n", writer, level);
+						indent("\"count\": "+(int)(Math.round(Double.valueOf(singleQuery.get(1))))+",\n", writer, level);
+						indent("\"score\": "+FORMATTER.format(Double.valueOf(singleQuery.get(0)))+"\n", writer, level);
+						level = 2;
+						if(queryCounter>0) {
+							indent("},\n", writer, level);
+						}
+						else {
+							indent("}\n", writer, level);
+						}
+						
+					}
+					
+				}
+				level = 1;
+				if(counter>0) {
+					indent("],\n", writer, level);
+				}
+				else {
+					indent("]\n", writer, level);
+				}
+				
+				
+			}
+			writer.write("}");
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
 }
+

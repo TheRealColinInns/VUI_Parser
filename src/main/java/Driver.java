@@ -63,6 +63,12 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			try {
 				myQueryParser.parse(queryPath);
+				if(flagValuePairs.hasFlag("-exact")) {
+					SearchQuery.exactSearch(myInvertedIndex, myWordCount, myQueryParser);
+				}
+				else {
+					SearchQuery.partialSearch(myInvertedIndex, myWordCount, myQueryParser);
+				}
 			} catch (IOException e) {
 				System.out.println("Unable to aquire queries from path "+queryPath.toString());
 			}
