@@ -55,11 +55,12 @@ public class SimpleJsonWriter {
 	 * @throws IOException if an IO error occurs
 	 */
 	public static void asObject(Map<String, Integer> elements, Writer writer, int level) throws IOException {
-		indent("{\n", writer, level);
+		indent("{", writer, level);
 		level++;
 		String next;
 		Iterator<String> keyIterator = elements.keySet().iterator();
 		if (keyIterator.hasNext()) {
+			writer.write("\n");
 			next = keyIterator.next();
 			indent("\"" + next + "\": " + elements.get(next), writer, level);
 		}
@@ -68,9 +69,8 @@ public class SimpleJsonWriter {
 			next = keyIterator.next();
 			indent("\"" + next + "\": " + elements.get(next), writer, level);
 		}
-		writer.write("\n");
 		level--;
-		indent("}", writer, level);
+		indent("\n}", writer, level);
 	}
 
 	/**

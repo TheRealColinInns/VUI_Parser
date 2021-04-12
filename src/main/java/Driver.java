@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -29,6 +30,10 @@ public class Driver {
 
 		// the inverted index data structure that we will store all of the data in
 		InvertedIndex myInvertedIndex = new InvertedIndex();
+		//the word count map we will store the word counts in
+		WordCount myWordCount = new WordCount();
+		//the query structure we will use to store the queries
+		QueryParser myQueryParser = new QueryParser();
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -37,9 +42,9 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, myWordCount);
 				} catch (Exception e) {
-					System.out.println("IO Exception for input path: " + inputPath.toString());
+					System.out.println("IO Exception while reading path: " + inputPath.toString());
 				}
 			}
 		}
@@ -50,7 +55,26 @@ public class Driver {
 			try {
 				myInvertedIndex.dataWriter(outputPath);
 			} catch (Exception e) {
-				System.out.println("IOException while writing to " + outputPath.toString());
+				System.out.println("IOException while writing index to " + outputPath.toString());
+			}
+		}
+		
+		if(flagValuePairs.hasFlag("-query")) {
+			Path queryPath = flagValuePairs.getPath("-query");
+			try {
+				myQueryParser.parse(queryPath);
+			} catch (IOException e) {
+				System.out.println("Unable to aquire queries from path "+queryPath.toString());
+			}
+		}
+		
+		if(flagValuePairs.hasFlag("-counts")) {
+			Path countPath = flagValuePairs.getPath("-counts", Path.of("counts.json"));
+			try {
+				myWordCount.write(countPath);
+			}
+			catch(Exception e) {
+				System.out.println("IO Exception while writing word count to "+countPath.toString());
 			}
 		}
 
