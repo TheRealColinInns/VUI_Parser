@@ -1,18 +1,27 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class SearchQuery {
-	public static TreeMap<String, ArrayList<ArrayList<String>>> exactSearch(InvertedIndex myInvertedIndex,
+	public static void exactSearch(InvertedIndex myInvertedIndex,
 			WordCount myWordCount, QueryParser myQueryParser) {
-		double wordCount;
-		// System.out.println("Query Set: "+querySet);
-
 		
+		for (TreeSet<String> querySet : myQueryParser.get()) {
+			String queryText = String.join(" ", querySet);
+			for (String wordKey : myInvertedIndex.getWords()) {
+				for (String pathKey : myInvertedIndex.getLocations(wordKey)) {
+					
+				}
+			}
+		}
+		/*
 		TreeMap<String, ArrayList<ArrayList<String>>> results = new TreeMap<String, ArrayList<ArrayList<String>>>();
 		for (TreeSet<String> query : myQueryParser.get()) {
 			ArrayList<ArrayList<String>> queryResult = new ArrayList<ArrayList<String>>();
@@ -47,7 +56,7 @@ public class SearchQuery {
 				}
 			}
 
-			// System.out.println(pathCount.toString());
+			System.out.println(pathCount.toString());
 			for (String countKey : pathCount.keySet()) {
 				if (pathCount.get(countKey) > 0) {
 					wordCount = myWordCount.get(countKey);
@@ -64,77 +73,22 @@ public class SearchQuery {
 					queryResult.remove(i);
 				}
 			}
-			SearchQuery.add(queryResult, String.join(" ", query), results);
+			if(!queryResult.isEmpty()){
+				System.out.println("Result: "+queryResult+" for query: "+query);
+				SearchQuery.add(resultSorter(queryResult), String.join(" ", query), results);
+			}
 		}
-		if (queryResult.isEmpty()) {
-			return queryResult;
-		}
-		// System.out.println("After: "+queryResult.toString());
-		return resultSorter(queryResult);
+		return results;
+		*/
 	}
 
-	public static TreeMap<String, ArrayList<ArrayList<String>>> partialSearch(InvertedIndex myInvertedIndex,
-			WordCount myWordCount, QueryParser myQueryParser) {
-		double wordCount;
-		// System.out.println("Query Set: "+querySet);
-
-		ArrayList<ArrayList<String>> queryResult = new ArrayList<ArrayList<String>>();
-		Map<String, Integer> pathCount = new HashMap<String, Integer>();
-		for (TreeSet<String> singleQuery : myQueryParser.get()) {
-			for (String wordKey : myInvertedIndex.getWords()) {
-				for (String pathKey : myInvertedIndex.getLocations(wordKey)) {
-
-					// System.out.println("keySet: "+flippedMap.get(mainKey).keySet());
-					for (String queryWord : singleQuery) {
-						// System.out.println("Result Count Check: "+queryWord+" | "+wordKey);
-						if (partialSearcher(wordKey, queryWord)) {
-							int resultCount = 0;
-							if (pathCount.containsKey(pathKey)) {
-								if (pathCount.get(pathKey) != null) {
-									resultCount = pathCount.get(pathKey);
-								} else {
-									resultCount = 0;
-								}
-								resultCount += myInvertedIndex.sizePositions(wordKey, pathKey);
-								// System.out.println("Putting 1: "+resultCount+" to path: "+pathKey);
-								pathCount.replace(pathKey, resultCount);
-							} else {
-								// System.out.println("Putting 2: "+mainMap.get(wordKey).get(pathKey).size()+"
-								// to path: "+pathKey);
-								pathCount.put(pathKey, myInvertedIndex.sizePositions(wordKey, pathKey));
-							}
-
-						}
-
-					}
-
-				}
-			}
-		}
-		// System.out.println(pathCount.toString());
-		for (String countKey : pathCount.keySet()) {
-			if (pathCount.get(countKey) > 0) {
-				wordCount = myWordCount.get(countKey);
-				ArrayList<String> singleQueryResult = new ArrayList<String>();
-				singleQueryResult.add(String.valueOf(pathCount.get(countKey) / wordCount));
-				singleQueryResult.add(String.valueOf(pathCount.get(countKey)));
-				singleQueryResult.add(countKey);
-				queryResult.add(singleQueryResult);
-			}
-		}
-		// System.out.println("Before: "+queryResult.toString());
-		for (int i = 0; i < queryResult.size(); i++) {
-			if (queryResult.get(i).isEmpty()) {
-				queryResult.remove(i);
-			}
-		}
-		if (queryResult.isEmpty()) {
-			return queryResult;
-		}
-		// System.out.println("After: "+queryResult.toString());
-		return resultSorter(queryResult);
+	private static ArrayList<String> createSingleResult(String location, Integer foundCount, WordCount myWordCount) {
+		ArrayList<String> singleResult = new ArrayList<String>();
+		singleResult.add(location);
+		singleResult.add(foundCount.toString());
+		singleResult.add(String.valueOf(foundCount/Double.valueOf(myWordCount.get(location))));
+		return singleResult;
 	}
-
 	private static ArrayList<ArrayList<String>> resultSorter(ArrayList<ArrayList<String>> helperList) {
 		ArrayList<ArrayList<String>> sortedList = new ArrayList<ArrayList<String>>();
 		boolean foundPosition = false;
@@ -210,8 +164,8 @@ public class SearchQuery {
 		return sortedList;
 	}
 
-	private static void add(ArrayList<ArrayList<String>> results,
-			String query, TreeMap<String, ArrayList<ArrayList<String>>> finalResults) {
+	private static void add(ArrayList<ArrayList<String>> results, String query,
+			TreeMap<String, ArrayList<ArrayList<String>>> finalResults) {
 		finalResults.put(query, results);
 	}
 
@@ -222,6 +176,8 @@ public class SearchQuery {
 		 */
 		return secondString.compareToIgnoreCase(firstString);
 	}
+	
+	private 
 
 	private static boolean partialSearcher(String wordKey, String query) {
 		String compareWord;
@@ -238,4 +194,6 @@ public class SearchQuery {
 		}
 		return false;
 	}
+	
+
 }

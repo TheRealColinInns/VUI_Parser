@@ -52,7 +52,12 @@ public class WordCount {
 			return -1;
 		}
 	}
-
+	
+	/**
+	 * writes the word counts to a specified file
+	 * @param countPath the file we are writing to
+	 * @throws IOException throws if file doesn't exist
+	 */
 	public void write(Path countPath) throws IOException {
 		SimpleJsonWriter.asObject(wordCount, countPath);
 	}
