@@ -6,6 +6,7 @@ public class SearchQuery {
 	public static void exactSearch(InvertedIndex myInvertedIndex, WordCount myWordCount, QueryParser myQueryParser,
 			SearchResults results) {
 		for (TreeSet<String> querySet : myQueryParser.get()) {
+			String queryText = String.join(" ", querySet);
 			SingleQueryResult mySingleQueryResult = new SingleQueryResult();
 			Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 			for (String word : myInvertedIndex.getWords()) {
@@ -27,7 +28,7 @@ public class SearchQuery {
 			for (String path : countsAtLocations.keySet()) {
 				mySingleQueryResult.add(path, countsAtLocations.get(path), myWordCount);
 			}
-
+			results.add(queryText, mySingleQueryResult);
 		}
 	}
 
