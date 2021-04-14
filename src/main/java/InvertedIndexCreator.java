@@ -29,7 +29,8 @@ public class InvertedIndexCreator {
 	 *                        from
 	 * @throws IOException in case of io exception
 	 */
-	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount) throws IOException {
+	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
+			throws IOException {
 		if (Files.isDirectory(inputPath)) {
 			directoryStemmer(inputPath, myInvertedIndex, myWordCount);
 		} else {
@@ -45,7 +46,8 @@ public class InvertedIndexCreator {
 	 * @param myInvertedIndex the data structure we are building
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount) throws IOException {
+	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
+			throws IOException {
 		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		int counter = 0;
 		String location = inputPath.toString();
@@ -68,7 +70,8 @@ public class InvertedIndexCreator {
 	 *                        from
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount) throws IOException {
+	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
+			throws IOException {
 		for (Path currentPath : DirectoryNavigator.findPaths(inputPath)) {
 			singleFileStemmer(currentPath, myInvertedIndex, myWordCount);
 		}

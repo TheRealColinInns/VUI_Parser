@@ -47,14 +47,15 @@ public class WordCount {
 	 */
 	public Integer get(String location) {
 		if (this.contains(location)) {
-			return this.get(location);
+			return this.wordCount.get(location);
 		} else {
-			return -1;
+			return null;
 		}
 	}
-	
+
 	/**
 	 * writes the word counts to a specified file
+	 * 
 	 * @param countPath the file we are writing to
 	 * @throws IOException throws if file doesn't exist
 	 */

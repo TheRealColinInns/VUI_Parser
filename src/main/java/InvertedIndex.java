@@ -21,8 +21,6 @@ public class InvertedIndex {
 	 * this is our data structure
 	 */
 	private final TreeMap<String, TreeMap<String, Collection<Integer>>> index;
-	
-
 
 	/**
 	 * Constructor for inverted index

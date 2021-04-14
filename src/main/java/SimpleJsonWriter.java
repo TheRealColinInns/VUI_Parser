@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -267,69 +268,112 @@ public class SimpleJsonWriter {
 		writer.write(element);
 		writer.write('"');
 	}
-	
-	public static String asResultNestedArray(Map<String, ArrayList<ArrayList<String>>> dirtyResults) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
-		boolean noSkipSingle = true;
+
+	/**
+	 * writes a single find
+	 * 
+	 * @param singleResult the single find
+	 * @param writer       the write we write with
+	 * @param level        the indent level
+	 * @throws IOException throws if we can't write
+	 */
+	public static void asSingleQueryWord(List<String> singleResult, Writer writer, int level) throws IOException {
+		indent("{", writer, level);
+
+		level++;
+		if (singleResult.size() > 0) {
+			writer.write("\n");
+			indent("\"where\": \"" + singleResult.get(0) + "\",\n", writer, level);
+			indent("\"count\": " + singleResult.get(1) + ",\n", writer, level);
+			indent("\"score\": " + singleResult.get(2), writer, level);
+		}
+		level--;
+		writer.write("\n");
+		indent("}", writer, level);
+	}
+
+	/**
+	 * writes a single query
+	 * 
+	 * @param singleQueryResult the results of a single query
+	 * @param writer            the writer we write with
+	 * @param level             the indent level
+	 * @throws IOException throws if we can't write
+	 */
+	public static void asSingleQuery(SingleQueryResult singleQueryResult, Writer writer, int level) throws IOException {
+		writer.write("[");
+		level++;
+		if (singleQueryResult.contains(0)) {
+			writer.write("\n");
+			asSingleQueryWord(singleQueryResult.get(0), writer, level);
+		}
+		for (int i = 1; i < singleQueryResult.size(); i++) {
+			writer.write(",\n");
+			asSingleQueryWord(singleQueryResult.get(i), writer, level);
+		}
+		level--;
+		writer.write("\n");
+		indent("]", writer, level);
+	}
+
+	/**
+	 * writes the results of the search
+	 * 
+	 * @param results the results of the search to write
+	 * @param writer  the writer we write to
+	 * @param level   indent level
+	 * @throws IOException if we cant write to the file
+	 */
+	public static void asSearchResult(Map<String, SingleQueryResult> results, Writer writer, int level)
+			throws IOException {
+		writer.write("{");
+		level++;
+		Iterator<String> queryIterator = results.keySet().iterator();
+		if (queryIterator.hasNext()) {
+			String query = queryIterator.next();
+			writer.write("\n");
+			indent("\"" + query + "\": ", writer, level);
+			asSingleQuery(results.get(query), writer, level);
+		}
+		while (queryIterator.hasNext()) {
+			String query = queryIterator.next();
+			writer.write(",\n");
+			indent("\"" + query + "\": ", writer, level);
+			asSingleQuery(results.get(query), writer, level);
+		}
+		writer.write("\n");
+		level--;
+		indent("}", writer, level);
+
+	}
+
+	/**
+	 * the method that writes specifically to a file
+	 * 
+	 * @param results the results of the search
+	 * @param output  the file we are writing to
+	 * @throws IOException throws if we can't write
+	 */
+	public static void asSearchResult(Map<String, SingleQueryResult> results, Path output) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(output, StandardCharsets.UTF_8)) {
+			asSearchResult(results, writer, 0);
+		}
+	}
+
+	/**
+	 * writes to a string
+	 * 
+	 * @param results the results to the search
+	 * @return a string of the write
+	 */
+	public static String asSearchResult(Map<String, SingleQueryResult> results) {
 		try {
 			StringWriter writer = new StringWriter();
-			writer.write("{\n");
-			int counter = 0;
-			if(dirtyResults.keySet()!=null) {
-				counter = dirtyResults.keySet().size();
-			}
-			//System.out.println("Key Set: "+dirtyResults.keySet().toString());
-			for(String myKey:dirtyResults.keySet()) {
-				noSkipSingle = true;
-				//System.out.println(myKey+": "+dirtyResults.get(myKey));
-				counter--;
-				int level = 1;
-				indent("\""+myKey+"\": [\n", writer, level);
-				int queryCounter = 0;
-				if(dirtyResults.get(myKey)!=null) {
-					queryCounter = dirtyResults.get(myKey).size();
-				}
-				else {
-					noSkipSingle = false;
-				}
-				if(noSkipSingle) {
-					level = 2;
-					//System.out.println("Array: "+dirtyResults.get(myKey).toString());
-					for(ArrayList<String> singleQuery:dirtyResults.get(myKey)) {
-						//System.out.println(level);
-						indent("{\n", writer, level);
-						level = 3;
-						queryCounter--;
-						indent("\"where\": \""+singleQuery.get(2)+"\",\n", writer, level);
-						indent("\"count\": "+(int)(Math.round(Double.valueOf(singleQuery.get(1))))+",\n", writer, level);
-						indent("\"score\": "+FORMATTER.format(Double.valueOf(singleQuery.get(0)))+"\n", writer, level);
-						level = 2;
-						if(queryCounter>0) {
-							indent("},\n", writer, level);
-						}
-						else {
-							indent("}\n", writer, level);
-						}
-						
-					}
-					
-				}
-				level = 1;
-				if(counter>0) {
-					indent("],\n", writer, level);
-				}
-				else {
-					indent("]\n", writer, level);
-				}
-				
-				
-			}
-			writer.write("}");
+			asSearchResult(results, writer, 0);
 			return writer.toString();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			return null;
 		}
 	}
-}
 
+}

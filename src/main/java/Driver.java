@@ -30,10 +30,12 @@ public class Driver {
 
 		// the inverted index data structure that we will store all of the data in
 		InvertedIndex myInvertedIndex = new InvertedIndex();
-		//the word count map we will store the word counts in
+		// the word count map we will store the word counts in
 		WordCount myWordCount = new WordCount();
-		//the query structure we will use to store the queries
+		// the query structure we will use to store the queries
 		QueryParser myQueryParser = new QueryParser();
+		// the results of the search
+		SearchResults results = new SearchResults();
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -58,29 +60,41 @@ public class Driver {
 				System.out.println("IOException while writing index to " + outputPath.toString());
 			}
 		}
-		
-		if(flagValuePairs.hasFlag("-query")) {
+
+		// puts together the results
+		if (flagValuePairs.hasFlag("-query")) {
 			Path queryPath = flagValuePairs.getPath("-query");
-			try {
-				myQueryParser.parse(queryPath);
-				if(flagValuePairs.hasFlag("-exact")) {
-					SimpleJsonWriter.asResultNestedArray(SearchQuery.exactSearch(myInvertedIndex, myWordCount, myQueryParser));
+			if (queryPath != null) {
+				try {
+					myQueryParser.parse(queryPath);
+					if (flagValuePairs.hasFlag("-exact")) {
+						SearchQuery.exactSearch(myInvertedIndex, myWordCount, myQueryParser, results);
+					} else {
+						SearchQuery.partialSearch(myInvertedIndex, myWordCount, myQueryParser, results);
+					}
+				} catch (IOException e) {
+					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
-				else {
-					SimpleJsonWriter.asResultNestedArray(SearchQuery.partialSearch(myInvertedIndex, myWordCount, myQueryParser));
-				}
-			} catch (IOException e) {
-				System.out.println("Unable to aquire queries from path "+queryPath.toString());
 			}
 		}
-		
-		if(flagValuePairs.hasFlag("-counts")) {
+
+		// writes the counts
+		if (flagValuePairs.hasFlag("-counts")) {
 			Path countPath = flagValuePairs.getPath("-counts", Path.of("counts.json"));
 			try {
 				myWordCount.write(countPath);
+			} catch (Exception e) {
+				System.out.println("IO Exception while writing word count to " + countPath.toString());
 			}
-			catch(Exception e) {
-				System.out.println("IO Exception while writing word count to "+countPath.toString());
+		}
+
+		// writes the results of the search
+		if (flagValuePairs.hasFlag("-results")) {
+			Path resultsPath = flagValuePairs.getPath("-results", Path.of("results.json"));
+			try {
+				results.write(resultsPath);
+			} catch (IOException e) {
+				System.out.println("IO Exception while writing results to " + resultsPath);
 			}
 		}
 
