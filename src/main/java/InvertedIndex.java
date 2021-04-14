@@ -185,7 +185,7 @@ public class InvertedIndex {
 	}
 
 	/**
-	 * TODO Describe
+	 * adds an entire list into the index
 	 * 
 	 * @param words    the words to input
 	 * @param location the location the words were found
