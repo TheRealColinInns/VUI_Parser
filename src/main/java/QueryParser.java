@@ -8,6 +8,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Class responsible for converting an array list into the map data structure
+ * desired that will be very important later for creating the json file
+ *
+ * @author CS 212 Software Development - Colin Inns
+ * @author University of San Francisco
+ * @version Spring 2021
+ */
 public class QueryParser {
 
 	/**
