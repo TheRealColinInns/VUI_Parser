@@ -3,6 +3,7 @@ import java.nio.file.Path;
 import java.util.TreeMap;
 
 public class SearchResults {
+
 	/**
 	 * the results of the search
 	 */

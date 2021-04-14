@@ -27,6 +27,7 @@ public class InvertedIndexCreator {
 	 *                        useful data structure
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
+	 * @param myWordCount     the word count we will add to
 	 * @throws IOException in case of io exception
 	 */
 	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
@@ -44,6 +45,7 @@ public class InvertedIndexCreator {
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
 	 * @param myInvertedIndex the data structure we are building
+	 * @param myWordCount     the word count we will add to
 	 * @throws IOException it really shouldn't throw tho
 	 */
 	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
@@ -68,6 +70,7 @@ public class InvertedIndexCreator {
 	 * @param myInvertedIndex the data structure
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
+	 * @param myWordCount     the word count we will add to
 	 * @throws IOException it really shouldn't throw tho
 	 */
 	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)

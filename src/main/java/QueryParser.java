@@ -22,6 +22,11 @@ public class QueryParser {
 		querySet = new HashSet<TreeSet<String>>();
 	}
 
+	/**
+	 * gets an unmodified set
+	 * 
+	 * @return the unmodified set
+	 */
 	public Set<TreeSet<String>> get() {
 		return Collections.unmodifiableSet(this.querySet);
 	}
