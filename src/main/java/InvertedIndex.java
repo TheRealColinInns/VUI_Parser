@@ -128,6 +128,10 @@ public class InvertedIndex {
 				this.index.get(outerKey).get(innerKey).add(value);
 			}
 		}
+		
+		/*
+		 * TODO If you did add something new to the index here, update the word count.
+		 */
 	}
 
 	/**
@@ -197,4 +201,14 @@ public class InvertedIndex {
 			this.add(word, location, position);
 		}
 	}
+	
+	/* TODO 
+	public List<Result> exactSearch(Set<String> queries) { <---- one line at a time from your query file 
+		
+	}
+	
+	public List<Result> partialSearch(Set<String> queries) {
+		
+	}
+	*/
 }

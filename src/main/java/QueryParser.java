@@ -18,6 +18,12 @@ import java.util.TreeSet;
  */
 public class QueryParser {
 
+	/*
+	 * TODO Combine QueryParser and SearchResults together into one class.
+	 * 
+	 * Shift to not just line-by-line reading but more line-by-line processing.
+	 */
+	
 	/**
 	 * the structure used to store the queries
 	 */
@@ -50,6 +56,7 @@ public class QueryParser {
 			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
 				TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
 				if (!parsed.isEmpty()) {
+					// TODO Trigger the search here right away and store the results
 					querySet.add(parsed);
 				}
 			}

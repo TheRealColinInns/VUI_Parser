@@ -12,6 +12,7 @@ import java.util.TreeMap;
  */
 public class SearchResults {
 
+	// TODO TreeMap<String, List<Result>> results;
 	/**
 	 * the results of the search
 	 */

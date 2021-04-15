@@ -14,7 +14,7 @@ public class WordCount {
 	/**
 	 * this is our data structure for the word count
 	 */
-	private final TreeMap<String, Integer> wordCount;
+	private final TreeMap<String, Integer> wordCount; // TODO Move into inverted index
 
 	/**
 	 * Constructor for Word Count class
@@ -39,7 +39,7 @@ public class WordCount {
 	 * @param location  the file the count came from
 	 * @param wordCount the word count associated with a file
 	 */
-	public void add(String location, Integer wordCount) {
+	public void add(String location, Integer wordCount) { // TODO private when move to the index
 		if (wordCount > 0) {
 			if (this.wordCount.putIfAbsent(location, wordCount) != null) {
 				System.out.println("Error, location already has a word count");

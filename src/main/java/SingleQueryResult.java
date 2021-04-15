@@ -12,6 +12,7 @@ import java.util.List;
  * @version Spring 2021
  */
 public class SingleQueryResult {
+	// TODO Something else will store all of the Result objects together associated with a query
 	/**
 	 * a single query result
 	 */
@@ -86,6 +87,19 @@ public class SingleQueryResult {
 	public void add(String location, Integer foundCount, WordCount myWordCount) {
 		ArrayList<String> singleResult = new ArrayList<String>();
 		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		// TODO Specific positions in the list have meaning...
+		/*
+		 * TODO Make something with 
+		 * 
+		 * Result {
+		 * 		private String location;
+		 * 		private int foundCount;
+		 * 		private double score;
+		 * 
+		 *	made this class Comparable instead
+		 *  make this result class a public non static inner class inside of inverted index 
+		 * }
+		 */
 		singleResult.add(location);
 		singleResult.add(foundCount.toString());
 		singleResult.add(String.valueOf(FORMATTER.format(foundCount / Double.valueOf(myWordCount.get(location)))));
