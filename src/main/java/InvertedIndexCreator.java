@@ -61,6 +61,7 @@ public class InvertedIndexCreator {
 				}
 			}
 		}
+		// TODO Most efficient option, remove
 		myWordCount.add(location, counter);
 	}
 

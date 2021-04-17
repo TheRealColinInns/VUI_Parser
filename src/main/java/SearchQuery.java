@@ -24,6 +24,7 @@ public class SearchQuery {
 			SearchResults results) {
 		for (TreeSet<String> querySet : myQueryParser.get()) {
 			String queryText = String.join(" ", querySet);
+			// TODO Below here moves into index search method, above moves into your QueryParser/SearchResult class
 			SingleQueryResult mySingleQueryResult = new SingleQueryResult();
 			Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 			for (String word : myInvertedIndex.getWords()) {
@@ -109,5 +110,7 @@ public class SearchQuery {
 		}
 		return false;
 	}
+	
+	// TODO Will eventually be able to remove this class
 
 }
