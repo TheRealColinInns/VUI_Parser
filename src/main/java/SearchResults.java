@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -74,9 +75,10 @@ public class SearchResults {
 		if (this.results.containsKey(query)) {
 			this.add(query, new Result(location, count, score));
 		} else {
-			this.add(query, List.of(new Result(location, count, score)));
+			List<Result> result = new ArrayList<Result>();
+			result.add(new Result(location, count, score));
+			this.add(query, result);
 		}
-		System.out.println("Current results: "+this.results.toString());
 	}
 
 	/**
