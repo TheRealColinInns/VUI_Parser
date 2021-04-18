@@ -20,7 +20,7 @@ public class SearchQuery {
 	 * @param myQueryParser   the parser with the queries
 	 * @param results         the results
 	 */
-	public static void exactSearch(InvertedIndex myInvertedIndex, WordCount myWordCount, QueryParser myQueryParser,
+	public static void exactSearch(InvertedIndex myInvertedIndex, QueryParser myQueryParser,
 			SearchResults results) {
 		for (TreeSet<String> querySet : myQueryParser.get()) {
 			String queryText = String.join(" ", querySet);
@@ -44,7 +44,7 @@ public class SearchQuery {
 			}
 
 			for (String path : countsAtLocations.keySet()) {
-				mySingleQueryResult.add(path, countsAtLocations.get(path), myWordCount);
+				mySingleQueryResult.add(path, countsAtLocations.get(path), myInvertedIndex);
 			}
 			results.add(queryText, mySingleQueryResult);
 		}

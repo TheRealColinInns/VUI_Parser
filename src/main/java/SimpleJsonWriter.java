@@ -5,11 +5,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -277,16 +274,16 @@ public class SimpleJsonWriter {
 	 * @param level        the indent level
 	 * @throws IOException throws if we can't write
 	 */
-	public static void asSingleQueryWord(List<String> singleResult, Writer writer, int level) throws IOException {
-		indent("{", writer, level);
+	public static void asSingleQueryWord(SearchResults results, String query, int index, Writer writer, int level)
+			throws IOException {
+		indent("{\n", writer, level);
 
 		level++;
-		if (singleResult.size() > 0) {
-			writer.write("\n");
-			indent("\"where\": \"" + singleResult.get(0) + "\",\n", writer, level);
-			indent("\"count\": " + singleResult.get(1) + ",\n", writer, level);
-			indent("\"score\": " + singleResult.get(2), writer, level);
-		}
+
+		indent("\"where\": \"" + results.getLocation(query, index) + "\",\n", writer, level);
+		indent("\"count\": " + results.getCount(query, index) + ",\n", writer, level);
+		indent("\"score\": " + results.getScore(query, index), writer, level);
+
 		level--;
 		writer.write("\n");
 		indent("}", writer, level);
@@ -300,16 +297,16 @@ public class SimpleJsonWriter {
 	 * @param level             the indent level
 	 * @throws IOException throws if we can't write
 	 */
-	public static void asSingleQuery(SingleQueryResult singleQueryResult, Writer writer, int level) throws IOException {
+	public static void asSingleQuery(SearchResults results, String query, Writer writer, int level) throws IOException {
 		writer.write("[");
 		level++;
-		if (singleQueryResult.contains(0)) {
+		if (results.containsIndex(query, 0)) {
 			writer.write("\n");
-			asSingleQueryWord(singleQueryResult.get(0), writer, level);
+			asSingleQueryWord(results, query, 0, writer, level);
 		}
-		for (int i = 1; i < singleQueryResult.size(); i++) {
+		for (int i = 1; i < results.size(query); i++) {
 			writer.write(",\n");
-			asSingleQueryWord(singleQueryResult.get(i), writer, level);
+			asSingleQueryWord(results, query, i, writer, level);
 		}
 		level--;
 		writer.write("\n");
@@ -324,22 +321,21 @@ public class SimpleJsonWriter {
 	 * @param level   indent level
 	 * @throws IOException if we cant write to the file
 	 */
-	public static void asSearchResult(Map<String, SingleQueryResult> results, Writer writer, int level)
-			throws IOException {
+	public static void asSearchResult(SearchResults results, Writer writer, int level) throws IOException {
 		writer.write("{");
 		level++;
-		Iterator<String> queryIterator = results.keySet().iterator();
+		Iterator<String> queryIterator = results.getResultKeySet().iterator();
 		if (queryIterator.hasNext()) {
 			String query = queryIterator.next();
 			writer.write("\n");
 			indent("\"" + query + "\": ", writer, level);
-			asSingleQuery(results.get(query), writer, level);
+			asSingleQuery(results, query, writer, level);
 		}
 		while (queryIterator.hasNext()) {
 			String query = queryIterator.next();
 			writer.write(",\n");
 			indent("\"" + query + "\": ", writer, level);
-			asSingleQuery(results.get(query), writer, level);
+			asSingleQuery(results, query, writer, level);
 		}
 		writer.write("\n");
 		level--;
@@ -354,7 +350,7 @@ public class SimpleJsonWriter {
 	 * @param output  the file we are writing to
 	 * @throws IOException throws if we can't write
 	 */
-	public static void asSearchResult(Map<String, SingleQueryResult> results, Path output) throws IOException {
+	public static void asSearchResult(SearchResults results, Path output) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(output, StandardCharsets.UTF_8)) {
 			asSearchResult(results, writer, 0);
 		}
@@ -366,7 +362,7 @@ public class SimpleJsonWriter {
 	 * @param results the results to the search
 	 * @return a string of the write
 	 */
-	public static String asSearchResult(Map<String, SingleQueryResult> results) {
+	public static String asSearchResult(SearchResults results) {
 		try {
 			StringWriter writer = new StringWriter();
 			asSearchResult(results, writer, 0);

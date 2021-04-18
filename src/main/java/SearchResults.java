@@ -1,5 +1,9 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -12,17 +16,17 @@ import java.util.TreeMap;
  */
 public class SearchResults {
 
-	// TODO TreeMap<String, List<Result>> results;
 	/**
 	 * the results of the search
 	 */
-	private final TreeMap<String, SingleQueryResult> results;
+	private final TreeMap<String, List<Result>> results;
 
 	/**
 	 * the constructor for this class
 	 */
 	public SearchResults() {
-		results = new TreeMap<String, SingleQueryResult>();
+		results = new TreeMap<String, List<Result>>();
+
 	}
 
 	/**
@@ -31,8 +35,112 @@ public class SearchResults {
 	 * @param query       the location we are storing it at
 	 * @param queryResult the value we are storing
 	 */
-	public void add(String query, SingleQueryResult queryResult) {
-		results.putIfAbsent(query, queryResult);
+	public void add(String query, List<Result> result) {
+		results.putIfAbsent(query, result);
+	}
+
+	/**
+	 * adds a single result to the list of results
+	 * 
+	 * @param query
+	 * @param result
+	 */
+	private void add(String query, Result result) {
+		boolean keepItClean = true;
+		for (int i = 0; i < this.results.get(query).size(); i++) {
+			if (this.results.get(query).get(i).compareTo(result) > 0) {
+				this.results.get(query).add(i, result);
+				keepItClean = false;
+				break;
+			}
+		}
+		if (keepItClean) {
+			this.results.get(query).add(result);
+		}
+		
+	}
+
+	/**
+	 * adds a location count and score to the list of query results
+	 * 
+	 * @param query    the query in question
+	 * @param location the location the count is from
+	 * @param count    the count of all the matched words
+	 * @param score    the count divided by the total word count
+	 */
+	public void add(String query, String location, int count, Double score) {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		score = Double.valueOf(FORMATTER.format(score));
+		if (this.results.containsKey(query)) {
+			this.add(query, new Result(location, count, score));
+		} else {
+			this.add(query, List.of(new Result(location, count, score)));
+		}
+		System.out.println("Current results: "+this.results.toString());
+	}
+
+	/**
+	 * gets an unmodifiable key set
+	 * 
+	 * @return an unmodifiable key set
+	 */
+	public Set<String> getResultKeySet() {
+		return Collections.unmodifiableSet(results.keySet());
+	}
+	
+	/**
+	 * gets the location that way we don't need to involve Result class
+	 * @param query the query at where we want to find
+	 * @param index the index at where we want to find
+	 * @return the location
+	 */
+	public String getLocation(String query, int index) {
+		return this.results.get(query).get(index).getLocation();
+	}
+	
+	/**
+	 * gets the count that way we don't need to involve Result class
+	 * @param query the query at where we want to find
+	 * @param index the index at where we want to find
+	 * @return the count
+	 */
+	public int getCount(String query, int index) {
+		return this.results.get(query).get(index).getCount();
+	}
+	
+	/**
+	 * gets the score that way we don't need to involve Result class
+	 * @param query the query at where we want to find
+	 * @param index the index at where we want to find
+	 * @return the score
+	 */
+	public Double getScore(String query, int index) {
+		return this.results.get(query).get(index).getScore();
+	}
+
+	/**
+	 * tests if the results contains an index
+	 * 
+	 * @param query the key to test
+	 * @param index the index to see if exists
+	 * @return boolean whether or not it contains the index
+	 */
+	public boolean containsIndex(String query, int index) {
+		if (this.results.get(query).size() - 1 > index) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * the size at a specific query
+	 * 
+	 * @param query the specific query
+	 * @return the size in integer form
+	 */
+	public int size(String query) {
+		return this.results.get(query).size();
 	}
 
 	/**
@@ -42,7 +150,107 @@ public class SearchResults {
 	 * @throws IOException throws if the file is unreachable
 	 */
 	public void write(Path output) throws IOException {
-		SimpleJsonWriter.asSearchResult(this.results, output);
+		SimpleJsonWriter.asSearchResult(this, output);
+	}
+
+	/**
+	 * creates and returns a new result object
+	 * 
+	 * @param location the location the count was found
+	 * @param count    the count that was found
+	 * @param score    the count divided by the total word count
+	 * @return a Result that combines all the data
+	 */
+	public Result createResult(String location, int count, Double score) {
+		return new Result(location, count, score);
+	}
+
+	/**
+	 * Inner class that stores a single result
+	 * 
+	 * @author colininns
+	 *
+	 */
+	public class Result implements Comparable<Result> {
+		/**
+		 * stores where the count came from
+		 */
+		private String location;
+		/**
+		 * the amount of hits it found
+		 */
+		private int count;
+		/**
+		 * the hits divided by the word count
+		 */
+		private Double score;
+
+		/**
+		 * Constructor for the result
+		 * 
+		 * @param location the location
+		 * @param count    the amount of hits
+		 * @param score    the score of the location
+		 */
+		public Result(String location, int count, Double score) {
+			DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+			this.location = location;
+			this.count = count;
+			this.score = Double.valueOf(FORMATTER.format(score));
+		}
+
+		/**
+		 * gets the location
+		 * 
+		 * @return a string of the location
+		 */
+		public String getLocation() {
+			return location;
+		}
+
+		/**
+		 * gets the count
+		 * 
+		 * @return an int of the count
+		 */
+		public int getCount() {
+			return count;
+		}
+
+		/**
+		 * gets the score
+		 * 
+		 * @return a double of the score
+		 */
+		public Double getScore() {
+			return score;
+		}
+
+		@Override
+		public int compareTo(Result original) {
+			int scoreComparison = Double.compare(original.getScore(), this.getScore());
+			if (scoreComparison < 0) {
+				return 1;
+			} else if (scoreComparison > 0) {
+				return -1;
+			} else {
+				int countComparison = Integer.compare(original.getCount(), this.getCount());
+				if (countComparison < 0) {
+					return 1;
+				} else if (countComparison > 0) {
+					return -1;
+				} else {
+					int locationComparison = original.getLocation().compareToIgnoreCase(this.getLocation());
+					if (locationComparison < 0) {
+						return -1;
+					} else if (locationComparison > 0) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}
+		}
 	}
 
 }

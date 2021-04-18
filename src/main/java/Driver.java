@@ -30,10 +30,6 @@ public class Driver {
 
 		// the inverted index data structure that we will store all of the data in
 		InvertedIndex myInvertedIndex = new InvertedIndex();
-		// the word count map we will store the word counts in
-		WordCount myWordCount = new WordCount();
-		// the query structure we will use to store the queries
-		QueryParser myQueryParser = new QueryParser();
 		// the results of the search
 		SearchResults results = new SearchResults();
 
@@ -44,7 +40,7 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, myWordCount);
+					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 				} catch (Exception e) {
 					System.out.println("IO Exception while reading path: " + inputPath.toString());
 				}
@@ -55,7 +51,7 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-index")) {
 			Path outputPath = flagValuePairs.getPath("-index", Path.of("index.json"));
 			try {
-				myInvertedIndex.dataWriter(outputPath);
+				myInvertedIndex.indexWriter(outputPath);
 			} catch (Exception e) {
 				System.out.println("IOException while writing index to " + outputPath.toString());
 			}
@@ -66,11 +62,10 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					myQueryParser.parse(queryPath);
 					if (flagValuePairs.hasFlag("-exact")) {
-						SearchQuery.exactSearch(myInvertedIndex, myWordCount, myQueryParser, results);
+						myInvertedIndex.parse(queryPath, results, true);
 					} else {
-						SearchQuery.partialSearch(myInvertedIndex, myWordCount, myQueryParser, results);
+						myInvertedIndex.parse(queryPath, results, false);
 					}
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
@@ -82,7 +77,7 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-counts")) {
 			Path countPath = flagValuePairs.getPath("-counts", Path.of("counts.json"));
 			try {
-				myWordCount.write(countPath);
+				myInvertedIndex.writeWordCount(countPath);
 			} catch (Exception e) {
 				System.out.println("IO Exception while writing word count to " + countPath.toString());
 			}

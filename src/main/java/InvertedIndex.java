@@ -1,12 +1,19 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Class responsible for storing the data structure See the README for details.
@@ -23,11 +30,22 @@ public class InvertedIndex {
 	private final TreeMap<String, TreeMap<String, Collection<Integer>>> index;
 
 	/**
+	 * this is our wordCount map
+	 */
+	private final TreeMap<String, Integer> wordCount;
+
+	/**
 	 * Constructor for inverted index
 	 */
 	public InvertedIndex() {
 		index = new TreeMap<String, TreeMap<String, Collection<Integer>>>();
+		wordCount = new TreeMap<String, Integer>();
 	}
+
+	/*
+	 * +--------------------------------------------------------------------------+
+	 * Methods for index:
+	 */
 
 	/**
 	 * Getter for the inverted index
@@ -122,16 +140,13 @@ public class InvertedIndex {
 	 * @param value    position
 	 */
 	public void add(String outerKey, String innerKey, Integer value) {
+		this.addToWordCount(innerKey);
 		if (this.index.putIfAbsent(outerKey, new TreeMap<String, Collection<Integer>>(
 				Map.of(innerKey, new ArrayList<Integer>(Arrays.asList(value))))) != null) {
 			if (this.index.get(outerKey).putIfAbsent(innerKey, new ArrayList<Integer>(Arrays.asList(value))) != null) {
 				this.index.get(outerKey).get(innerKey).add(value);
 			}
 		}
-		
-		/*
-		 * TODO If you did add something new to the index here, update the word count.
-		 */
 	}
 
 	/**
@@ -184,7 +199,7 @@ public class InvertedIndex {
 	 *                 index to
 	 * @throws IOException Catch this is driver
 	 */
-	public void dataWriter(Path filename) throws IOException {
+	public void indexWriter(Path filename) throws IOException {
 		SimpleJsonWriter.asNestedArray(this.index, filename);
 	}
 
@@ -201,14 +216,167 @@ public class InvertedIndex {
 			this.add(word, location, position);
 		}
 	}
-	
-	/* TODO 
-	public List<Result> exactSearch(Set<String> queries) { <---- one line at a time from your query file 
-		
+
+	/**
+	 * helper function that searches for a piece of a query in a word
+	 * 
+	 * @param wordKey the word we are searching through
+	 * @param query   the query we are looking for
+	 * @return boolean whether or not it is there
+	 */
+	private static boolean partialSearcher(String wordKey, String query) {
+		String compareWord;
+		if (wordKey.equals(query)) {
+			return true;
+		}
+		if (query.length() < wordKey.length()) {
+			compareWord = wordKey.substring(0, query.length());
+		} else {
+			return false;
+		}
+		if (compareWord.equals(query)) {
+			return true;
+		}
+		return false;
 	}
-	
-	public List<Result> partialSearch(Set<String> queries) {
-		
+
+	/**
+	 * does an exact search of a query
+	 * 
+	 * @param queries   the queries we will search for
+	 * @param result    the results we will add our findings to
+	 * @param queryText the text form of the query
+	 */
+	public void exactSearch(Set<String> queries, SearchResults results, String queryText) {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
+		for (String word : this.getWords()) {
+			for (String path : this.getLocations(word)) {
+				for (String query : queries) {
+
+					if (word.compareToIgnoreCase(query) == 0) {
+						if (countsAtLocations.containsKey(path)) {
+							countsAtLocations.put(path, this.sizePositions(word, path) + countsAtLocations.get(path));
+						} else {
+							countsAtLocations.put(path, this.sizePositions(word, path));
+						}
+					}
+				}
+			}
+		}
+
+		for (String path : countsAtLocations.keySet()) {
+			results.add(queryText, path, countsAtLocations.get(path),
+					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+		}
+
 	}
-	*/
+
+	/**
+	 * performs a partial search for a specified query
+	 * 
+	 * @param queries   the queries we will search for
+	 * @param result    the results we will add our findings to
+	 * @param queryText the text form of the query
+	 */
+	public void partialSearch(Set<String> queries, SearchResults results, String queryText) {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
+		for (String word : this.getWords()) {
+			for (String path : this.getLocations(word)) {
+				for (String query : queries) {
+
+					if (partialSearcher(word, query)) {
+						if (countsAtLocations.containsKey(path)) {
+							countsAtLocations.put(path, this.sizePositions(word, path) + countsAtLocations.get(path));
+						} else {
+							countsAtLocations.put(path, this.sizePositions(word, path));
+						}
+					}
+				}
+			}
+		}
+
+		for (String path : countsAtLocations.keySet()) {
+			results.add(queryText, path, countsAtLocations.get(path),
+					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+		}
+	}
+
+	/*
+	 * +--------------------------------------------------------------------------+
+	 * These are the methods for the Word Count:
+	 */
+
+	/**
+	 * contains method for word count
+	 * 
+	 * @param location the file
+	 * @return if the file exists in the word count
+	 */
+	public boolean containsWordCount(String location) {
+		return this.wordCount.containsKey(location);
+	}
+
+	/**
+	 * add method for word count
+	 * 
+	 * @param location  the file the count came from
+	 * @param wordCount the word count associated with a file
+	 */
+	private void addToWordCount(String location) {
+		if (this.wordCount.putIfAbsent(location, 1) != null) {
+			this.wordCount.put(location, this.getWordCount(location) + 1);
+		}
+	}
+
+	/**
+	 * get method for word count
+	 * 
+	 * @param location the file we want to know the word count of
+	 * @return the word count at that location
+	 */
+	public Integer getWordCount(String location) {
+		if (this.containsWordCount(location)) {
+			return this.wordCount.get(location);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * writes the word counts to a specified file
+	 * 
+	 * @param countPath the file we are writing to
+	 * @throws IOException throws if file doesn't exist
+	 */
+	public void writeWordCount(Path countPath) throws IOException {
+		SimpleJsonWriter.asObject(wordCount, countPath);
+	}
+
+	/*
+	 * +--------------------------------------------------------------------------+
+	 * These are methods for the query:
+	 */
+
+	/**
+	 * parses all of the queries at a location
+	 * 
+	 * @param fileName the file we are reading the query from
+	 * @param exact    boolean whether or not to search exact or partial
+	 * @throws IOException exception thrown if file doesn't exist
+	 */
+	public void parse(Path fileName, SearchResults results, boolean exact) throws IOException {
+		try (BufferedReader mybr = Files.newBufferedReader(fileName, StandardCharsets.UTF_8);) {
+			if (exact) {
+				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+					if (!parsed.isEmpty()) {
+						this.exactSearch(parsed, results, String.join(" ", parsed));
+					}
+				}
+			}
+		}
+	}
+
 }

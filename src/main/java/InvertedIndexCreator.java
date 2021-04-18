@@ -30,12 +30,11 @@ public class InvertedIndexCreator {
 	 * @param myWordCount     the word count we will add to
 	 * @throws IOException in case of io exception
 	 */
-	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
-			throws IOException {
+	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		if (Files.isDirectory(inputPath)) {
-			directoryStemmer(inputPath, myInvertedIndex, myWordCount);
+			directoryStemmer(inputPath, myInvertedIndex);
 		} else {
-			singleFileStemmer(inputPath, myInvertedIndex, myWordCount);
+			singleFileStemmer(inputPath, myInvertedIndex);
 		}
 	}
 
@@ -48,8 +47,7 @@ public class InvertedIndexCreator {
 	 * @param myWordCount     the word count we will add to
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
-			throws IOException {
+	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		int counter = 0;
 		String location = inputPath.toString();
@@ -61,8 +59,6 @@ public class InvertedIndexCreator {
 				}
 			}
 		}
-		// TODO Most efficient option, remove
-		myWordCount.add(location, counter);
 	}
 
 	/**
@@ -74,10 +70,9 @@ public class InvertedIndexCreator {
 	 * @param myWordCount     the word count we will add to
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex, WordCount myWordCount)
-			throws IOException {
+	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		for (Path currentPath : DirectoryNavigator.findPaths(inputPath)) {
-			singleFileStemmer(currentPath, myInvertedIndex, myWordCount);
+			singleFileStemmer(currentPath, myInvertedIndex);
 		}
 	}
 
