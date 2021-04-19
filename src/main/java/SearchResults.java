@@ -46,18 +46,19 @@ public class SearchResults {
 	 * @param query
 	 * @param result
 	 */
-	private void add(String query, Result result) {
-		boolean keepItClean = true;
+	private boolean add(String query, Result result) {
 		for (int i = 0; i < this.results.get(query).size(); i++) {
-			if (this.results.get(query).get(i).compareTo(result) > 0) {
+			int comparison = this.results.get(query).get(i).compareTo(result);
+			if (comparison > 0) {
 				this.results.get(query).add(i, result);
-				keepItClean = false;
-				break;
+				return true;
+			}
+			else if(comparison == 0) {
+				return false;
 			}
 		}
-		if (keepItClean) {
-			this.results.get(query).add(result);
-		}
+		this.results.get(query).add(result);
+		return true;
 		
 	}
 
@@ -70,8 +71,6 @@ public class SearchResults {
 	 * @param score    the count divided by the total word count
 	 */
 	public void add(String query, String location, int count, Double score) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
-		score = Double.valueOf(FORMATTER.format(score));
 		if (this.results.containsKey(query)) {
 			this.add(query, new Result(location, count, score));
 		} else {
@@ -79,6 +78,21 @@ public class SearchResults {
 			result.add(new Result(location, count, score));
 			this.add(query, result);
 		}
+		//System.out.println("Added Query: "+query+" || Count: "+count+", at location: "+location+" with score: "+score);
+	}
+	
+	/**
+	 * adds a blank result
+	 * @param query the query location to add the blank to
+	 */
+	public void addBlank(String query) {
+		if (this.results.containsKey(query)) {
+			System.out.println("This isn't blank");
+		} else {
+			List<Result> result = new ArrayList<Result>();
+			this.add(query, result);
+		}
+		//System.out.println("Added a blank to query: "+query);
 	}
 
 	/**
@@ -128,7 +142,7 @@ public class SearchResults {
 	 * @return boolean whether or not it contains the index
 	 */
 	public boolean containsIndex(String query, int index) {
-		if (this.results.get(query).size() - 1 > index) {
+		if (this.results.get(query).size() - 1 >= index) {
 			return true;
 		} else {
 			return false;
@@ -155,17 +169,6 @@ public class SearchResults {
 		SimpleJsonWriter.asSearchResult(this, output);
 	}
 
-	/**
-	 * creates and returns a new result object
-	 * 
-	 * @param location the location the count was found
-	 * @param count    the count that was found
-	 * @param score    the count divided by the total word count
-	 * @return a Result that combines all the data
-	 */
-	public Result createResult(String location, int count, Double score) {
-		return new Result(location, count, score);
-	}
 
 	/**
 	 * Inner class that stores a single result
@@ -231,24 +234,22 @@ public class SearchResults {
 		@Override
 		public int compareTo(Result original) {
 			int scoreComparison = Double.compare(original.getScore(), this.getScore());
-			if (scoreComparison < 0) {
-				return 1;
-			} else if (scoreComparison > 0) {
-				return -1;
+			if (scoreComparison != 0) {
+				return scoreComparison;
 			} else {
 				int countComparison = Integer.compare(original.getCount(), this.getCount());
-				if (countComparison < 0) {
-					return 1;
-				} else if (countComparison > 0) {
-					return -1;
+				if (countComparison != 0) {
+					return countComparison;
 				} else {
 					int locationComparison = original.getLocation().compareToIgnoreCase(this.getLocation());
 					if (locationComparison < 0) {
-						return -1;
-					} else if (locationComparison > 0) {
 						return 1;
+					} else if (locationComparison > 0) {
+						return -1;
 					} else {
+						System.out.println("Repeat");
 						return 0;
+						
 					}
 				}
 			}

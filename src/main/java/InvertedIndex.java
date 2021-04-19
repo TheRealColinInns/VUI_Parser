@@ -3,12 +3,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -248,12 +248,14 @@ public class InvertedIndex {
 	 * @param queryText the text form of the query
 	 */
 	public void exactSearch(Set<String> queries, SearchResults results, String queryText) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		/*
+		 * System.out.println("Current Queries:"); for(String temp:queries) {
+		 * System.out.print(temp+" "); } System.out.print(",\n");
+		 */
 		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 		for (String word : this.getWords()) {
 			for (String path : this.getLocations(word)) {
 				for (String query : queries) {
-
 					if (word.compareToIgnoreCase(query) == 0) {
 						if (countsAtLocations.containsKey(path)) {
 							countsAtLocations.put(path, this.sizePositions(word, path) + countsAtLocations.get(path));
@@ -264,10 +266,16 @@ public class InvertedIndex {
 				}
 			}
 		}
-
-		for (String path : countsAtLocations.keySet()) {
-			results.add(queryText, path, countsAtLocations.get(path),
-					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+		// System.out.println("+----------------------------------------+");
+		// System.out.println("Query: " + queryText + ", Counts: " +
+		// countsAtLocations.toString());
+		if (countsAtLocations.isEmpty()) {
+			results.addBlank(queryText);
+		} else {
+			for (String path : countsAtLocations.keySet()) {
+				results.add(queryText, path, countsAtLocations.get(path),
+						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
+			}
 		}
 
 	}
@@ -280,7 +288,6 @@ public class InvertedIndex {
 	 * @param queryText the text form of the query
 	 */
 	public void partialSearch(Set<String> queries, SearchResults results, String queryText) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 		for (String word : this.getWords()) {
 			for (String path : this.getLocations(word)) {
@@ -299,7 +306,7 @@ public class InvertedIndex {
 
 		for (String path : countsAtLocations.keySet()) {
 			results.add(queryText, path, countsAtLocations.get(path),
-					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+					(countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path))));
 		}
 	}
 
@@ -373,6 +380,13 @@ public class InvertedIndex {
 					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
 					if (!parsed.isEmpty()) {
 						this.exactSearch(parsed, results, String.join(" ", parsed));
+					}
+				}
+			} else {
+				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+					if (!parsed.isEmpty()) {
+						this.partialSearch(parsed, results, String.join(" ", parsed));
 					}
 				}
 			}
