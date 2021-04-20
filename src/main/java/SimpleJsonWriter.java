@@ -268,12 +268,14 @@ public class SimpleJsonWriter {
 	}
 
 	/**
-	 * writes a single find
+	 * adds a single query
 	 * 
-	 * @param singleResult the single find
-	 * @param writer       the write we write with
-	 * @param level        the indent level
-	 * @throws IOException throws if we can't write
+	 * @param results the results we are pulling from
+	 * @param query   the query we are searching for
+	 * @param index   the index in the list of results
+	 * @param writer  where we are writing to
+	 * @param level   the indent level
+	 * @throws IOException if we can't write
 	 */
 	public static void asSingleQueryWord(SearchResults results, String query, int index, Writer writer, int level)
 			throws IOException {
@@ -294,10 +296,11 @@ public class SimpleJsonWriter {
 	/**
 	 * writes a single query
 	 * 
-	 * @param singleQueryResult the results of a single query
-	 * @param writer            the writer we write with
-	 * @param level             the indent level
-	 * @throws IOException throws if we can't write
+	 * @param results the results we are pulling from
+	 * @param query   the search query
+	 * @param writer  where we are writing to
+	 * @param level   the indent level
+	 * @throws IOException if we can't write
 	 */
 	public static void asSingleQuery(SearchResults results, String query, Writer writer, int level) throws IOException {
 		writer.write("[");

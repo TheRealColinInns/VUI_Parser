@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -244,11 +243,10 @@ public class InvertedIndex {
 	 * does an exact search of a query
 	 * 
 	 * @param queries   the queries we will search for
-	 * @param result    the results we will add our findings to
+	 * @param results   the results we will add our findings to
 	 * @param queryText the text form of the query
 	 */
 	public void exactSearch(Set<String> queries, SearchResults results, String queryText) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 		for (String word : this.getWords()) {
 			for (String path : this.getLocations(word)) {
@@ -279,11 +277,10 @@ public class InvertedIndex {
 	 * performs a partial search for a specified query
 	 * 
 	 * @param queries   the queries we will search for
-	 * @param result    the results we will add our findings to
+	 * @param results   the results we will add our findings to
 	 * @param queryText the text form of the query
 	 */
 	public void partialSearch(Set<String> queries, SearchResults results, String queryText) {
-		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 		for (String word : this.getWords()) {
 			for (String path : this.getLocations(word)) {
@@ -328,8 +325,7 @@ public class InvertedIndex {
 	/**
 	 * add method for word count
 	 * 
-	 * @param location  the file the count came from
-	 * @param wordCount the word count associated with a file
+	 * @param location the file the count came from
 	 */
 	private void addToWordCount(String location) {
 		if (this.wordCount.putIfAbsent(location, 1) != null) {
@@ -370,6 +366,7 @@ public class InvertedIndex {
 	 * parses all of the queries at a location
 	 * 
 	 * @param fileName the file we are reading the query from
+	 * @param results  the results we will add to
 	 * @param exact    boolean whether or not to search exact or partial
 	 * @throws IOException exception thrown if file doesn't exist
 	 */

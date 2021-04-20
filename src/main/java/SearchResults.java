@@ -33,8 +33,8 @@ public class SearchResults {
 	/**
 	 * adds a single query result to the results
 	 * 
-	 * @param query       the location we are storing it at
-	 * @param queryResult the value we are storing
+	 * @param query  the location we are storing it at
+	 * @param result the value we are storing
 	 */
 	public void add(String query, List<Result> result) {
 		results.putIfAbsent(query, result);
@@ -43,8 +43,9 @@ public class SearchResults {
 	/**
 	 * adds a single result to the list of results
 	 * 
-	 * @param query
-	 * @param result
+	 * @param query  the location we are storing it at
+	 * @param result a single result
+	 * @return boolean whether it actually added
 	 */
 	private boolean add(String query, Result result) {
 		for (int i = 0; i < this.results.get(query).size(); i++) {
