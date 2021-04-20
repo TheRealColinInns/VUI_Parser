@@ -43,7 +43,7 @@ public class SearchResults {
 	/**
 	 * adds a single result to the list of results
 	 * 
-	 * @param query the query
+	 * @param query  the query
 	 * @param result the result we are adding
 	 */
 	public boolean add(String query, Result result) {
@@ -52,14 +52,13 @@ public class SearchResults {
 			if (comparison > 0) {
 				this.results.get(query).add(i, result);
 				return true;
-			}
-			else if(comparison == 0) {
+			} else if (comparison == 0) {
 				return false;
 			}
 		}
 		this.results.get(query).add(result);
 		return true;
-		
+
 	}
 
 	/**
@@ -78,21 +77,18 @@ public class SearchResults {
 			result.add(new Result(location, count, score));
 			this.add(query, result);
 		}
-		//System.out.println("Added Query: "+query+" || Count: "+count+", at location: "+location+" with score: "+score);
 	}
-	
+
 	/**
 	 * adds a blank result
+	 * 
 	 * @param query the query location to add the blank to
 	 */
 	public void addBlank(String query) {
-		if (this.results.containsKey(query)) {
-			System.out.println("This isn't blank");
-		} else {
+		if (!this.results.containsKey(query)) {
 			List<Result> result = new ArrayList<Result>();
 			this.add(query, result);
 		}
-		//System.out.println("Added a blank to query: "+query);
 	}
 
 	/**
@@ -103,9 +99,10 @@ public class SearchResults {
 	public Set<String> getResultKeySet() {
 		return Collections.unmodifiableSet(results.keySet());
 	}
-	
+
 	/**
 	 * gets the location that way we don't need to involve Result class
+	 * 
 	 * @param query the query at where we want to find
 	 * @param index the index at where we want to find
 	 * @return the location
@@ -113,9 +110,10 @@ public class SearchResults {
 	public String getLocation(String query, int index) {
 		return this.results.get(query).get(index).getLocation();
 	}
-	
+
 	/**
 	 * gets the count that way we don't need to involve Result class
+	 * 
 	 * @param query the query at where we want to find
 	 * @param index the index at where we want to find
 	 * @return the count
@@ -123,9 +121,10 @@ public class SearchResults {
 	public int getCount(String query, int index) {
 		return this.results.get(query).get(index).getCount();
 	}
-	
+
 	/**
 	 * gets the score that way we don't need to involve Result class
+	 * 
 	 * @param query the query at where we want to find
 	 * @param index the index at where we want to find
 	 * @return the score
@@ -168,7 +167,6 @@ public class SearchResults {
 	public void write(Path output) throws IOException {
 		SimpleJsonWriter.asSearchResult(this, output);
 	}
-
 
 	/**
 	 * Inner class that stores a single result
@@ -247,9 +245,7 @@ public class SearchResults {
 					} else if (locationComparison > 0) {
 						return -1;
 					} else {
-						System.out.println("Repeat");
 						return 0;
-						
 					}
 				}
 			}

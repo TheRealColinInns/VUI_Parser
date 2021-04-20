@@ -261,9 +261,6 @@ public class InvertedIndex {
 				}
 			}
 		}
-		// System.out.println("+----------------------------------------+");
-		// System.out.println("Query: " + queryText + ", Counts: " +
-		// countsAtLocations.toString());
 		if (countsAtLocations.isEmpty()) {
 			results.addBlank(queryText);
 		} else {
@@ -299,9 +296,13 @@ public class InvertedIndex {
 			}
 		}
 
-		for (String path : countsAtLocations.keySet()) {
-			results.add(queryText, path, countsAtLocations.get(path),
-					(countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path))));
+		if (countsAtLocations.isEmpty()) {
+			results.addBlank(queryText);
+		} else {
+			for (String path : countsAtLocations.keySet()) {
+				results.add(queryText, path, countsAtLocations.get(path),
+						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
+			}
 		}
 	}
 

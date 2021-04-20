@@ -33,7 +33,6 @@ public class Driver {
 		SearchResults results;
 		boolean multithreaded;
 		if (flagValuePairs.hasFlag("-threads")) {
-			System.out.println("Multithreading");
 			// the inverted index data structure that we will store all of the data in, but
 			// thread safe
 			myInvertedIndex = new ThreadSafeInvertedIndex();
@@ -83,8 +82,7 @@ public class Driver {
 					if (multithreaded) {
 						if (flagValuePairs.hasFlag("-exact")) {
 							myInvertedIndex.parse(queryPath, results, true, flagValuePairs.getInteger("-threads", 5));
-						}
-						else {
+						} else {
 							myInvertedIndex.parse(queryPath, results, false, flagValuePairs.getInteger("-threads", 5));
 						}
 					} else {

@@ -200,7 +200,13 @@ public class ArgumentMap {
 	 */
 	public int getInteger(String flag, int defaultValue) {
 		try {
-			return Integer.parseInt(map.get(flag));
+			int toReturn = Integer.parseInt(map.get(flag));
+			if(toReturn > 0) {
+				return toReturn;
+			}
+			else {
+				return defaultValue;
+			}
 		} catch (Exception e) {
 			return defaultValue;
 		}
