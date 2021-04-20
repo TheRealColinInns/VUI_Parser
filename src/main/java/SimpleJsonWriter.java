@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -276,13 +277,14 @@ public class SimpleJsonWriter {
 	 */
 	public static void asSingleQueryWord(SearchResults results, String query, int index, Writer writer, int level)
 			throws IOException {
+		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		indent("{\n", writer, level);
 
 		level++;
 
 		indent("\"where\": \"" + results.getLocation(query, index) + "\",\n", writer, level);
 		indent("\"count\": " + results.getCount(query, index) + ",\n", writer, level);
-		indent("\"score\": " + results.getScore(query, index), writer, level);
+		indent("\"score\": " + FORMATTER.format(results.getScore(query, index)), writer, level);
 
 		level--;
 		writer.write("\n");

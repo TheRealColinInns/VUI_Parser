@@ -265,11 +265,14 @@ public class InvertedIndex {
 			}
 		}
 
-		for (String path : countsAtLocations.keySet()) {
-			results.add(queryText, path, countsAtLocations.get(path),
-					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+		if (countsAtLocations.isEmpty()) {
+			results.addBlank(queryText);
+		} else {
+			for (String path : countsAtLocations.keySet()) {
+				results.add(queryText, path, countsAtLocations.get(path),
+						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
+			}
 		}
-
 	}
 
 	/**
@@ -297,9 +300,13 @@ public class InvertedIndex {
 			}
 		}
 
-		for (String path : countsAtLocations.keySet()) {
-			results.add(queryText, path, countsAtLocations.get(path),
-					Double.valueOf(FORMATTER.format(this.getWordCount(path))));
+		if (countsAtLocations.isEmpty()) {
+			results.addBlank(queryText);
+		} else {
+			for (String path : countsAtLocations.keySet()) {
+				results.add(queryText, path, countsAtLocations.get(path),
+						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
+			}
 		}
 	}
 
@@ -373,6 +380,13 @@ public class InvertedIndex {
 					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
 					if (!parsed.isEmpty()) {
 						this.exactSearch(parsed, results, String.join(" ", parsed));
+					}
+				}
+			} else {
+				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+					if (!parsed.isEmpty()) {
+						this.partialSearch(parsed, results, String.join(" ", parsed));
 					}
 				}
 			}
