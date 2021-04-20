@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -248,10 +247,6 @@ public class InvertedIndex {
 	 * @param queryText the text form of the query
 	 */
 	public void exactSearch(Set<String> queries, SearchResults results, String queryText) {
-		/*
-		 * System.out.println("Current Queries:"); for(String temp:queries) {
-		 * System.out.print(temp+" "); } System.out.print(",\n");
-		 */
 		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
 		for (String word : this.getWords()) {
 			for (String path : this.getLocations(word)) {
