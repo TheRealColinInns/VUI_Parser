@@ -326,7 +326,7 @@ public class InvertedIndex {
 	 * @param location  the file the count came from
 	 * @param wordCount the word count associated with a file
 	 */
-	private void addToWordCount(String location) {
+	protected void addToWordCount(String location) {
 		if (this.wordCount.putIfAbsent(location, 1) != null) {
 			this.wordCount.put(location, this.getWordCount(location) + 1);
 		}
@@ -366,9 +366,10 @@ public class InvertedIndex {
 	 * 
 	 * @param fileName the file we are reading the query from
 	 * @param exact    boolean whether or not to search exact or partial
+	 * @param threads the amount of threads (will be 0)
 	 * @throws IOException exception thrown if file doesn't exist
 	 */
-	public void parse(Path fileName, SearchResults results, boolean exact) throws IOException {
+	public void parse(Path fileName, SearchResults results, boolean exact, int threads) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(fileName, StandardCharsets.UTF_8);) {
 			if (exact) {
 				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {

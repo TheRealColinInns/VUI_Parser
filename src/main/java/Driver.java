@@ -28,10 +28,28 @@ public class Driver {
 		ArgumentMap flagValuePairs = new ArgumentMap();
 		flagValuePairs.parse(args);
 
-		// the inverted index data structure that we will store all of the data in
-		InvertedIndex myInvertedIndex = new InvertedIndex();
-		// the results of the search
-		SearchResults results = new SearchResults();
+		// tests if we are multi-threading
+		InvertedIndex myInvertedIndex;
+		SearchResults results;
+		boolean multithreaded;
+		if (flagValuePairs.hasFlag("-threads")) {
+			System.out.println("Multithreading");
+			// the inverted index data structure that we will store all of the data in, but
+			// thread safe
+			myInvertedIndex = new ThreadSafeInvertedIndex();
+			// the results of the search, but thread safe
+			results = new ThreadSafeSearchResults();
+			// tells code we are multi-threading
+			multithreaded = true;
+
+		} else {
+			// the inverted index data structure that we will store all of the data in
+			myInvertedIndex = new InvertedIndex();
+			// the results of the search
+			results = new SearchResults();
+			// tells code we are not multi-threading
+			multithreaded = false;
+		}
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -62,10 +80,19 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					if (flagValuePairs.hasFlag("-exact")) {
-						myInvertedIndex.parse(queryPath, results, true);
+					if (multithreaded) {
+						if (flagValuePairs.hasFlag("-exact")) {
+							myInvertedIndex.parse(queryPath, results, true, flagValuePairs.getInteger("-threads", 5));
+						}
+						else {
+							myInvertedIndex.parse(queryPath, results, false, flagValuePairs.getInteger("-threads", 5));
+						}
 					} else {
-						myInvertedIndex.parse(queryPath, results, false);
+						if (flagValuePairs.hasFlag("-exact")) {
+							myInvertedIndex.parse(queryPath, results, true, 0);
+						} else {
+							myInvertedIndex.parse(queryPath, results, false, 0);
+						}
 					}
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());

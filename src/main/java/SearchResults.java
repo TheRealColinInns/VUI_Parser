@@ -43,10 +43,10 @@ public class SearchResults {
 	/**
 	 * adds a single result to the list of results
 	 * 
-	 * @param query
-	 * @param result
+	 * @param query the query
+	 * @param result the result we are adding
 	 */
-	private boolean add(String query, Result result) {
+	public boolean add(String query, Result result) {
 		for (int i = 0; i < this.results.get(query).size(); i++) {
 			int comparison = this.results.get(query).get(i).compareTo(result);
 			if (comparison > 0) {
