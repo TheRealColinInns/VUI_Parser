@@ -32,6 +32,7 @@ public class Driver {
 		InvertedIndex myInvertedIndex;
 		SearchResults results;
 		boolean multithreaded;
+		int threads = 1;
 		if (flagValuePairs.hasFlag("-threads")) {
 			// the inverted index data structure that we will store all of the data in, but
 			// thread safe
@@ -40,6 +41,8 @@ public class Driver {
 			results = new ThreadSafeSearchResults();
 			// tells code we are multi-threading
 			multithreaded = true;
+			//threads
+			threads = flagValuePairs.getInteger("-threads", 5);
 
 		} else {
 			// the inverted index data structure that we will store all of the data in
@@ -57,7 +60,11 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					if (multithreaded) {
+						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, threads);
+					} else {
+						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					}
 				} catch (Exception e) {
 					System.out.println("IO Exception while reading path: " + inputPath.toString());
 				}
@@ -80,16 +87,18 @@ public class Driver {
 			if (queryPath != null) {
 				try {
 					if (multithreaded) {
+						System.out.println("Multithreading");
 						if (flagValuePairs.hasFlag("-exact")) {
-							myInvertedIndex.parse(queryPath, results, true, flagValuePairs.getInteger("-threads", 5));
+							myInvertedIndex.parse(queryPath, results, true, threads);
 						} else {
-							myInvertedIndex.parse(queryPath, results, false, flagValuePairs.getInteger("-threads", 5));
+							myInvertedIndex.parse(queryPath, results, false, threads);
 						}
 					} else {
+						System.out.println("Not Multithreading");
 						if (flagValuePairs.hasFlag("-exact")) {
-							myInvertedIndex.parse(queryPath, results, true, 0);
+							myInvertedIndex.parse(queryPath, results, true, -1);
 						} else {
-							myInvertedIndex.parse(queryPath, results, false, 0);
+							myInvertedIndex.parse(queryPath, results, false, -1);
 						}
 					}
 				} catch (IOException e) {

@@ -209,6 +209,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 		 */
 		public Task(InvertedIndex index, SearchResults results, TreeSet<String> parsed, String queryText,
 				boolean exact) {
+			System.out.println("Creating Task");
 			this.index = index;
 			this.results = results;
 			this.parsed = parsed;
@@ -218,11 +219,17 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 
 		@Override
 		public void run() {
-			if (exact) {
-				index.exactSearch(parsed, results, queryText);
-			} else {
-				index.partialSearch(parsed, results, queryText);
+			synchronized (index) {
+				if (exact) {
+
+					index.exactSearch(parsed, results, queryText);
+
+				} else {
+
+					index.partialSearch(parsed, results, queryText);
+				}
 			}
+			System.out.println("Finishing Task");
 		}
 	}
 }
