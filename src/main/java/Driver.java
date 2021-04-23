@@ -62,6 +62,8 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
+					// TODO myInvertedIndex.parse(queryPath, results, flagValuePairs.hasFlag("-exact"));
+					
 					if (flagValuePairs.hasFlag("-exact")) {
 						myInvertedIndex.parse(queryPath, results, true);
 					} else {

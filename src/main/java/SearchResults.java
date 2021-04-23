@@ -22,6 +22,8 @@ public class SearchResults {
 	 */
 	private final TreeMap<String, List<Result>> results;
 
+	// TODO private final InvertedIndex index;
+	
 	/**
 	 * the constructor for this class
 	 */
@@ -36,10 +38,11 @@ public class SearchResults {
 	 * @param query  the location we are storing it at
 	 * @param result the value we are storing
 	 */
-	public void add(String query, List<Result> result) {
+	public void add(String query, List<Result> result) { // TODO Remove or private
 		results.putIfAbsent(query, result);
 	}
 
+	// TODO This is going to be integrated into search methods, then will be able to remove
 	/**
 	 * adds a single result to the list of results
 	 * 
@@ -48,7 +51,7 @@ public class SearchResults {
 	 * @return boolean whether it actually added
 	 */
 	private boolean add(String query, Result result) {
-		for (int i = 0; i < this.results.get(query).size(); i++) {
+		for (int i = 0; i < this.results.get(query).size(); i++) { // TODO Linear search
 			int comparison = this.results.get(query).get(i).compareTo(result);
 			if (comparison > 0) {
 				this.results.get(query).add(i, result);
@@ -178,7 +181,7 @@ public class SearchResults {
 	 * @author colininns
 	 *
 	 */
-	public class Result implements Comparable<Result> {
+	public class Result implements Comparable<Result> { // TODO Move into the InvertedIndex instead
 		/**
 		 * stores where the count came from
 		 */
