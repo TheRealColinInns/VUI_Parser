@@ -138,7 +138,15 @@ public class InvertedIndex {
 	 * @param innerKey location
 	 * @param value    position
 	 */
+	// TODO outerKey --> word, innerKey --> location
 	public void add(String outerKey, String innerKey, Integer value) {
+		/* TODO 
+		var innerMap = this.index.putIfAbsent(outerKey, new TreeMap<>());
+		var innerSet = innerMap.putIfAbsent(innerKey, new TreeSet<>());
+		var modified = innerSet.add(value);
+		if (modified) { update the word count }
+		*/
+
 		this.addToWordCount(innerKey);
 		if (this.index.putIfAbsent(outerKey, new TreeMap<String, Collection<Integer>>(
 				Map.of(innerKey, new ArrayList<Integer>(Arrays.asList(value))))) != null) {
@@ -239,6 +247,70 @@ public class InvertedIndex {
 		return false;
 	}
 
+	/* TODO 
+	public List<Result> exactSearch(Set<String> queries) {
+		Map<String, Result> lookup = new HashMap<String, Integer>();
+		List<Result> results = new ArrayList<>();
+		
+		for (String query : queries) {
+			if (this.index.containsKey(query)) {
+				for (String path : this.index.get(query).keySet()) {
+					if (lookup.containsKey(path)) {
+						lookup.get(path).addMatches(...);
+						lookup.get(path).recalculateScore(...);
+					} else {
+						Result local = new Result(...);
+						lookup.put(path, local);
+						results.add(local);
+					}
+				}
+			}
+		}
+		
+		Collections.sort(results);
+		return results;
+	}
+	
+	public List<Result> exactSearch(Set<String> queries) {
+		Map<String, Result> lookup = new HashMap<String, Integer>();
+		List<Result> results = new ArrayList<>();
+		
+		for (String query : queries) {
+			for (String word : this.index.keySet()) { <<---- linear search
+				if (word.startsWith(query)) {
+					for (String path : this.index.get(query).keySet()) {
+						if (lookup.containsKey(path)) {
+							lookup.get(path).addMatches(...);
+							lookup.get(path).recalculateScore(...);
+						} else {
+							Result local = new Result(...);
+							lookup.put(path, local);
+							results.add(local);
+						}
+					}
+				}
+			}
+		}
+		
+		Collections.sort(results);
+		return results;
+	}
+	*/
+	
+/*
+ * TODO This is doing a linear search for a consecutive chunk of elements. We fix
+ * these types of linear searches differently. Here, the key observation to make
+ * is that our data is sorted. Anytime we have sorted data, we can do something
+ * like a binary search to speed things up. In this case, we don't need to explicitly
+ * do a binary search---this kind of functionality is built into tree data structures.
+ * Look at this lecture example:
+ *
+ * https://github.com/usf-cs212-spring2021/lectures/blob/8c166c28ad8756c0aa1ccfb3e0b237e83e8c9358/DataStructures/src/main/java/FindDemo.java#L119-L170
+ *
+ * You can take a similar approach using TreeMaps too! There is no need to copy keys
+ * into a TreeSet. If you aren't sure how to adapt this for partial search, reach out on CampusWire!
+ */	
+	
 	/**
 	 * does an exact search of a query
 	 * 
@@ -362,6 +434,7 @@ public class InvertedIndex {
 	 * These are methods for the query:
 	 */
 
+	// TODO This logic will move into SearchResults
 	/**
 	 * parses all of the queries at a location
 	 * 
