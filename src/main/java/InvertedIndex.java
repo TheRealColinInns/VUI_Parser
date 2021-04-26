@@ -1,10 +1,8 @@
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,25 +132,16 @@ public class InvertedIndex {
 	/**
 	 * add method for the nested array
 	 * 
-	 * @param outerKey word
-	 * @param innerKey location
+	 * @param word     word
+	 * @param location location
 	 * @param value    position
 	 */
-	// TODO outerKey --> word, innerKey --> location
-	public void add(String outerKey, String innerKey, Integer value) {
-		/* TODO 
-		var innerMap = this.index.putIfAbsent(outerKey, new TreeMap<>());
-		var innerSet = innerMap.putIfAbsent(innerKey, new TreeSet<>());
-		var modified = innerSet.add(value);
-		if (modified) { update the word count }
-		*/
-
-		this.addToWordCount(innerKey);
-		if (this.index.putIfAbsent(outerKey, new TreeMap<String, Collection<Integer>>(
-				Map.of(innerKey, new ArrayList<Integer>(Arrays.asList(value))))) != null) {
-			if (this.index.get(outerKey).putIfAbsent(innerKey, new ArrayList<Integer>(Arrays.asList(value))) != null) {
-				this.index.get(outerKey).get(innerKey).add(value);
-			}
+	public void add(String word, String location, Integer value) {
+		this.index.putIfAbsent(word, new TreeMap<>());
+		this.index.get(word).putIfAbsent(location, new TreeSet<>());
+		boolean modified = this.index.get(word).get(location).add(value);
+		if (modified) {
+			this.addToWordCount(location);
 		}
 	}
 
@@ -225,65 +214,57 @@ public class InvertedIndex {
 	}
 
 	/**
-	 * helper function that searches for a piece of a query in a word
+	 * searches the index for exact queries
 	 * 
-	 * @param wordKey the word we are searching through
-	 * @param query   the query we are looking for
-	 * @return boolean whether or not it is there
+	 * @param queries the queries we are searching for
+	 * @return a list of results, in order
 	 */
-	private static boolean partialSearcher(String wordKey, String query) {
-		String compareWord;
-		if (wordKey.equals(query)) {
-			return true;
-		}
-		if (query.length() < wordKey.length()) {
-			compareWord = wordKey.substring(0, query.length());
-		} else {
-			return false;
-		}
-		if (compareWord.equals(query)) {
-			return true;
-		}
-		return false;
-	}
-
-	/* TODO 
 	public List<Result> exactSearch(Set<String> queries) {
-		Map<String, Result> lookup = new HashMap<String, Integer>();
+		Map<String, Result> lookup = new HashMap<String, Result>();
 		List<Result> results = new ArrayList<>();
-		
+
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
 				for (String path : this.index.get(query).keySet()) {
 					if (lookup.containsKey(path)) {
-						lookup.get(path).addMatches(...);
-						lookup.get(path).recalculateScore(...);
+						lookup.get(path).addMatches(this.index.get(query).get(path).size());
+						lookup.get(path).recalculateScore(Double.valueOf(this.wordCount.get(path)));
 					} else {
-						Result local = new Result(...);
+						int count = this.index.get(query).get(path).size();
+						Result local = new Result(path, count,
+								Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
 						lookup.put(path, local);
 						results.add(local);
 					}
 				}
 			}
 		}
-		
+
 		Collections.sort(results);
 		return results;
 	}
-	
-	public List<Result> exactSearch(Set<String> queries) {
-		Map<String, Result> lookup = new HashMap<String, Integer>();
+
+	/**
+	 * searches the index for parts of queries
+	 * 
+	 * @param queries the queries we are searching for
+	 * @return a list of results, in order
+	 */
+	public List<Result> partialSearch(Set<String> queries) {
+		Map<String, Result> lookup = new HashMap<>();
 		List<Result> results = new ArrayList<>();
-		
+
 		for (String query : queries) {
-			for (String word : this.index.keySet()) { <<---- linear search
+			for (String word : this.index.navigableKeySet().tailSet(query)) {
 				if (word.startsWith(query)) {
-					for (String path : this.index.get(query).keySet()) {
+					for (String path : this.index.get(word).keySet()) {
 						if (lookup.containsKey(path)) {
-							lookup.get(path).addMatches(...);
-							lookup.get(path).recalculateScore(...);
+							lookup.get(path).addMatches(this.index.get(word).get(path).size());
+							lookup.get(path).recalculateScore(Double.valueOf(this.wordCount.get(path)));
 						} else {
-							Result local = new Result(...);
+							int count = this.index.get(word).get(path).size();
+							Result local = new Result(path, count,
+									Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
 							lookup.put(path, local);
 							results.add(local);
 						}
@@ -291,98 +272,10 @@ public class InvertedIndex {
 				}
 			}
 		}
-		
+
 		Collections.sort(results);
 		return results;
 	}
-	*/
-	
-/*
- * TODO This is doing a linear search for a consecutive chunk of elements. We fix
- * these types of linear searches differently. Here, the key observation to make
- * is that our data is sorted. Anytime we have sorted data, we can do something
- * like a binary search to speed things up. In this case, we don't need to explicitly
- * do a binary search---this kind of functionality is built into tree data structures.
- * Look at this lecture example:
- *
- * https://github.com/usf-cs212-spring2021/lectures/blob/8c166c28ad8756c0aa1ccfb3e0b237e83e8c9358/DataStructures/src/main/java/FindDemo.java#L119-L170
- *
- * You can take a similar approach using TreeMaps too! There is no need to copy keys
- * into a TreeSet. If you aren't sure how to adapt this for partial search, reach out on CampusWire!
- */	
-	
-	/**
-	 * does an exact search of a query
-	 * 
-	 * @param queries   the queries we will search for
-	 * @param results   the results we will add our findings to
-	 * @param queryText the text form of the query
-	 */
-	public void exactSearch(Set<String> queries, SearchResults results, String queryText) {
-		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
-		for (String word : this.getWords()) {
-			for (String path : this.getLocations(word)) {
-				for (String query : queries) {
-
-					if (word.compareToIgnoreCase(query) == 0) {
-						if (countsAtLocations.containsKey(path)) {
-							countsAtLocations.put(path, this.sizePositions(word, path) + countsAtLocations.get(path));
-						} else {
-							countsAtLocations.put(path, this.sizePositions(word, path));
-						}
-					}
-				}
-			}
-		}
-
-		if (countsAtLocations.isEmpty()) {
-			results.addBlank(queryText);
-		} else {
-			for (String path : countsAtLocations.keySet()) {
-				results.add(queryText, path, countsAtLocations.get(path),
-						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
-			}
-		}
-	}
-
-	/**
-	 * performs a partial search for a specified query
-	 * 
-	 * @param queries   the queries we will search for
-	 * @param results   the results we will add our findings to
-	 * @param queryText the text form of the query
-	 */
-	public void partialSearch(Set<String> queries, SearchResults results, String queryText) {
-		Map<String, Integer> countsAtLocations = new HashMap<String, Integer>();
-		for (String word : this.getWords()) {
-			for (String path : this.getLocations(word)) {
-				for (String query : queries) {
-
-					if (partialSearcher(word, query)) {
-						if (countsAtLocations.containsKey(path)) {
-							countsAtLocations.put(path, this.sizePositions(word, path) + countsAtLocations.get(path));
-						} else {
-							countsAtLocations.put(path, this.sizePositions(word, path));
-						}
-					}
-				}
-			}
-		}
-
-		if (countsAtLocations.isEmpty()) {
-			results.addBlank(queryText);
-		} else {
-			for (String path : countsAtLocations.keySet()) {
-				results.add(queryText, path, countsAtLocations.get(path),
-						countsAtLocations.get(path) / Double.valueOf(this.getWordCount(path)));
-			}
-		}
-	}
-
-	/*
-	 * +--------------------------------------------------------------------------+
-	 * These are the methods for the Word Count:
-	 */
 
 	/**
 	 * contains method for word count
@@ -434,33 +327,98 @@ public class InvertedIndex {
 	 * These are methods for the query:
 	 */
 
-	// TODO This logic will move into SearchResults
 	/**
-	 * parses all of the queries at a location
+	 * Inner class that stores a single result
 	 * 
-	 * @param fileName the file we are reading the query from
-	 * @param results  the results we will add to
-	 * @param exact    boolean whether or not to search exact or partial
-	 * @throws IOException exception thrown if file doesn't exist
+	 * @author colininns
+	 *
 	 */
-	public void parse(Path fileName, SearchResults results, boolean exact) throws IOException {
-		try (BufferedReader mybr = Files.newBufferedReader(fileName, StandardCharsets.UTF_8);) {
-			if (exact) {
-				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
-					if (!parsed.isEmpty()) {
-						this.exactSearch(parsed, results, String.join(" ", parsed));
-					}
-				}
+	public class Result implements Comparable<Result> {
+		/**
+		 * stores where the count came from
+		 */
+		private String location;
+		/**
+		 * the amount of hits it found
+		 */
+		private int count;
+		/**
+		 * the hits divided by the word count
+		 */
+		private Double score;
+
+		/**
+		 * Constructor for the result
+		 * 
+		 * @param location the location
+		 * @param count    the amount of hits
+		 * @param score    the score of the location
+		 */
+		public Result(String location, int count, Double score) {
+			DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+			this.location = location;
+			this.count = count;
+			this.score = Double.valueOf(FORMATTER.format(score));
+		}
+
+		/**
+		 * gets the location
+		 * 
+		 * @return a string of the location
+		 */
+		public String getLocation() {
+			return location;
+		}
+
+		/**
+		 * gets the count
+		 * 
+		 * @return an int of the count
+		 */
+		public int getCount() {
+			return count;
+		}
+
+		/**
+		 * gets the score
+		 * 
+		 * @return a double of the score
+		 */
+		public Double getScore() {
+			return score;
+		}
+
+		/**
+		 * adds a single match to the count of a specific result
+		 * 
+		 * @param count the number to add
+		 */
+		public void addMatches(int count) {
+			this.count += count;
+		}
+
+		/**
+		 * recalculates the score with a new count
+		 * 
+		 * @param wordCount the word count used in calculating the score
+		 */
+		public void recalculateScore(Double wordCount) {
+			this.score = Double.valueOf(this.count / wordCount);
+		}
+
+		@Override
+		public int compareTo(Result original) {
+			int scoreComparison = Double.compare(original.getScore(), this.getScore());
+			if (scoreComparison != 0) {
+				return scoreComparison;
 			} else {
-				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
-					if (!parsed.isEmpty()) {
-						this.partialSearch(parsed, results, String.join(" ", parsed));
-					}
+				int countComparison = Integer.compare(original.getCount(), this.getCount());
+				if (countComparison < 0) {
+					return countComparison;
+				} else {
+					return this.getLocation().compareToIgnoreCase(original.getLocation());
 				}
 			}
 		}
 	}
-
 }

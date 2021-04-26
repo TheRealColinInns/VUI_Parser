@@ -1,11 +1,13 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Class responsible for converting an array list into the map data structure
@@ -20,81 +22,45 @@ public class SearchResults {
 	/**
 	 * the results of the search
 	 */
-	private final TreeMap<String, List<Result>> results;
+	private final TreeMap<String, List<InvertedIndex.Result>> results;
 
-	// TODO private final InvertedIndex index;
-	
+	/**
+	 * the inverted index the results are coming from
+	 */
+	private final InvertedIndex index;
+
 	/**
 	 * the constructor for this class
 	 */
-	public SearchResults() {
-		results = new TreeMap<String, List<Result>>();
-
+	public SearchResults(InvertedIndex myInvertedIndex) {
+		results = new TreeMap<String, List<InvertedIndex.Result>>();
+		index = myInvertedIndex;
 	}
 
 	/**
-	 * adds a single query result to the results
+	 * searches the index given a query
 	 * 
-	 * @param query  the location we are storing it at
-	 * @param result the value we are storing
+	 * @param queryPath the file of queries
+	 * @param exact     flag tells us what type of search
+	 * @throws IOException throws if we can't read the query file
 	 */
-	public void add(String query, List<Result> result) { // TODO Remove or private
-		results.putIfAbsent(query, result);
-	}
-
-	// TODO This is going to be integrated into search methods, then will be able to remove
-	/**
-	 * adds a single result to the list of results
-	 * 
-	 * @param query  the location we are storing it at
-	 * @param result a single result
-	 * @return boolean whether it actually added
-	 */
-	private boolean add(String query, Result result) {
-		for (int i = 0; i < this.results.get(query).size(); i++) { // TODO Linear search
-			int comparison = this.results.get(query).get(i).compareTo(result);
-			if (comparison > 0) {
-				this.results.get(query).add(i, result);
-				return true;
-			} else if (comparison == 0) {
-				return false;
+	public void search(Path queryPath, boolean exact) throws IOException {
+		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
+			if (exact) {
+				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+					if (!parsed.isEmpty()) {
+						results.putIfAbsent(String.join(" ", parsed), index.exactSearch(parsed));
+					}
+				}
+			} else {
+				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+					if (!parsed.isEmpty()) {
+						results.putIfAbsent(String.join(" ", parsed), index.partialSearch(parsed));
+					}
+				}
 			}
-		}
-
-		this.results.get(query).add(result);
-		return true;
-
-	}
-
-	/**
-	 * adds a location count and score to the list of query results
-	 * 
-	 * @param query    the query in question
-	 * @param location the location the count is from
-	 * @param count    the count of all the matched words
-	 * @param score    the count divided by the total word count
-	 */
-	public void add(String query, String location, int count, Double score) {
-		if (this.results.containsKey(query)) {
-			this.add(query, new Result(location, count, score));
-		} else {
-			List<Result> result = new ArrayList<Result>();
-			result.add(new Result(location, count, score));
-			this.add(query, result);
-		}
-	}
-
-	/**
-	 * adds a blank result
-	 * 
-	 * @param query the query location to add the blank to
-	 */
-	public void addBlank(String query) {
-		if (this.results.containsKey(query)) {
-			System.out.println("This isn't blank");
-		} else {
-			List<Result> result = new ArrayList<Result>();
-			this.add(query, result);
 		}
 	}
 
@@ -174,82 +140,4 @@ public class SearchResults {
 	public void write(Path output) throws IOException {
 		SimpleJsonWriter.asSearchResult(this, output);
 	}
-
-	/**
-	 * Inner class that stores a single result
-	 * 
-	 * @author colininns
-	 *
-	 */
-	public class Result implements Comparable<Result> { // TODO Move into the InvertedIndex instead
-		/**
-		 * stores where the count came from
-		 */
-		private String location;
-		/**
-		 * the amount of hits it found
-		 */
-		private int count;
-		/**
-		 * the hits divided by the word count
-		 */
-		private Double score;
-
-		/**
-		 * Constructor for the result
-		 * 
-		 * @param location the location
-		 * @param count    the amount of hits
-		 * @param score    the score of the location
-		 */
-		public Result(String location, int count, Double score) {
-			DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
-			this.location = location;
-			this.count = count;
-			this.score = Double.valueOf(FORMATTER.format(score));
-		}
-
-		/**
-		 * gets the location
-		 * 
-		 * @return a string of the location
-		 */
-		public String getLocation() {
-			return location;
-		}
-
-		/**
-		 * gets the count
-		 * 
-		 * @return an int of the count
-		 */
-		public int getCount() {
-			return count;
-		}
-
-		/**
-		 * gets the score
-		 * 
-		 * @return a double of the score
-		 */
-		public Double getScore() {
-			return score;
-		}
-
-		@Override
-		public int compareTo(Result original) {
-			int scoreComparison = Double.compare(original.getScore(), this.getScore());
-			if (scoreComparison != 0) {
-				return scoreComparison;
-			} else {
-				int countComparison = Integer.compare(original.getCount(), this.getCount());
-				if (countComparison < 0) {
-					return countComparison;
-				} else {
-					return this.getLocation().compareToIgnoreCase(original.getLocation());
-				}
-			}
-		}
-	}
-
 }

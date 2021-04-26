@@ -31,7 +31,7 @@ public class Driver {
 		// the inverted index data structure that we will store all of the data in
 		InvertedIndex myInvertedIndex = new InvertedIndex();
 		// the results of the search
-		SearchResults results = new SearchResults();
+		SearchResults results = new SearchResults(myInvertedIndex);
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -62,13 +62,7 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					// TODO myInvertedIndex.parse(queryPath, results, flagValuePairs.hasFlag("-exact"));
-					
-					if (flagValuePairs.hasFlag("-exact")) {
-						myInvertedIndex.parse(queryPath, results, true);
-					} else {
-						myInvertedIndex.parse(queryPath, results, false);
-					}
+					results.search(queryPath, flagValuePairs.hasFlag("-exact"));
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
