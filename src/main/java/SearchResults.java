@@ -31,6 +31,8 @@ public class SearchResults {
 
 	/**
 	 * the constructor for this class
+	 * 
+	 * @param myInvertedIndex the index to get the results from
 	 */
 	public SearchResults(InvertedIndex myInvertedIndex) {
 		results = new TreeMap<String, List<InvertedIndex.Result>>();
