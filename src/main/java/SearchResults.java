@@ -65,6 +65,31 @@ public class SearchResults {
 			}
 		}
 	}
+	
+	/*
+	 * TODO Pull logic inside the while loop into its own method, then call
+	 * that method inside the while loop above instead.
+	 * 
+	 * 	
+	public void search(Path queryPath, boolean exact) throws IOException {
+		try (BufferedReader reader = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
+			for(...) {
+				search(line, exact);
+			}
+		}
+	}
+	
+	public void search(String queryLine, boolean exact) {
+		stem
+		join
+		search
+		store
+	}
+	
+	...now you have 2 methods for almost the same amount of code, but this class
+	can now be used on an entire file or individual lines. The second one could be
+	useful for projects 3 and 4.
+	 */
 
 	/**
 	 * gets an unmodifiable key set
@@ -75,6 +100,7 @@ public class SearchResults {
 		return Collections.unmodifiableSet(results.keySet());
 	}
 
+	// TODO Remove rather than fix
 	/**
 	 * gets the location that way we don't need to involve Result class
 	 * 
@@ -86,6 +112,7 @@ public class SearchResults {
 		return this.results.get(query).get(index).getLocation();
 	}
 
+	// TODO Remove
 	/**
 	 * gets the count that way we don't need to involve Result class
 	 * 
@@ -97,6 +124,7 @@ public class SearchResults {
 		return this.results.get(query).get(index).getCount();
 	}
 
+	// TODO Remove 
 	/**
 	 * gets the score that way we don't need to involve Result class
 	 * 
@@ -108,6 +136,7 @@ public class SearchResults {
 		return this.results.get(query).get(index).getScore();
 	}
 
+	// TODO Remove
 	/**
 	 * tests if the results contains an index
 	 * 
@@ -123,6 +152,7 @@ public class SearchResults {
 		}
 	}
 
+	// TODO Remove or fix the null pointer if query is not contained in map
 	/**
 	 * the size at a specific query
 	 * 
