@@ -48,48 +48,29 @@ public class SearchResults {
 	 */
 	public void search(Path queryPath, boolean exact) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
-			if (exact) {
-				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
-					if (!parsed.isEmpty()) {
-						results.putIfAbsent(String.join(" ", parsed), index.exactSearch(parsed));
-					}
-				}
-			} else {
-				for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-					TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
-					if (!parsed.isEmpty()) {
-						results.putIfAbsent(String.join(" ", parsed), index.partialSearch(parsed));
-					}
-				}
+			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+				this.search(line, exact);
 			}
 		}
 	}
-	
-	/*
-	 * TODO Pull logic inside the while loop into its own method, then call
-	 * that method inside the while loop above instead.
+
+	/**
+	 * does a search of a single query line
 	 * 
-	 * 	
-	public void search(Path queryPath, boolean exact) throws IOException {
-		try (BufferedReader reader = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
-			for(...) {
-				search(line, exact);
+	 * @param queryLine the lin ewe are searching for
+	 * @param exact     {code=true} if we are doing an exact search
+	 */
+	private void search(String queryLine, boolean exact) {
+		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
+		if (!parsed.isEmpty()) {
+			if (exact) {
+				results.putIfAbsent(String.join(" ", parsed), index.exactSearch(parsed));
+			} else {
+				results.putIfAbsent(String.join(" ", parsed), index.partialSearch(parsed));
 			}
 		}
 	}
-	
-	public void search(String queryLine, boolean exact) {
-		stem
-		join
-		search
-		store
-	}
-	
-	...now you have 2 methods for almost the same amount of code, but this class
-	can now be used on an entire file or individual lines. The second one could be
-	useful for projects 3 and 4.
-	 */
+
 
 	/**
 	 * gets an unmodifiable key set
@@ -100,59 +81,7 @@ public class SearchResults {
 		return Collections.unmodifiableSet(results.keySet());
 	}
 
-	// TODO Remove rather than fix
-	/**
-	 * gets the location that way we don't need to involve Result class
-	 * 
-	 * @param query the query at where we want to find
-	 * @param index the index at where we want to find
-	 * @return the location
-	 */
-	public String getLocation(String query, int index) {
-		return this.results.get(query).get(index).getLocation();
-	}
-
-	// TODO Remove
-	/**
-	 * gets the count that way we don't need to involve Result class
-	 * 
-	 * @param query the query at where we want to find
-	 * @param index the index at where we want to find
-	 * @return the count
-	 */
-	public int getCount(String query, int index) {
-		return this.results.get(query).get(index).getCount();
-	}
-
-	// TODO Remove 
-	/**
-	 * gets the score that way we don't need to involve Result class
-	 * 
-	 * @param query the query at where we want to find
-	 * @param index the index at where we want to find
-	 * @return the score
-	 */
-	public Double getScore(String query, int index) {
-		return this.results.get(query).get(index).getScore();
-	}
-
-	// TODO Remove
-	/**
-	 * tests if the results contains an index
-	 * 
-	 * @param query the key to test
-	 * @param index the index to see if exists
-	 * @return boolean whether or not it contains the index
-	 */
-	public boolean containsIndex(String query, int index) {
-		if (this.results.get(query).size() - 1 >= index) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	// TODO Remove or fix the null pointer if query is not contained in map
+	
 	/**
 	 * the size at a specific query
 	 * 
@@ -160,7 +89,12 @@ public class SearchResults {
 	 * @return the size in integer form
 	 */
 	public int size(String query) {
-		return this.results.get(query).size();
+		if(this.results.containsKey(query)) {
+			return this.results.get(query).size();
+		}
+		else {
+			return -1;
+		}
 	}
 
 	/**
@@ -170,6 +104,6 @@ public class SearchResults {
 	 * @throws IOException throws if the file is unreachable
 	 */
 	public void write(Path output) throws IOException {
-		SimpleJsonWriter.asSearchResult(this, output);
+		SimpleJsonWriter.asSearchResult(results, output);
 	}
 }

@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
@@ -277,16 +279,16 @@ public class SimpleJsonWriter {
 	 * @param level   the indent level
 	 * @throws IOException if we can't write
 	 */
-	public static void asSingleQueryWord(SearchResults results, String query, int index, Writer writer, int level)
+	public static void asSingleQueryWord(TreeMap<String, List<InvertedIndex.Result>> results, String query, int index, Writer writer, int level)
 			throws IOException {
 		DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
 		indent("{\n", writer, level);
 
 		level++;
-
-		indent("\"where\": \"" + results.getLocation(query, index) + "\",\n", writer, level);
-		indent("\"count\": " + results.getCount(query, index) + ",\n", writer, level);
-		indent("\"score\": " + FORMATTER.format(results.getScore(query, index)), writer, level);
+		
+		indent("\"where\": \"" + results.get(query).get(index).getLocation() + "\",\n", writer, level);
+		indent("\"count\": " + results.get(query).get(index).getCount() + ",\n", writer, level);
+		indent("\"score\": " + FORMATTER.format(results.get(query).get(index).getScore()), writer, level);
 
 		level--;
 		writer.write("\n");
@@ -302,14 +304,14 @@ public class SimpleJsonWriter {
 	 * @param level   the indent level
 	 * @throws IOException if we can't write
 	 */
-	public static void asSingleQuery(SearchResults results, String query, Writer writer, int level) throws IOException {
+	public static void asSingleQuery(TreeMap<String, List<InvertedIndex.Result>> results, String query, Writer writer, int level) throws IOException {
 		writer.write("[");
 		level++;
-		if (results.containsIndex(query, 0)) {
+		if (results.get(query).size()>0) {
 			writer.write("\n");
 			asSingleQueryWord(results, query, 0, writer, level);
 		}
-		for (int i = 1; i < results.size(query); i++) {
+		for (int i = 1; i < results.get(query).size(); i++) {
 			writer.write(",\n");
 			asSingleQueryWord(results, query, i, writer, level);
 		}
@@ -326,10 +328,10 @@ public class SimpleJsonWriter {
 	 * @param level   indent level
 	 * @throws IOException if we cant write to the file
 	 */
-	public static void asSearchResult(SearchResults results, Writer writer, int level) throws IOException {
+	public static void asSearchResult(TreeMap<String, List<InvertedIndex.Result>> results, Writer writer, int level) throws IOException {
 		writer.write("{");
 		level++;
-		Iterator<String> queryIterator = results.getResultKeySet().iterator();
+		Iterator<String> queryIterator = results.keySet().iterator();
 		if (queryIterator.hasNext()) {
 			String query = queryIterator.next();
 			writer.write("\n");
@@ -355,7 +357,7 @@ public class SimpleJsonWriter {
 	 * @param output  the file we are writing to
 	 * @throws IOException throws if we can't write
 	 */
-	public static void asSearchResult(SearchResults results, Path output) throws IOException {
+	public static void asSearchResult(TreeMap<String, List<InvertedIndex.Result>> results, Path output) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(output, StandardCharsets.UTF_8)) {
 			asSearchResult(results, writer, 0);
 		}
@@ -367,7 +369,7 @@ public class SimpleJsonWriter {
 	 * @param results the results to the search
 	 * @return a string of the write
 	 */
-	public static String asSearchResult(SearchResults results) {
+	public static String asSearchResult(TreeMap<String, List<InvertedIndex.Result>> results) {
 		try {
 			StringWriter writer = new StringWriter();
 			asSearchResult(results, writer, 0);

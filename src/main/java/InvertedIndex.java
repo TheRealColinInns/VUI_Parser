@@ -225,23 +225,7 @@ public class InvertedIndex {
 
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
-				/*
-				 * TODO Move this common for loop into a private helper method and call that
-				 * method in both exact/partial Search
-				 */
-				for (String path : this.index.get(query).keySet()) {
-					if (lookup.containsKey(path)) {
-						// TODO Simplify this logic, which happens here and in the else by moving more work into the result class. See there for more comments!
-						lookup.get(path).addMatches(this.index.get(query).get(path).size());
-						lookup.get(path).recalculateScore(Double.valueOf(this.wordCount.get(path)));
-					} else {
-						int count = this.index.get(query).get(path).size();
-						Result local = new Result(path, count,
-								Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
-						lookup.put(path, local);
-						results.add(local);
-					}
-				}
+				this.lookup(lookup, results, query);
 			}
 		}
 
@@ -260,27 +244,36 @@ public class InvertedIndex {
 		List<Result> results = new ArrayList<>();
 
 		for (String query : queries) {
-			// TOOD Use index.tailMap(...).keySet() instead
-			for (String word : this.index.navigableKeySet().tailSet(query)) {
+			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
-					for (String path : this.index.get(word).keySet()) {
-						if (lookup.containsKey(path)) {
-							lookup.get(path).addMatches(this.index.get(word).get(path).size());
-							lookup.get(path).recalculateScore(Double.valueOf(this.wordCount.get(path)));
-						} else {
-							int count = this.index.get(word).get(path).size();
-							Result local = new Result(path, count,
-									Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
-							lookup.put(path, local);
-							results.add(local);
-						}
-					}
+					this.lookup(lookup, results, word);
 				}
 			}
 		}
 
 		Collections.sort(results);
 		return results;
+	}
+
+	/**
+	 * Helper function loops through the lookup to get the search results
+	 * 
+	 * @param lookup  the lookup map
+	 * @param results the singular result
+	 * @param word    the word we found
+	 */
+	private void lookup(Map<String, Result> lookup, List<Result> results, String word) {
+		for (String path : this.index.get(word).keySet()) {
+			if (lookup.containsKey(path)) {
+				lookup.get(path).update(word);
+			} else {
+				int count = this.index.get(word).get(path).size();
+				Result local = new Result(path, count,
+						Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
+				lookup.put(path, local);
+				results.add(local);
+			}
+		}
 	}
 
 	/**
@@ -343,7 +336,7 @@ public class InvertedIndex {
 		/**
 		 * stores where the count came from
 		 */
-		private String location; // TODO final
+		private final String location;
 		/**
 		 * the amount of hits it found
 		 */
@@ -393,52 +386,15 @@ public class InvertedIndex {
 		public Double getScore() {
 			return score;
 		}
-		
-		
-		/*
-		 * TODO
-		
-		Replace your addMatches and recalculateScore methods with something more
-		useful for your search methods. Those methods always have to do:
-		
-		lookup.get(path).addMatches(this.index.get(query).get(path).size());
-		lookup.get(path).recalculateScore(Double.valueOf(this.wordCount.get(path)));
-		
-		...or something similar. We can move that work here as follows:
-		
-		private void update(String query) {
+
+		/**
+		 * updates the result with a new count and score
+		 * 
+		 * @param query
+		 */
+		public void update(String query) {
 			this.count += index.get(query).get(location).size();
-			this.score = this.count / (double) wordCount.get(location); 
-		}
-		
-		...and so it is easier to create these objects in the first place, change the
-		constructor to:
-		
-		public Result(String location, String query) {
-			DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
-			this.location = location;
-			update(query);
-		}
-		
-		Then use these in your search methods.
-		 */
-
-		/**
-		 * adds a single match to the count of a specific result
-		 * 
-		 * @param count the number to add
-		 */
-		public void addMatches(int count) {
-			this.count += count;
-		}
-
-		/**
-		 * recalculates the score with a new count
-		 * 
-		 * @param wordCount the word count used in calculating the score
-		 */
-		public void recalculateScore(Double wordCount) {
-			this.score = Double.valueOf(this.count / wordCount);
+			this.score = this.count / (double) wordCount.get(location);
 		}
 
 		@Override
