@@ -390,7 +390,7 @@ public class InvertedIndex {
 		/**
 		 * updates the result with a new count and score
 		 * 
-		 * @param query
+		 * @param query the query
 		 */
 		public void update(String query) {
 			this.count += index.get(query).get(location).size();
