@@ -248,6 +248,7 @@ public class InvertedIndex {
 				if (word.startsWith(query)) {
 					this.lookup(lookup, results, word);
 				}
+				// TODO VERY important to else { break }
 			}
 		}
 
@@ -264,6 +265,15 @@ public class InvertedIndex {
 	 */
 	private void lookup(Map<String, Result> lookup, List<Result> results, String word) {
 		for (String path : this.index.get(word).keySet()) {
+			/*
+			 * TODO Swap logic a bit to simplify:
+			 * 
+			 * if (!lookup.containsKey(path)) {
+			 * 		initialize stuff
+			 * }
+			 * 
+			 * lookup.get(path).update(word); <-- always called
+			 */
 			if (lookup.containsKey(path)) {
 				lookup.get(path).update(word);
 			} else {
@@ -292,6 +302,7 @@ public class InvertedIndex {
 	 * @param location the file the count came from
 	 */
 	private void addToWordCount(String location) {
+		// TODO Could do: this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
 		if (this.wordCount.putIfAbsent(location, 1) != null) {
 			this.wordCount.put(location, this.getWordCount(location) + 1);
 		}
@@ -304,6 +315,7 @@ public class InvertedIndex {
 	 * @return the word count at that location
 	 */
 	public Integer getWordCount(String location) {
+		// TODO return wordCount.getOrDefault(location, 0);
 		if (this.containsWordCount(location)) {
 			return this.wordCount.get(location);
 		} else {
@@ -346,6 +358,7 @@ public class InvertedIndex {
 		 */
 		private Double score;
 
+		// TODO *Only* pass in the location, set everythign else to 0. Let update be the only way to set the count and score
 		/**
 		 * Constructor for the result
 		 * 
@@ -392,7 +405,7 @@ public class InvertedIndex {
 		 * 
 		 * @param query the query
 		 */
-		public void update(String query) {
+		public void update(String query) { // TODO private
 			this.count += index.get(query).get(location).size();
 			this.score = this.count / (double) wordCount.get(location);
 		}
