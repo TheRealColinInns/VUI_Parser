@@ -1,7 +1,6 @@
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -247,8 +246,9 @@ public class InvertedIndex {
 			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
 					this.lookup(lookup, results, word);
+				} else {
+					break;
 				}
-				// TODO VERY important to else { break }
 			}
 		}
 
@@ -265,24 +265,28 @@ public class InvertedIndex {
 	 */
 	private void lookup(Map<String, Result> lookup, List<Result> results, String word) {
 		for (String path : this.index.get(word).keySet()) {
-			/*
-			 * TODO Swap logic a bit to simplify:
-			 * 
-			 * if (!lookup.containsKey(path)) {
-			 * 		initialize stuff
-			 * }
-			 * 
-			 * lookup.get(path).update(word); <-- always called
-			 */
-			if (lookup.containsKey(path)) {
-				lookup.get(path).update(word);
-			} else {
-				int count = this.index.get(word).get(path).size();
-				Result local = new Result(path, count,
-						Double.valueOf(count / Double.valueOf(this.wordCount.get(path))));
-				lookup.put(path, local);
+			if (!lookup.containsKey(path)) {
+				Result local = new Result(path);
+				lookup.putIfAbsent(path, local);
 				results.add(local);
 			}
+
+			lookup.get(path).update(word);
+		}
+	}
+
+	/**
+	 * deterines whether to exact search or not
+	 * 
+	 * @param queries the query set
+	 * @param exact   boolean if exact search
+	 * @return a list of results
+	 */
+	public List<Result> search(Set<String> queries, boolean exact) {
+		if (exact) {
+			return this.exactSearch(queries);
+		} else {
+			return this.partialSearch(queries);
 		}
 	}
 
@@ -302,10 +306,7 @@ public class InvertedIndex {
 	 * @param location the file the count came from
 	 */
 	private void addToWordCount(String location) {
-		// TODO Could do: this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
-		if (this.wordCount.putIfAbsent(location, 1) != null) {
-			this.wordCount.put(location, this.getWordCount(location) + 1);
-		}
+		this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
 	}
 
 	/**
@@ -315,12 +316,7 @@ public class InvertedIndex {
 	 * @return the word count at that location
 	 */
 	public Integer getWordCount(String location) {
-		// TODO return wordCount.getOrDefault(location, 0);
-		if (this.containsWordCount(location)) {
-			return this.wordCount.get(location);
-		} else {
-			return null;
-		}
+		return wordCount.getOrDefault(location, 0);
 	}
 
 	/**
@@ -358,19 +354,15 @@ public class InvertedIndex {
 		 */
 		private Double score;
 
-		// TODO *Only* pass in the location, set everythign else to 0. Let update be the only way to set the count and score
 		/**
 		 * Constructor for the result
 		 * 
 		 * @param location the location
-		 * @param count    the amount of hits
-		 * @param score    the score of the location
 		 */
-		public Result(String location, int count, Double score) {
-			DecimalFormat FORMATTER = new DecimalFormat("0.00000000");
+		public Result(String location) {
 			this.location = location;
-			this.count = count;
-			this.score = Double.valueOf(FORMATTER.format(score));
+			this.count = 0;
+			this.score = 0.0;
 		}
 
 		/**
@@ -405,7 +397,7 @@ public class InvertedIndex {
 		 * 
 		 * @param query the query
 		 */
-		public void update(String query) { // TODO private
+		private void update(String query) {
 			this.count += index.get(query).get(location).size();
 			this.score = this.count / (double) wordCount.get(location);
 		}

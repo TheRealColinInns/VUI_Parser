@@ -63,40 +63,14 @@ public class SearchResults {
 	private void search(String queryLine, boolean exact) {
 		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
 		if (!parsed.isEmpty()) {
-			/*
-			 * TODO What happens if there are duplicate lines in the query file?
-			 *
-			 * For example, suppose there is a query file with the line "hello world"
-			 * repeated 100 times in the file.
-			 *
-			 * If you already found results "hello world" there is no need to do it
-			 * again. Those results only need to be generated once. However, your code
-			 * re-does the search over and over again 100 times.
-			 *
-			 * In other words, only search if the joined query string is NOT already in
-			 * the map of results. That will require you to save the joined String as
-			 * a variable so you can test it.
-			 * 
-			 * var joined = String.join(...)
-			 * 
-			 * if (joined is not a key in results...) { search }
-			 */
-			if (exact) {
-				/*
-				 * TODO This is common logic. Just like map.putIfAbsent or
-				 * map.getOrDefault are convenience methods that make common code
-				 * reusable, lets create an search(Set<String> queries, boolean exact)
-				 * method in the inverted index that has similar logic: returns the
-				 * results of the exact search or the partial search depending on the
-				 * boolean exact parameter. Then, call that method here.
-				 */
-				results.putIfAbsent(String.join(" ", parsed), index.exactSearch(parsed));
-			} else {
-				results.putIfAbsent(String.join(" ", parsed), index.partialSearch(parsed));
+			String joined = String.join(" ", parsed);
+			if (!results.containsKey(joined)) {
+				results.put(joined, index.search(parsed, exact));
 			}
 		}
 	}
-
+	
+	
 
 	/**
 	 * gets an unmodifiable key set
@@ -107,7 +81,6 @@ public class SearchResults {
 		return Collections.unmodifiableSet(results.keySet());
 	}
 
-	
 	/**
 	 * the size at a specific query
 	 * 
@@ -115,10 +88,9 @@ public class SearchResults {
 	 * @return the size in integer form
 	 */
 	public int size(String query) {
-		if(this.results.containsKey(query)) {
+		if (this.results.containsKey(query)) {
 			return this.results.get(query).size();
-		}
-		else {
+		} else {
 			return -1;
 		}
 	}
