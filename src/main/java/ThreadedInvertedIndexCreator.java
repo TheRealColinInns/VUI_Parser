@@ -7,6 +7,12 @@ import java.nio.file.Path;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
+/**
+ * creates an inverted index using multithreading
+ * 
+ * @author colininns
+ *
+ */
 public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	/**
 	 * the method that calls all the other methods
@@ -15,7 +21,6 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 *                        useful data structure
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
-	 * @param myWordCount     the word count we will add to
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException in case of io exception
 	 */
@@ -37,7 +42,6 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
 	 * @param myInvertedIndex the data structure we are building
-	 * @param myWordCount     the word count we will add to
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException in case unable to parse
 	 */
@@ -54,7 +58,6 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @param myInvertedIndex the data structure
 	 * @param inputPath       the path that the arraylist is going to grab the data
 	 *                        from
-	 * @param myWordCount     the word count we will add to
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException it really shouldn't throw tho
 	 */
@@ -94,7 +97,7 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 		 * 
 		 * @param inputPath       the location we are getting it from
 		 * @param myInvertedIndex the index we are building to
-		 * @param myStemmer       the stemmer we will use to stem
+		 * @param stemmer         the stemmer we will use to stem
 		 * @param location        the location we found it
 		 */
 		public Task(Path inputPath, InvertedIndex myInvertedIndex, Stemmer stemmer, String location) {

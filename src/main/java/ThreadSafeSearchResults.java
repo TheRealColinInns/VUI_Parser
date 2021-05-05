@@ -5,6 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
+/**
+ * creates a thread safe version of the search results class
+ * 
+ * @author colininns
+ *
+ */
 public class ThreadSafeSearchResults extends SearchResults {
 
 	/**

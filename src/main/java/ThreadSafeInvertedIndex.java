@@ -4,6 +4,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * creates a thread safe inverted index
+ * 
+ * @author colininns
+ */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 
 	/** The indexLock used to protect concurrent access to the underlying set. */
