@@ -44,9 +44,10 @@ public class SearchResults {
 	 * 
 	 * @param queryPath the file of queries
 	 * @param exact     flag tells us what type of search
+	 * @param workqueue irrelevant
 	 * @throws IOException throws if we can't read the query file
 	 */
-	public void search(Path queryPath, boolean exact) throws IOException {
+	public void search(Path queryPath, boolean exact, WorkQueue workqueue) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
 			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
 				this.search(line, exact);
@@ -60,7 +61,7 @@ public class SearchResults {
 	 * @param queryLine the lin ewe are searching for
 	 * @param exact     {code=true} if we are doing an exact search
 	 */
-	private void search(String queryLine, boolean exact) {
+	public void search(String queryLine, boolean exact) {
 		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
 		if (!parsed.isEmpty()) {
 			String joined = String.join(" ", parsed);
@@ -69,8 +70,6 @@ public class SearchResults {
 			}
 		}
 	}
-	
-	
 
 	/**
 	 * gets an unmodifiable key set

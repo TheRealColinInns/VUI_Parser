@@ -28,10 +28,36 @@ public class Driver {
 		ArgumentMap flagValuePairs = new ArgumentMap();
 		flagValuePairs.parse(args);
 
-		// the inverted index data structure that we will store all of the data in
-		InvertedIndex myInvertedIndex = new InvertedIndex();
-		// the results of the search
-		SearchResults results = new SearchResults(myInvertedIndex);
+		// tests if we are multi-threading
+		InvertedIndex myInvertedIndex;
+		SearchResults results;
+		boolean multithreaded;
+		WorkQueue workqueue;
+		if (flagValuePairs.hasFlag("-threads")) {
+			// the inverted index data structure that we will store all of the data in, but
+			// thread safe
+			myInvertedIndex = new ThreadSafeInvertedIndex();
+			// the results of the search, but thread safe
+			results = new ThreadSafeSearchResults(myInvertedIndex);
+			// tells code we are multi-threading
+			multithreaded = true;
+			// threads
+			int threads = flagValuePairs.getInteger("-threads", 5);
+			if (threads <= 0) {
+				threads = 1;
+			}
+			workqueue = new WorkQueue(threads);
+
+		} else {
+			// the inverted index data structure that we will store all of the data in
+			myInvertedIndex = new InvertedIndex();
+			// the results of the search
+			results = new SearchResults(myInvertedIndex);
+			// tells code we are not multi-threading
+			multithreaded = false;
+			// only a single thread working
+			workqueue = new WorkQueue(1);
+		}
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -40,7 +66,11 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					if (multithreaded) {
+						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, workqueue);
+					} else {
+						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
+					}
 				} catch (Exception e) {
 					System.out.println("IO Exception while reading path: " + inputPath.toString());
 				}
@@ -62,7 +92,7 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					results.search(queryPath, flagValuePairs.hasFlag("-exact"));
+					results.search(queryPath, flagValuePairs.hasFlag("-exact"), workqueue);
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
@@ -87,7 +117,11 @@ public class Driver {
 			} catch (IOException e) {
 				System.out.println("IO Exception while writing results to " + resultsPath);
 			}
+
 		}
+
+		// ends the queue
+		workqueue.join();
 
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());

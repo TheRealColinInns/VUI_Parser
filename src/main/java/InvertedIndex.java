@@ -305,7 +305,7 @@ public class InvertedIndex {
 	 * 
 	 * @param location the file the count came from
 	 */
-	private void addToWordCount(String location) {
+	protected void addToWordCount(String location) {
 		this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
 	}
 
