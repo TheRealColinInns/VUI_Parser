@@ -84,7 +84,7 @@ public class WorkQueue {
 	 * Waits for all pending work to be finished. Does not terminate the worker
 	 * threads so that the work queue can continue to be used.
 	 */
-	public void finish() {
+	public void finish() { // TODO Make method synchronized
 		synchronized (this) {
 			while (pending > 0) {
 				try {
@@ -143,7 +143,7 @@ public class WorkQueue {
 	/**
 	 * decrements the pending
 	 */
-	private void decrementPending() {
+	private void decrementPending() { // TODO Make method synchronized
 		synchronized (this) {
 			if (pending > 0) {
 				pending--;
@@ -196,7 +196,7 @@ public class WorkQueue {
 				try {
 
 					task.run();
-					decrementPending();
+					decrementPending(); // TODO Move to a finally block
 
 				} catch (RuntimeException e) {
 

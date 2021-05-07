@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+// TODO https://github.com/usf-cs212-spring2021/lectures/blob/main/MultithreadingSynchronization/src/main/java/ConcurrentSet.java
+// TODO Use a single lock object instead
+
 /**
  * creates a thread safe inverted index
  * 
@@ -107,6 +110,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 		}
 	}
 
+	// TODO Override exactSearch and parialSearch instead 
 	@Override
 	public List<Result> search(Set<String> queries, boolean exact) {
 		synchronized (indexLock.readLock()) {
