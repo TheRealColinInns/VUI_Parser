@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
 /**
  * Class responsible for storing the data structure See the README for details.
  *
@@ -20,6 +23,9 @@ import java.util.TreeSet;
  */
 public class InvertedIndex {
 
+	/** The default stemmer algorithm used by this class. */
+	public static final SnowballStemmer.ALGORITHM DEFAULT = SnowballStemmer.ALGORITHM.ENGLISH;
+	
 	/**
 	 * this is our data structure
 	 */
@@ -205,10 +211,11 @@ public class InvertedIndex {
 	 * @param location the location the words were found
 	 */
 	public void addAll(List<String> words, String location) {
+		Stemmer stemmer = new SnowballStemmer(DEFAULT);
 		int position = 0;
 		for (String word : words) {
 			position++;
-			this.add(word, location, position);
+			this.add(stemmer.stem(word).toString(), location, position);
 		}
 	}
 

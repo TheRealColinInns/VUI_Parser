@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,7 +35,7 @@ public class Driver {
 		SearchResults results;
 		boolean multithreaded;
 		WorkQueue workqueue;
-		if (flagValuePairs.hasFlag("-threads")) {
+		if (flagValuePairs.hasFlag("-threads")||flagValuePairs.hasFlag("-html")) {
 			// the inverted index data structure that we will store all of the data in, but
 			// thread safe
 			myInvertedIndex = new ThreadSafeInvertedIndex();
@@ -47,6 +49,19 @@ public class Driver {
 				threads = 1;
 			}
 			workqueue = new WorkQueue(threads);
+			
+			if(flagValuePairs.hasFlag("-html")) {
+				try {
+					WebCrawler.crawl(new URL(flagValuePairs.getString("-html")), 
+							flagValuePairs.getInteger("-max", 1), workqueue, myInvertedIndex);
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 		} else {
 			// the inverted index data structure that we will store all of the data in
