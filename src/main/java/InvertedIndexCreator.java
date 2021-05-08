@@ -59,6 +59,7 @@ public class InvertedIndexCreator {
 		}
 	}
 
+	// TODO Could be public?
 	/**
 	 * stems a directory
 	 *

@@ -13,17 +13,18 @@ import java.util.Set;
  */
 public class ThreadSafeSearchResults extends SearchResults {
 
+	// TODO Only use the synchronized keyword instead of a read/write lock
 	/**
 	 * the lock we will use to make it thread safe
 	 */
-	ReadWriteLock lock = new ReadWriteLock();
+	ReadWriteLock lock = new ReadWriteLock(); // TODO keywords, init in constructor
 
 	/**
 	 * constructor for thread safe search results
 	 * 
 	 * @param myInvertedIndex the index we will get the results from
 	 */
-	public ThreadSafeSearchResults(InvertedIndex myInvertedIndex) {
+	public ThreadSafeSearchResults(InvertedIndex myInvertedIndex) { // TODO Pass in the work queue here, and a thread-safe inverted index
 		super(myInvertedIndex);
 	}
 
@@ -55,6 +56,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 		}
 	}
 
+	// TODO Pass in the WorkQueue to the constructor instead of this method
 	/**
 	 * almost overrides the original search function but with a work queue
 	 * 
@@ -78,7 +80,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 	 * @author colininns
 	 *
 	 */
-	public static class Task implements Runnable {
+	public static class Task implements Runnable { // TODO non-static
 
 		/** the text of the query */
 		String line;
@@ -105,6 +107,24 @@ public class ThreadSafeSearchResults extends SearchResults {
 		@Override
 		public void run() {
 			results.search(line, exact);
+			
+		/* TODO 	
+		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
+		if (!parsed.isEmpty()) {
+			String joined = String.join(" ", parsed);
+			
+			synchronized (results) {
+				if (results.containsKey(joined)) {
+					return;
+				}
+			}
+			
+			var local = index.search(parsed, exact)
+			
+			synchronized (results) {
+				results.put(joined, local);
+			}
+		}	*/
 		}
 	}
 

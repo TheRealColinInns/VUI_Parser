@@ -211,6 +211,12 @@ public class InvertedIndex {
 			this.add(word, location, position);
 		}
 	}
+	
+	/* TODO 
+	public void addAll(InvertedIndex other) {
+		
+	}
+	*/
 
 	/**
 	 * searches the index for exact queries
@@ -300,6 +306,7 @@ public class InvertedIndex {
 		return this.wordCount.containsKey(location);
 	}
 
+	// TODO Private
 	/**
 	 * add method for word count
 	 * 

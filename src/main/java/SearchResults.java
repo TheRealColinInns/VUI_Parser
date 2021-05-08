@@ -9,6 +9,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/*
+ * TODO Create a common SearchResultsInterface with the common methods 
+ * 
+ * Implement that interface in both SearchResults and ThreadSafeSearchResults
+ * but each class will have its own data and its own implementations.
+ */
+
 /**
  * Class responsible for converting an array list into the map data structure
  * desired that will be very important later for creating the json file
@@ -39,6 +46,7 @@ public class SearchResults {
 		index = myInvertedIndex;
 	}
 
+	// TODO Remove WorkQueue
 	/**
 	 * searches the index given a query
 	 * 

@@ -54,7 +54,7 @@ public class ReadWriteLock {
 	 *      "https://wiki.sei.cmu.edu/confluence/display/java/LCK00-J.+Use+private+final+lock+objects+to+synchronize+classes+that+may+interact+with+untrusted+code">
 	 *      SEI CERT Oracle Coding Standard for Java</a>
 	 */
-	private Object lock;
+	private Object lock; // TODO final
 
 	/**
 	 * Initializes a new simple read/write lock.
