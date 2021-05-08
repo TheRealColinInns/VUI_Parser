@@ -12,42 +12,60 @@ import java.util.HashSet;
  *
  */
 public class WebCrawler {
-
+	/** stores all the urls we used */
 	private HashSet<String> usedUrls;
-	
+
+	/**
+	 * constructor for web crawler
+	 */
 	public WebCrawler() {
 		usedUrls = new HashSet<String>();
 	}
+
 	/**
-	 * crawls through the urls
+	 * crawls through from a desired seed
 	 * 
-	 * @param seed  the starting url
-	 * @param max   the max number of urls
-	 * @param queue the work queue
-	 * @throws IOException
+	 * @param seed            the starting url
+	 * @param inputmax        the max amount of urls
+	 * @param queue           the work queue
+	 * @param myInvertedIndex the index we add to
+	 * @throws IOException in case we ahve a problem reading
 	 */
-	public void crawl(URL seed, int inputmax, WorkQueue queue, InvertedIndex myInvertedIndex)
-			throws IOException {
-		//System.out.println("Task for url: " + seed);
+	public void crawl(URL seed, int inputmax, WorkQueue queue, InvertedIndex myInvertedIndex) throws IOException {
+		// System.out.println("Task for url: " + seed);
 		usedUrls.add(seed.toString());
 		queue.execute(new Task(seed, myInvertedIndex, queue, inputmax, usedUrls));
-
 		queue.finish();
-		System.out.println("Finishing");
+		// System.out.println("Finishing");
 	}
 
+	/**
+	 * Creates a runnable task
+	 * 
+	 * @author colininns
+	 *
+	 */
 	public static class Task implements Runnable {
-
+		/** the seed url */
 		private URL seed;
-
+		/** the index */
 		private InvertedIndex myInvertedIndex;
-
+		/** the work queue */
 		private WorkQueue queue;
-
+		/** the max urls */
 		private Integer max;
-		
+		/** the used urls */
 		private HashSet<String> usedUrls;
 
+		/**
+		 * Constructor for the task
+		 * 
+		 * @param seed            the seed url
+		 * @param myInvertedIndex the index
+		 * @param queue           the workqueue
+		 * @param inputmax        the max urls
+		 * @param usedUrls        the used urls
+		 */
 		public Task(URL seed, InvertedIndex myInvertedIndex, WorkQueue queue, int inputmax, HashSet<String> usedUrls) {
 			this.seed = seed;
 			this.myInvertedIndex = myInvertedIndex;
@@ -70,8 +88,8 @@ public class WebCrawler {
 					for (URL currentUrl : urlList) {
 						if (usedUrls.size() < max) {
 							if (usedUrls.add(currentUrl.toString())) {
-								//System.out.println("Task for: " + currentUrl);
-								synchronized(queue) {
+								// System.out.println("Task for: " + currentUrl);
+								synchronized (queue) {
 									queue.execute(new Task(currentUrl, myInvertedIndex, queue, max, usedUrls));
 								}
 
@@ -87,7 +105,7 @@ public class WebCrawler {
 
 				// System.out.println(html);
 				myInvertedIndex.addAll(Arrays.asList(TextParser.parse(HtmlCleaner.stripHtml(html))), seed.toString());
-				//System.out.println("Finishing task for: " + seed);
+				// System.out.println("Finishing task for: " + seed);
 
 			}
 		}
