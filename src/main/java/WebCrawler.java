@@ -13,8 +13,11 @@ import java.util.HashSet;
  */
 public class WebCrawler {
 
-	private static HashSet<String> usedUrls;
-
+	private HashSet<String> usedUrls;
+	
+	public WebCrawler() {
+		usedUrls = new HashSet<String>();
+	}
 	/**
 	 * crawls through the urls
 	 * 
@@ -23,13 +26,14 @@ public class WebCrawler {
 	 * @param queue the work queue
 	 * @throws IOException
 	 */
-	public static void crawl(URL seed, int inputmax, WorkQueue queue, InvertedIndex myInvertedIndex)
+	public void crawl(URL seed, int inputmax, WorkQueue queue, InvertedIndex myInvertedIndex)
 			throws IOException {
-		usedUrls = new HashSet<String>();
-		System.out.println("Task for url: " + seed);
+		//System.out.println("Task for url: " + seed);
 		usedUrls.add(seed.toString());
-		queue.execute(new Task(seed, myInvertedIndex, queue, inputmax));
+		queue.execute(new Task(seed, myInvertedIndex, queue, inputmax, usedUrls));
+
 		queue.finish();
+		System.out.println("Finishing");
 	}
 
 	public static class Task implements Runnable {
@@ -40,35 +44,42 @@ public class WebCrawler {
 
 		private WorkQueue queue;
 
-		private static int max;
+		private Integer max;
+		
+		private HashSet<String> usedUrls;
 
-		public Task(URL seed, InvertedIndex myInvertedIndex, WorkQueue queue, int inputmax) {
+		public Task(URL seed, InvertedIndex myInvertedIndex, WorkQueue queue, int inputmax, HashSet<String> usedUrls) {
 			this.seed = seed;
 			this.myInvertedIndex = myInvertedIndex;
 			this.queue = queue;
+			this.usedUrls = usedUrls;
 			max = inputmax;
 		}
 
 		@Override
 		public void run() {
-			System.out.println("Max: " + max);
-			System.out.println("Size: " + usedUrls.size());
+			// System.out.println("Max: " + max);
+			// System.out.println("Size: " + usedUrls.size());
 			ArrayList<URL> urlList = new ArrayList<URL>();
 			String html = HtmlFetcher.fetch(seed, 3);
 			if (html != null) {
+				html = HtmlCleaner.stripBlockElements(html);
 				urlList = LinkParser.getValidLinks(seed, html);
-				for (URL currentUrl : urlList) {
-					synchronized (usedUrls) {
+				// System.out.println(urlList);
+				synchronized (usedUrls) {
+					for (URL currentUrl : urlList) {
 						if (usedUrls.size() < max) {
 							if (usedUrls.add(currentUrl.toString())) {
-								System.out.println("Task for: " + currentUrl);
-								queue.execute(new Task(currentUrl, myInvertedIndex, queue, max));
+								//System.out.println("Task for: " + currentUrl);
+								synchronized(queue) {
+									queue.execute(new Task(currentUrl, myInvertedIndex, queue, max, usedUrls));
+								}
+
 							} else {
 								// System.out.println("Found Duplicate URL");
 							}
 						} else {
-							System.out.println("Terminating... Crawl Limit Reached");
-							break;
+							// System.out.println("Terminating... Crawl Limit Reached");
 						}
 					}
 
@@ -76,7 +87,7 @@ public class WebCrawler {
 
 				// System.out.println(html);
 				myInvertedIndex.addAll(Arrays.asList(TextParser.parse(HtmlCleaner.stripHtml(html))), seed.toString());
-				// System.out.println("Adding");
+				//System.out.println("Finishing task for: " + seed);
 
 			}
 		}

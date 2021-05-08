@@ -52,7 +52,8 @@ public class Driver {
 			
 			if(flagValuePairs.hasFlag("-html")) {
 				try {
-					WebCrawler.crawl(new URL(flagValuePairs.getString("-html")), 
+					WebCrawler crawler = new WebCrawler();
+					crawler.crawl(new URL(flagValuePairs.getString("-html")), 
 							flagValuePairs.getInteger("-max", 1), workqueue, myInvertedIndex);
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
