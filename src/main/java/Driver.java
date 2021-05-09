@@ -32,26 +32,26 @@ public class Driver {
 		InvertedIndex myInvertedIndex;
 		boolean multithreaded;
 		WorkQueue workqueue;
+		Object results;
 		if (flagValuePairs.hasFlag("-threads")) {
-			// the inverted index data structure that we will store all of the data in, but
-			// thread safe
-			myInvertedIndex = new ThreadSafeInvertedIndex();
-			// the results of the search, but thread safe
-			ThreadSafeSearchResults results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
-			// tells code we are multi-threading
-			multithreaded = true;
 			// threads
 			int threads = flagValuePairs.getInteger("-threads", 5);
 			if (threads <= 0) {
 				threads = 1;
 			}
 			workqueue = new WorkQueue(threads);
+			// thread safe
+			myInvertedIndex = new ThreadSafeInvertedIndex();
+			// the results of the search, but thread safe
+			results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
+			// tells code we are multi-threading
+			multithreaded = true;
 
 		} else {
 			// the inverted index data structure that we will store all of the data in
 			myInvertedIndex = new InvertedIndex();
 			// the results of the search
-			SearchResults results = new SearchResults(myInvertedIndex);
+			results = new SearchResults(myInvertedIndex);
 			// tells code we are not multi-threading
 			multithreaded = false;
 			// only a single thread working
@@ -66,7 +66,8 @@ public class Driver {
 			} else {
 				try {
 					if (multithreaded) {
-						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, (ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
+						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath,
+								(ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
 					} else {
 						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 					}
@@ -91,10 +92,10 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					if(multithreaded) {
-						results.search(queryPath, flagValuePairs.hasFlag("-exact"), workqueue);
+					if (multithreaded) {
+						((ThreadSafeSearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
 					} else {
-						results.search(queryPath, flagValuePairs.hasFlag("-exact"));
+						((SearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
 					}
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
@@ -116,7 +117,11 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-results")) {
 			Path resultsPath = flagValuePairs.getPath("-results", Path.of("results.json"));
 			try {
-				results.write(resultsPath);
+				if (multithreaded) {
+					((ThreadSafeSearchResults) results).write(resultsPath);
+				} else {
+					((SearchResults) results).write(resultsPath);
+				}
 			} catch (IOException e) {
 				System.out.println("IO Exception while writing results to " + resultsPath);
 			}

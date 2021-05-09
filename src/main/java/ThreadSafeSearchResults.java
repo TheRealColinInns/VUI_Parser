@@ -72,18 +72,11 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		}
 	}
 
-	/**
-	 * almost overrides the original search function but with a work queue
-	 * 
-	 * @param queryPath the location of the query
-	 * @param exact     tells us what type of search
-	 * @param workqueue the workqueue we will multithread
-	 * @throws IOException in case of error with reading
-	 */
+	@Override
 	public void search(Path queryPath, boolean exact) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
 			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-				queue.execute(new Task(line, exact, this));
+				queue.execute(new Task(line, exact));
 			}
 		}
 		queue.finish();
@@ -103,8 +96,6 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		/** which test to run */
 		boolean exact;
 
-		/** to access the method */
-		ThreadSafeSearchResults results;
 
 		/**
 		 * constructor for task
@@ -113,33 +104,29 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		 * @param exact   tells us what type of search
 		 * @param results the results needed to run a specific method
 		 */
-		public Task(String line, boolean exact, ThreadSafeSearchResults results) {
+		public Task(String line, boolean exact) {
 			this.line = line;
 			this.exact = exact;
-			this.results = results;
 		}
 
 		@Override
 		public void run() {
-			results.search(line, exact);
-			
-		
-		TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
-		if (!parsed.isEmpty()) {
-			String joined = String.join(" ", parsed);
-			
-			synchronized (results) {
-				if (results.containsKey(joined)) {
-					return;
+			TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
+			if (!parsed.isEmpty()) {
+				String joined = String.join(" ", parsed);
+
+				synchronized (results) {
+					if (results.containsKey(joined)) {
+						return;
+					}
+				}
+
+				var local = index.search(parsed, exact);
+
+				synchronized (results) {
+					results.put(joined, local);
 				}
 			}
-			
-			var local = index.search(parsed, exact)
-			
-			synchronized (results) {
-				results.put(joined, local);
-			}
-		}	
 		}
 	}
 

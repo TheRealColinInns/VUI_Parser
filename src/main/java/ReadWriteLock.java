@@ -54,7 +54,7 @@ public class ReadWriteLock {
 	 *      "https://wiki.sei.cmu.edu/confluence/display/java/LCK00-J.+Use+private+final+lock+objects+to+synchronize+classes+that+may+interact+with+untrusted+code">
 	 *      SEI CERT Oracle Coding Standard for Java</a>
 	 */
-	private Object lock; // TODO final
+	private final Object lock;
 
 	/**
 	 * Initializes a new simple read/write lock.
@@ -138,9 +138,8 @@ public class ReadWriteLock {
 		 */
 		@Override
 		public void lock() {
-			
-			log.debug("Acquiring read lock...");
 
+			log.debug("Acquiring read lock...");
 
 			synchronized (lock) {
 				while (writers > 0 && !isActiveWriter()) {
@@ -155,7 +154,7 @@ public class ReadWriteLock {
 					}
 				}
 
-				//assert writers == 0;
+				// assert writers == 0;
 				readers++;
 			}
 
@@ -210,7 +209,7 @@ public class ReadWriteLock {
 				}
 				writers++;
 				activeWriter = Thread.currentThread();
-				
+
 			}
 			log.debug("Aquired write lock");
 		}
@@ -236,7 +235,7 @@ public class ReadWriteLock {
 				}
 
 				writers--;
-				if(writers==0) {
+				if (writers == 0) {
 					activeWriter = null;
 					lock.notifyAll();
 				}
