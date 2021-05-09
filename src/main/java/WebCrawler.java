@@ -89,9 +89,9 @@ public class WebCrawler {
 						if (usedUrls.size() < max) {
 							if (usedUrls.add(currentUrl.toString())) {
 								// System.out.println("Task for: " + currentUrl);
-								synchronized (queue) {
-									queue.execute(new Task(currentUrl, myInvertedIndex, queue, max, usedUrls));
-								}
+								
+								queue.execute(new Task(currentUrl, myInvertedIndex, queue, max, usedUrls));
+								
 
 							} else {
 								// System.out.println("Found Duplicate URL");
