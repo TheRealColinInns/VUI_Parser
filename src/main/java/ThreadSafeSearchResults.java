@@ -3,7 +3,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * creates a thread safe version of the search results class
@@ -11,52 +15,63 @@ import java.util.Set;
  * @author colininns
  *
  */
-public class ThreadSafeSearchResults extends SearchResults {
-
-	// TODO Only use the synchronized keyword instead of a read/write lock
+public class ThreadSafeSearchResults implements SearchResultsInterface {
 	/**
-	 * the lock we will use to make it thread safe
+	 * the work queue
 	 */
-	ReadWriteLock lock = new ReadWriteLock(); // TODO keywords, init in constructor
+	private WorkQueue queue;
+
+	/**
+	 * the results of the search
+	 */
+	private final TreeMap<String, List<InvertedIndex.Result>> results;
+
+	/**
+	 * the inverted index the results are coming from
+	 */
+	private final InvertedIndex index;
 
 	/**
 	 * constructor for thread safe search results
 	 * 
 	 * @param myInvertedIndex the index we will get the results from
 	 */
-	public ThreadSafeSearchResults(InvertedIndex myInvertedIndex) { // TODO Pass in the work queue here, and a thread-safe inverted index
-		super(myInvertedIndex);
+	public ThreadSafeSearchResults(ThreadSafeInvertedIndex myInvertedIndex, WorkQueue queue) {
+		results = new TreeMap<String, List<InvertedIndex.Result>>();
+		this.index = myInvertedIndex;
+		this.queue = queue;
 	}
 
 	@Override
-	public Set<String> getResultKeySet() {
-		synchronized (lock.readLock()) {
-			return super.getResultKeySet();
+	public synchronized Set<String> getResultKeySet() {
+		return Collections.unmodifiableSet(results.keySet());
+	}
+
+	@Override
+	public synchronized int size(String query) {
+		if (this.results.containsKey(query)) {
+			return this.results.get(query).size();
+		} else {
+			return -1;
 		}
 	}
 
 	@Override
-	public int size(String query) {
-		synchronized (lock.readLock()) {
-			return super.size(query);
-		}
+	public synchronized void write(Path output) throws IOException {
+		SimpleJsonWriter.asSearchResult(results, output);
 	}
 
 	@Override
-	public void write(Path output) throws IOException {
-		synchronized (lock.readLock()) {
-			super.write(output);
+	public synchronized void search(String queryLine, boolean exact) {
+		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
+		if (!parsed.isEmpty()) {
+			String joined = String.join(" ", parsed);
+			if (!results.containsKey(joined)) {
+				results.put(joined, index.search(parsed, exact));
+			}
 		}
 	}
 
-	@Override
-	public void search(String queryLine, boolean exact) {
-		synchronized (lock.writeLock()) {
-			super.search(queryLine, exact);
-		}
-	}
-
-	// TODO Pass in the WorkQueue to the constructor instead of this method
 	/**
 	 * almost overrides the original search function but with a work queue
 	 * 
@@ -65,13 +80,13 @@ public class ThreadSafeSearchResults extends SearchResults {
 	 * @param workqueue the workqueue we will multithread
 	 * @throws IOException in case of error with reading
 	 */
-	public void search(Path queryPath, boolean exact, WorkQueue workqueue) throws IOException {
+	public void search(Path queryPath, boolean exact) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
 			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-				workqueue.execute(new Task(line, exact, this));
+				queue.execute(new Task(line, exact, this));
 			}
 		}
-		workqueue.finish();
+		queue.finish();
 	}
 
 	/**
@@ -80,7 +95,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 	 * @author colininns
 	 *
 	 */
-	public static class Task implements Runnable { // TODO non-static
+	public class Task implements Runnable {
 
 		/** the text of the query */
 		String line;
@@ -89,7 +104,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 		boolean exact;
 
 		/** to access the method */
-		SearchResults results;
+		ThreadSafeSearchResults results;
 
 		/**
 		 * constructor for task
@@ -98,7 +113,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 		 * @param exact   tells us what type of search
 		 * @param results the results needed to run a specific method
 		 */
-		public Task(String line, boolean exact, SearchResults results) {
+		public Task(String line, boolean exact, ThreadSafeSearchResults results) {
 			this.line = line;
 			this.exact = exact;
 			this.results = results;
@@ -108,8 +123,8 @@ public class ThreadSafeSearchResults extends SearchResults {
 		public void run() {
 			results.search(line, exact);
 			
-		/* TODO 	
-		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
+		
+		TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
 		if (!parsed.isEmpty()) {
 			String joined = String.join(" ", parsed);
 			
@@ -124,7 +139,7 @@ public class ThreadSafeSearchResults extends SearchResults {
 			synchronized (results) {
 				results.put(joined, local);
 			}
-		}	*/
+		}	
 		}
 	}
 

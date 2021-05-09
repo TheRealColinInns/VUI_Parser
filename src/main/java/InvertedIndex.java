@@ -212,11 +212,21 @@ public class InvertedIndex {
 		}
 	}
 	
-	/* TODO 
+	/**
+	 * adds an entire index to the index
+	 * 
+	 * @param other the index to add
+	 */
 	public void addAll(InvertedIndex other) {
-		
+		for(String word:other.index.keySet()) {
+			for(String location:other.index.get(word).keySet()) {
+				for(Integer postition:other.index.get(word).get(location)) {
+					this.add(word, location, postition);
+				}
+			}
+		}
 	}
-	*/
+	
 
 	/**
 	 * searches the index for exact queries
@@ -306,13 +316,12 @@ public class InvertedIndex {
 		return this.wordCount.containsKey(location);
 	}
 
-	// TODO Private
 	/**
 	 * add method for word count
 	 * 
 	 * @param location the file the count came from
 	 */
-	protected void addToWordCount(String location) {
+	private void addToWordCount(String location) {
 		this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
 	}
 
@@ -335,6 +344,7 @@ public class InvertedIndex {
 	public void writeWordCount(Path countPath) throws IOException {
 		SimpleJsonWriter.asObject(wordCount, countPath);
 	}
+	
 
 	/*
 	 * +--------------------------------------------------------------------------+

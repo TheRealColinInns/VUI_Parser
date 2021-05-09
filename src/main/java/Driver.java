@@ -30,7 +30,6 @@ public class Driver {
 
 		// tests if we are multi-threading
 		InvertedIndex myInvertedIndex;
-		SearchResults results;
 		boolean multithreaded;
 		WorkQueue workqueue;
 		if (flagValuePairs.hasFlag("-threads")) {
@@ -38,7 +37,7 @@ public class Driver {
 			// thread safe
 			myInvertedIndex = new ThreadSafeInvertedIndex();
 			// the results of the search, but thread safe
-			results = new ThreadSafeSearchResults(myInvertedIndex);
+			ThreadSafeSearchResults results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
 			// tells code we are multi-threading
 			multithreaded = true;
 			// threads
@@ -52,7 +51,7 @@ public class Driver {
 			// the inverted index data structure that we will store all of the data in
 			myInvertedIndex = new InvertedIndex();
 			// the results of the search
-			results = new SearchResults(myInvertedIndex);
+			SearchResults results = new SearchResults(myInvertedIndex);
 			// tells code we are not multi-threading
 			multithreaded = false;
 			// only a single thread working
@@ -67,7 +66,7 @@ public class Driver {
 			} else {
 				try {
 					if (multithreaded) {
-						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, workqueue);
+						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, (ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
 					} else {
 						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 					}
@@ -92,7 +91,11 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					results.search(queryPath, flagValuePairs.hasFlag("-exact"), workqueue);
+					if(multithreaded) {
+						results.search(queryPath, flagValuePairs.hasFlag("-exact"), workqueue);
+					} else {
+						results.search(queryPath, flagValuePairs.hasFlag("-exact"));
+					}
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}

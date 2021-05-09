@@ -1,11 +1,7 @@
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * creates an inverted index using multithreading
@@ -24,8 +20,7 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException in case of io exception
 	 */
-	// TODO InvertedIndex --> ThreadSafeInvertedIndex
-	public static void createInvertedIndex(Path inputPath, InvertedIndex myInvertedIndex, WorkQueue workqueue)
+	public static void createInvertedIndex(Path inputPath, ThreadSafeInvertedIndex myInvertedIndex, WorkQueue workqueue)
 			throws IOException {
 		if (Files.isDirectory(inputPath)) {
 			directoryStemmer(inputPath, myInvertedIndex, workqueue);
@@ -46,12 +41,10 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException in case unable to parse
 	 */
-	// TODO InvertedIndex --> ThreadSafeInvertedIndex
-	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex, WorkQueue workqueue)
+	public static void singleFileStemmer(Path inputPath, ThreadSafeInvertedIndex myInvertedIndex, WorkQueue workqueue)
 			throws IOException {
-		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		String location = inputPath.toString();
-		workqueue.execute(new Task(inputPath, myInvertedIndex, myStemmer, location));
+		workqueue.execute(new Task(inputPath, myInvertedIndex, location));
 	}
 
 	/**
@@ -63,8 +56,7 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @param workqueue       the word queue that will be used
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	// TODO InvertedIndex --> ThreadSafeInvertedIndex
-	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex, WorkQueue workqueue)
+	private static void directoryStemmer(Path inputPath, ThreadSafeInvertedIndex myInvertedIndex, WorkQueue workqueue)
 			throws IOException {
 		for (Path currentPath : DirectoryNavigator.findPaths(inputPath)) {
 			singleFileStemmer(currentPath, myInvertedIndex, workqueue);
@@ -78,23 +70,13 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	 * @author colininns
 	 *
 	 */
-	public static class Task implements Runnable { // TODO private
-		// TODO private, final
-		
+	private static class Task implements Runnable {
+
 		/** buffered reader */
-		Path inputPath;
+		private Path inputPath;
 
 		/** the index we write to */
-		InvertedIndex myInvertedIndex; 	// TODO InvertedIndex --> ThreadSafeInvertedIndex
-
-		/** the stemmer */
-		Stemmer myStemmer;
-
-		/** the location */
-		String location;
-
-		/** the counter */
-		int counter;
+		private ThreadSafeInvertedIndex myInvertedIndex;
 
 		/**
 		 * constructor for task
@@ -104,42 +86,20 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 		 * @param stemmer         the stemmer we will use to stem
 		 * @param location        the location we found it
 		 */
-		public Task(Path inputPath, InvertedIndex myInvertedIndex, Stemmer stemmer, String location) {
+		public Task(Path inputPath, ThreadSafeInvertedIndex myInvertedIndex, String location) {
 			this.inputPath = inputPath;
 			this.myInvertedIndex = myInvertedIndex;
-			this.myStemmer = stemmer;
-			this.location = location;
-			this.counter = 0;
-
 		}
 
 		@Override
 		public void run() {
-			// TODO Could have done this: InvertedIndexCreator.singleFileStemmer(inputPath, myInvertedIndex);
-			try (BufferedReader myBufferedReader = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8);) {
-				for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
-					for (String word : TextParser.parse(line)) {
-						counter++;
-
-						// TODO Blocking add within a loop?
-						myInvertedIndex.add(myStemmer.stem(word).toString(), location, counter);
-
-					}
-				}
+			InvertedIndex local = new InvertedIndex();
+			try {
+				InvertedIndexCreator.singleFileStemmer(inputPath, local);
+				myInvertedIndex.addAll(local);
 			} catch (IOException e) {
-				System.out.println("Unable to read file: " + inputPath);
+				System.out.println("Unable to rad path: " + inputPath);
 			}
-			
-			/*
-			 * TODO 
-			 * 1) Create local data
-			 * 2) Add to the local data
-			 * 3) Combine the local and shared data together
-			 * 
-			 * InvertedIndex local = new InvertedIndex();
-			 * InvertedIndexCreator.singleFileStemmer(inputPath, local);
-			 * myInvertedIndex.addAll(local);
-			 */
 		}
 	}
 
