@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * @version Spring 2021
  */
 public class InvertedIndex {
-
+	
 	/** The default stemmer algorithm used by this class. */
 	public static final SnowballStemmer.ALGORITHM DEFAULT = SnowballStemmer.ALGORITHM.ENGLISH;
 	
@@ -218,6 +217,22 @@ public class InvertedIndex {
 			this.add(stemmer.stem(word).toString(), location, position);
 		}
 	}
+	
+	/**
+	 * adds an entire index to the index
+	 * 
+	 * @param other the index to add
+	 */
+	public void addAll(InvertedIndex other) {
+		for(String word:other.index.keySet()) {
+			for(String location:other.index.get(word).keySet()) {
+				for(Integer postition:other.index.get(word).get(location)) {
+					this.add(word, location, postition);
+				}
+			}
+		}
+	}
+	
 
 	/**
 	 * searches the index for exact queries
@@ -312,7 +327,7 @@ public class InvertedIndex {
 	 * 
 	 * @param location the file the count came from
 	 */
-	protected void addToWordCount(String location) {
+	private void addToWordCount(String location) {
 		this.wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
 	}
 
@@ -335,6 +350,7 @@ public class InvertedIndex {
 	public void writeWordCount(Path countPath) throws IOException {
 		SimpleJsonWriter.asObject(wordCount, countPath);
 	}
+	
 
 	/*
 	 * +--------------------------------------------------------------------------+

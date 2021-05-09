@@ -32,39 +32,43 @@ public class Driver {
 
 		// tests if we are multi-threading
 		InvertedIndex myInvertedIndex;
-		SearchResults results;
 		boolean multithreaded;
 		WorkQueue workqueue;
-		if (flagValuePairs.hasFlag("-threads")||flagValuePairs.hasFlag("-html")) {
-			// the inverted index data structure that we will store all of the data in, but
-			// thread safe
-			myInvertedIndex = new ThreadSafeInvertedIndex();
-			// the results of the search, but thread safe
-			results = new ThreadSafeSearchResults(myInvertedIndex);
-			// tells code we are multi-threading
-			multithreaded = true;
-			// threads
+		Object results;
+		if(flagValuePairs.hasFlag("-html")) {
 			int threads = flagValuePairs.getInteger("-threads", 5);
 			if (threads <= 0) {
 				threads = 1;
 			}
 			workqueue = new WorkQueue(threads);
-			
-			if(flagValuePairs.hasFlag("-html")) {
-				try {
-					WebCrawler crawler = new WebCrawler();
-					crawler.crawl(new URL(flagValuePairs.getString("-html")), 
-							flagValuePairs.getInteger("-max", 1), workqueue, myInvertedIndex);
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			// thread safe
+			myInvertedIndex = new ThreadSafeInvertedIndex();
+			// the results of the search, but thread safe
+			results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
+			// tells code we are multi-threading
+			multithreaded = true;
+			try {
+				WebCrawler crawler = new WebCrawler(flagValuePairs.getInteger("-max", 1));
+				crawler.crawl(new URL(flagValuePairs.getString("-html")), workqueue, myInvertedIndex);
+			} catch (MalformedURLException e) {
+				System.out.println("Error with seed url");
+			} catch (IOException e) {
+				System.out.println("Unable to read seed url");
 			}
-
-		} else {
+		} else if(flagValuePairs.hasFlag("-threads")){
+			int threads = flagValuePairs.getInteger("-threads", 5);
+			if (threads <= 0) {
+				threads = 1;
+			}
+			workqueue = new WorkQueue(threads);
+			// thread safe
+			myInvertedIndex = new ThreadSafeInvertedIndex();
+			// the results of the search, but thread safe
+			results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
+			// tells code we are multi-threading
+			multithreaded = true;
+		}
+		else {
 			// the inverted index data structure that we will store all of the data in
 			myInvertedIndex = new InvertedIndex();
 			// the results of the search
@@ -74,6 +78,8 @@ public class Driver {
 			// only a single thread working
 			workqueue = new WorkQueue(1);
 		}
+		
+		
 
 		// the input file into the inverted index
 		if (flagValuePairs.hasFlag("-text")) {
@@ -83,7 +89,7 @@ public class Driver {
 			} else {
 				try {
 					if (multithreaded) {
-						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex, workqueue);
+						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, (ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
 					} else {
 						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 					}
@@ -92,6 +98,7 @@ public class Driver {
 				}
 			}
 		}
+		
 
 		// writes the inverted index to the desired location
 		if (flagValuePairs.hasFlag("-index")) {
@@ -108,7 +115,9 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					results.search(queryPath, flagValuePairs.hasFlag("-exact"), workqueue);
+					if(multithreaded) {
+						((ThreadSafeSearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
+					}
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
@@ -129,7 +138,11 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-results")) {
 			Path resultsPath = flagValuePairs.getPath("-results", Path.of("results.json"));
 			try {
-				results.write(resultsPath);
+				if(multithreaded) {
+					((ThreadSafeSearchResults) results).write(resultsPath);
+				} else {
+					((SearchResults) results).write(resultsPath);
+				}
 			} catch (IOException e) {
 				System.out.println("IO Exception while writing results to " + resultsPath);
 			}

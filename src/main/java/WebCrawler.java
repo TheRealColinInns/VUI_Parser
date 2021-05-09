@@ -13,13 +13,16 @@ import java.util.HashSet;
  */
 public class WebCrawler {
 	/** stores all the urls we used */
-	private HashSet<String> usedUrls;
+	private final HashSet<String> usedUrls;
+	/** the max urls */
+	private final Integer max;
 
 	/**
 	 * constructor for web crawler
 	 */
-	public WebCrawler() {
+	public WebCrawler(int max) {
 		usedUrls = new HashSet<String>();
+		this.max = max;
 	}
 
 	/**
@@ -31,10 +34,10 @@ public class WebCrawler {
 	 * @param myInvertedIndex the index we add to
 	 * @throws IOException in case we ahve a problem reading
 	 */
-	public void crawl(URL seed, int inputmax, WorkQueue queue, InvertedIndex myInvertedIndex) throws IOException {
+	public void crawl(URL seed, WorkQueue queue, InvertedIndex myInvertedIndex) throws IOException {
 		// System.out.println("Task for url: " + seed);
 		usedUrls.add(seed.toString());
-		queue.execute(new Task(seed, myInvertedIndex, queue, inputmax, usedUrls));
+		queue.execute(new Task(seed, myInvertedIndex, queue));
 		queue.finish();
 		// System.out.println("Finishing");
 	}
@@ -45,17 +48,15 @@ public class WebCrawler {
 	 * @author colininns
 	 *
 	 */
-	public static class Task implements Runnable {
+	private class Task implements Runnable {
 		/** the seed url */
 		private URL seed;
 		/** the index */
 		private InvertedIndex myInvertedIndex;
 		/** the work queue */
 		private WorkQueue queue;
-		/** the max urls */
-		private Integer max;
-		/** the used urls */
-		private HashSet<String> usedUrls;
+
+
 
 		/**
 		 * Constructor for the task
@@ -66,12 +67,10 @@ public class WebCrawler {
 		 * @param inputmax        the max urls
 		 * @param usedUrls        the used urls
 		 */
-		public Task(URL seed, InvertedIndex myInvertedIndex, WorkQueue queue, int inputmax, HashSet<String> usedUrls) {
+		public Task(URL seed, InvertedIndex myInvertedIndex, WorkQueue queue) {
 			this.seed = seed;
 			this.myInvertedIndex = myInvertedIndex;
 			this.queue = queue;
-			this.usedUrls = usedUrls;
-			max = inputmax;
 		}
 
 		@Override
@@ -90,7 +89,7 @@ public class WebCrawler {
 							if (usedUrls.add(currentUrl.toString())) {
 								// System.out.println("Task for: " + currentUrl);
 								
-								queue.execute(new Task(currentUrl, myInvertedIndex, queue, max, usedUrls));
+								queue.execute(new Task(currentUrl, myInvertedIndex, queue));
 								
 
 							} else {

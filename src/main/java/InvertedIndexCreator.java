@@ -67,7 +67,7 @@ public class InvertedIndexCreator {
 	 *                        from
 	 * @throws IOException it really shouldn't throw tho
 	 */
-	private static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
+	public static void directoryStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
 		for (Path currentPath : DirectoryNavigator.findPaths(inputPath)) {
 			singleFileStemmer(currentPath, myInvertedIndex);
 		}

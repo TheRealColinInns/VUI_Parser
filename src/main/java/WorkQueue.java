@@ -84,17 +84,17 @@ public class WorkQueue {
 	 * Waits for all pending work to be finished. Does not terminate the worker
 	 * threads so that the work queue can continue to be used.
 	 */
-	public void finish() {
-		synchronized (this) {
-			while (pending > 0) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					System.err.println("Warning: Work queue interrupted while finishing.");
-					Thread.currentThread().interrupt();
-				}
+	public synchronized void finish() {
+
+		while (pending > 0) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				System.err.println("Warning: Work queue interrupted while finishing.");
+				Thread.currentThread().interrupt();
 			}
 		}
+
 	}
 
 	/**
@@ -143,15 +143,14 @@ public class WorkQueue {
 	/**
 	 * decrements the pending
 	 */
-	private void decrementPending() {
-		synchronized (this) {
-			if (pending > 0) {
-				pending--;
-			}
-			if (pending == 0) {
-				this.notifyAll();
-			}
+	private synchronized void decrementPending() {
+		if (pending > 0) {
+			pending--;
 		}
+		if (pending == 0) {
+			this.notifyAll();
+		}
+
 	}
 
 	/**
@@ -196,12 +195,13 @@ public class WorkQueue {
 				try {
 
 					task.run();
-					decrementPending();
 
 				} catch (RuntimeException e) {
 
 					System.err.println("Warning: Work queue encountered an exception while running.");
 
+				} finally {
+					decrementPending();
 				}
 			}
 		}

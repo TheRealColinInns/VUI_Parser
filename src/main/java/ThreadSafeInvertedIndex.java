@@ -14,16 +14,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 	/** The indexLock used to protect concurrent access to the underlying set. */
 	private final ReadWriteLock indexLock;
 
-	/** The indexLock used to protect concurrent access to the underlying set. */
-	private final ReadWriteLock wordCountLock;
-
 	/**
 	 * constructor for thread safe index
 	 */
 	public ThreadSafeInvertedIndex() {
 		super();
 		indexLock = new ReadWriteLock();
-		wordCountLock = new ReadWriteLock();
 	}
 
 	/*
@@ -32,99 +28,161 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 
 	@Override
 	public Collection<String> getWords() {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.getWords();
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<String> getLocations(String key) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.getLocations(key);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<Integer> getPositions(String outerKey, String innerKey) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.getPositions(outerKey, innerKey);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public boolean containsWord(String key) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.containsWord(key);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public boolean containsLocation(String outerKey, String innerKey) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.containsLocation(outerKey, innerKey);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public boolean containsPosition(String outerKey, String innerKey, Integer value) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.containsPosition(outerKey, innerKey, value);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public int sizeWords() {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.sizeWords();
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public int sizeLocations(String key) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.sizeLocations(key);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public int sizePositions(String outerKey, String innerKey) {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.sizePositions(outerKey, innerKey);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public String toString() {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.toString();
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public void indexWriter(Path filename) throws IOException {
-		synchronized (indexLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			super.indexWriter(filename);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
-	public List<Result> search(Set<String> queries, boolean exact) {
-		synchronized (indexLock.readLock()) {
-			return super.search(queries, exact);
+	public List<Result> exactSearch(Set<String> queries) {
+		indexLock.readLock().lock();
+		try {
+			return super.exactSearch(queries);
+		} finally {
+			indexLock.readLock().unlock();
+		}
+	}
+
+	@Override
+	public List<Result> partialSearch(Set<String> queries) {
+		indexLock.readLock().lock();
+		try {
+			return super.partialSearch(queries);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public void add(String outerKey, String innerKey, Integer value) {
-		synchronized (indexLock.writeLock()) {
+		indexLock.writeLock().lock();
+		try {
 			super.add(outerKey, innerKey, value);
+		} finally {
+			indexLock.writeLock().unlock();
 		}
 	}
 
 	@Override
 	public void addAll(List<String> words, String location) {
-		synchronized (indexLock.writeLock()) {
+		indexLock.writeLock().lock();
+		try {
 			super.addAll(words, location);
+		} finally {
+			indexLock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public void addAll(InvertedIndex other) {
+		indexLock.writeLock().lock();
+		try {
+			super.addAll(other);
+		} finally {
+			indexLock.writeLock().unlock();
 		}
 	}
 
@@ -134,29 +192,31 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 
 	@Override
 	public boolean containsWordCount(String location) {
-		synchronized (wordCountLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.containsWordCount(location);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Integer getWordCount(String location) {
-		synchronized (wordCountLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			return super.getWordCount(location);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public void writeWordCount(Path countPath) throws IOException {
-		synchronized (wordCountLock.readLock()) {
+		indexLock.readLock().lock();
+		try {
 			super.writeWordCount(countPath);
-		}
-	}
-
-	@Override
-	protected void addToWordCount(String location) {
-		synchronized (wordCountLock.writeLock()) {
-			super.addToWordCount(location);
+		} finally {
+			indexLock.readLock().unlock();
 		}
 	}
 
