@@ -3,10 +3,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * Maintains a pair of associated locks, one for read-only operations and one
  * for writing. The read lock may be held simultaneously by multiple reader
@@ -42,9 +38,6 @@ public class ReadWriteLock {
 
 	/** The thread that holds the write lock. */
 	private Thread activeWriter;
-
-	/** The log4j2 logger. */
-	private static final Logger log = LogManager.getLogger();
 
 	/**
 	 * The lock object used for synchronized access of readers and writers. For
@@ -138,27 +131,16 @@ public class ReadWriteLock {
 		 */
 		@Override
 		public void lock() {
-
-			log.debug("Acquiring read lock...");
-
 			synchronized (lock) {
 				while (writers > 0 && !isActiveWriter()) {
 					try {
-						log.debug("Waiting for read lock...");
 						lock.wait();
-
-						log.debug("Woke up waiting for read lock...");
 					} catch (InterruptedException ex) {
-						log.catching(Level.DEBUG, ex);
 						Thread.currentThread().interrupt();
 					}
 				}
-
-				// assert writers == 0;
 				readers++;
 			}
-
-			log.debug("Acquired read lock.");
 		}
 
 		/**
@@ -169,7 +151,6 @@ public class ReadWriteLock {
 		 */
 		@Override
 		public void unlock() throws IllegalStateException {
-			log.debug("Attempting to unlock Readlock...");
 			synchronized (lock) {
 				if (readers <= 0) {
 					throw new IllegalStateException();
@@ -180,7 +161,6 @@ public class ReadWriteLock {
 				}
 
 			}
-			log.debug("Unlocked Readlock.");
 		}
 	}
 
@@ -197,13 +177,11 @@ public class ReadWriteLock {
 		 */
 		@Override
 		public void lock() {
-			log.debug("Acquiring write lock...");
 			synchronized (lock) {
 				while ((readers > 0 || writers > 0) && !isActiveWriter()) {
 					try {
 						lock.wait();
 					} catch (InterruptedException ex) {
-						log.catching(Level.DEBUG, ex);
 						Thread.currentThread().interrupt();
 					}
 				}
@@ -211,7 +189,6 @@ public class ReadWriteLock {
 				activeWriter = Thread.currentThread();
 
 			}
-			log.debug("Aquired write lock");
 		}
 
 		/**
@@ -225,7 +202,6 @@ public class ReadWriteLock {
 		 */
 		@Override
 		public void unlock() throws IllegalStateException, ConcurrentModificationException {
-			log.debug("Unlocking write lock...");
 			synchronized (lock) {
 				if (writers <= 0) {
 					throw new IllegalStateException();
@@ -233,7 +209,6 @@ public class ReadWriteLock {
 				if (!isActiveWriter()) {
 					throw new ConcurrentModificationException();
 				}
-
 				writers--;
 				if (writers == 0) {
 					activeWriter = null;
@@ -241,7 +216,6 @@ public class ReadWriteLock {
 				}
 
 			}
-			log.debug("Unlocked write lock.");
 		}
 	}
 }

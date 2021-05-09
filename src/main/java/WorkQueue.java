@@ -85,7 +85,6 @@ public class WorkQueue {
 	 * threads so that the work queue can continue to be used.
 	 */
 	public synchronized void finish() {
-
 		while (pending > 0) {
 			try {
 				this.wait();

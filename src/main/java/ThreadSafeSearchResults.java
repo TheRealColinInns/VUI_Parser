@@ -96,7 +96,6 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		/** which test to run */
 		boolean exact;
 
-
 		/**
 		 * constructor for task
 		 * 
@@ -114,15 +113,12 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 			TreeSet<String> parsed = TextFileStemmer.uniqueStems(line);
 			if (!parsed.isEmpty()) {
 				String joined = String.join(" ", parsed);
-
 				synchronized (results) {
 					if (results.containsKey(joined)) {
 						return;
 					}
 				}
-
 				var local = index.search(parsed, exact);
-
 				synchronized (results) {
 					results.put(joined, local);
 				}
