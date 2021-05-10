@@ -63,12 +63,18 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	}
 
 	@Override
-	public synchronized void search(String queryLine, boolean exact) {
+	public void search(String queryLine, boolean exact) {
 		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
 		if (!parsed.isEmpty()) {
 			String joined = String.join(" ", parsed);
-			if (!results.containsKey(joined)) {
-				results.put(joined, index.search(parsed, exact));
+			synchronized (results) {
+				if (results.containsKey(joined)) {
+					return;
+				}
+			}
+			var search = index.search(parsed, exact);
+			synchronized (results) {
+				results.put(joined, search);
 			}
 		}
 	}
@@ -100,8 +106,8 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		/**
 		 * constructor for task
 		 * 
-		 * @param line    the string line we are testing
-		 * @param exact   tells us what type of search
+		 * @param line  the string line we are testing
+		 * @param exact tells us what type of search
 		 */
 		public Task(String line, boolean exact) {
 			this.line = line;
