@@ -35,6 +35,7 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	 * constructor for thread safe search results
 	 * 
 	 * @param myInvertedIndex the index we will get the results from
+	 * @param queue           the work queue
 	 */
 	public ThreadSafeSearchResults(ThreadSafeInvertedIndex myInvertedIndex, WorkQueue queue) {
 		results = new TreeMap<String, List<InvertedIndex.Result>>();
@@ -101,7 +102,6 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 		 * 
 		 * @param line    the string line we are testing
 		 * @param exact   tells us what type of search
-		 * @param results the results needed to run a specific method
 		 */
 		public Task(String line, boolean exact) {
 			this.line = line;

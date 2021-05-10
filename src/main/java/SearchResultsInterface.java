@@ -16,7 +16,6 @@ public interface SearchResultsInterface {
 	 * 
 	 * @param queryPath the file of queries
 	 * @param exact     flag tells us what type of search
-	 * @param workqueue irrelevant
 	 * @throws IOException throws if we can't read the query file
 	 */
 	public void search(Path queryPath, boolean exact) throws IOException;

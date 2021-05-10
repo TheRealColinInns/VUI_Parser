@@ -83,7 +83,6 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 		 * 
 		 * @param inputPath       the location we are getting it from
 		 * @param myInvertedIndex the index we are building to
-		 * @param stemmer         the stemmer we will use to stem
 		 * @param location        the location we found it
 		 */
 		public Task(Path inputPath, ThreadSafeInvertedIndex myInvertedIndex, String location) {
