@@ -19,7 +19,7 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	/**
 	 * the work queue
 	 */
-	private WorkQueue queue;
+	private WorkQueue queue; // TODO final
 
 	/**
 	 * the results of the search
@@ -29,7 +29,7 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	/**
 	 * the inverted index the results are coming from
 	 */
-	private final InvertedIndex index;
+	private final InvertedIndex index; // TODO ThreadSafeInvertedIndex
 
 	/**
 	 * constructor for thread safe search results
@@ -44,12 +44,12 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	}
 
 	@Override
-	public synchronized Set<String> getResultKeySet() {
+	public synchronized Set<String> getResultKeySet() { // TODO synchronized (results)
 		return Collections.unmodifiableSet(results.keySet());
 	}
 
 	@Override
-	public synchronized int size(String query) {
+	public synchronized int size(String query) { // TODO synchronized (results)
 		if (this.results.containsKey(query)) {
 			return this.results.get(query).size();
 		} else {
@@ -58,17 +58,25 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	}
 
 	@Override
-	public synchronized void write(Path output) throws IOException {
+	public synchronized void write(Path output) throws IOException { // TODO synchronized (results)
 		SimpleJsonWriter.asSearchResult(results, output);
 	}
 
 	@Override
-	public synchronized void search(String queryLine, boolean exact) {
+	public void search(String queryLine, boolean exact) {
+		// TODO Create a task and add to the work queue
+		// TODO queue.execute(new Task(line, exact));
 		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
 		if (!parsed.isEmpty()) {
 			String joined = String.join(" ", parsed);
-			if (!results.containsKey(joined)) {
-				results.put(joined, index.search(parsed, exact));
+			synchronized (results) { 
+				if (results.containsKey(joined)) {
+					return;
+				}
+			}
+			var search = index.search(parsed, exact);
+			synchronized (results) { 
+				results.put(joined, search);
 			}
 		}
 	}
@@ -81,6 +89,11 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 			}
 		}
 		queue.finish();
+		
+		/* TODO 
+		SearchResultsInterface.super.search(queryPath, exact);
+		queue.finish();
+		*/
 	}
 
 	/**
@@ -89,19 +102,19 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	 * @author colininns
 	 *
 	 */
-	public class Task implements Runnable {
+	public class Task implements Runnable { // TODO private
 
 		/** the text of the query */
-		String line;
+		String line; // TODO private final
 
 		/** which test to run */
-		boolean exact;
+		boolean exact; // TODO private final
 
 		/**
 		 * constructor for task
 		 * 
-		 * @param line    the string line we are testing
-		 * @param exact   tells us what type of search
+		 * @param line  the string line we are testing
+		 * @param exact tells us what type of search
 		 */
 		public Task(String line, boolean exact) {
 			this.line = line;

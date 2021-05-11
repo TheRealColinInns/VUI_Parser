@@ -20,6 +20,15 @@ public interface SearchResultsInterface {
 	 */
 	public void search(Path queryPath, boolean exact) throws IOException;
 	
+	/* TODO 
+	public default void search(Path queryPath, boolean exact) throws IOException {
+		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
+			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
+				this.search(line, exact);
+			}
+		}
+	}
+	*/
 	
 	/**
 	 * does a search of a single query line

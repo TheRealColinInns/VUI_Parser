@@ -93,7 +93,6 @@ public class WorkQueue {
 				Thread.currentThread().interrupt();
 			}
 		}
-
 	}
 
 	/**
@@ -149,7 +148,6 @@ public class WorkQueue {
 		if (pending == 0) {
 			this.notifyAll();
 		}
-
 	}
 
 	/**
