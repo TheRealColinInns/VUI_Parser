@@ -29,10 +29,12 @@ public class Driver {
 		flagValuePairs.parse(args);
 
 		// tests if we are multi-threading
+		// TODO ThreadSafeInvertedIndex threadSafeIndex = null;
 		InvertedIndex myInvertedIndex;
-		boolean multithreaded;
+		boolean multithreaded; // TODO Remove
 		WorkQueue workqueue;
-		Object results;
+		Object results; // TODO SearchResultInterface results;
+		
 		if (flagValuePairs.hasFlag("-threads")) {
 			// threads
 			int threads = flagValuePairs.getInteger("-threads", 5);
@@ -40,12 +42,15 @@ public class Driver {
 				threads = 1;
 			}
 			workqueue = new WorkQueue(threads);
+			/* TODO threadSafeIndex = new ThreadSafeInvertedIndex();
+			myInvertedIndex = threadSafeIndex; */
 			// thread safe
 			myInvertedIndex = new ThreadSafeInvertedIndex();
 			// the results of the search, but thread safe
+			// TODO Pass in the threadSafeIndex instead
 			results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
 			// tells code we are multi-threading
-			multithreaded = true;
+			multithreaded = true; // TODO Remove
 
 		} else {
 			// the inverted index data structure that we will store all of the data in
@@ -53,9 +58,9 @@ public class Driver {
 			// the results of the search
 			results = new SearchResults(myInvertedIndex);
 			// tells code we are not multi-threading
-			multithreaded = false;
+			multithreaded = false; // TODO Remove
 			// only a single thread working
-			workqueue = new WorkQueue(1);
+			workqueue = new WorkQueue(1); // TODO workqueue = null;
 		}
 
 		// the input file into the inverted index
@@ -65,9 +70,9 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					if (multithreaded) {
+					if (multithreaded) { // TODO threadSafeIndex != null && workqueue != null
 						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath,
-								(ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
+								(ThreadSafeInvertedIndex) myInvertedIndex, workqueue); // TODO pass in threadSafeIndex instead
 					} else {
 						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 					}
@@ -92,6 +97,7 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
+					// TODO Always results.search(...)
 					if (multithreaded) {
 						((ThreadSafeSearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
 					} else {
@@ -117,6 +123,7 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-results")) {
 			Path resultsPath = flagValuePairs.getPath("-results", Path.of("results.json"));
 			try {
+				// TODO results.write(...)
 				if (multithreaded) {
 					((ThreadSafeSearchResults) results).write(resultsPath);
 				} else {
@@ -129,6 +136,7 @@ public class Driver {
 		}
 
 		// ends the queue
+		// TODO if (workqueue != null)
 		workqueue.join();
 
 		// calculate time elapsed and output

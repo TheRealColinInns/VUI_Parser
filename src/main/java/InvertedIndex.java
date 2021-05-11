@@ -218,6 +218,7 @@ public class InvertedIndex {
 	 * @param other the index to add
 	 */
 	public void addAll(InvertedIndex other) {
+		// TODO Can make this faster
 		for(String word:other.index.keySet()) {
 			for(String location:other.index.get(word).keySet()) {
 				for(Integer postition:other.index.get(word).get(location)) {
@@ -225,6 +226,28 @@ public class InvertedIndex {
 				}
 			}
 		}
+		
+		/* TODO 
+		for(String word : other.index.keySet()) {
+			if (this.index.containsKey(word)) {
+				loop through all of the locations
+					if the key already exists
+						combine using set.addAll
+					else
+						put the entire set of positions
+			}
+			else {
+				this.index.put(word, other.index.get(word));
+			}
+		}
+		
+		for (String location : other.wordCount.keySet()) {
+			check for overlap, if exists
+				add together the counts in this.wordCount and other.wordCount
+			else
+				put other.wordCount value
+		}
+		*/
 	}
 	
 

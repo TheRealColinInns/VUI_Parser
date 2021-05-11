@@ -39,6 +39,7 @@ public class SearchResults implements SearchResultsInterface {
 		index = myInvertedIndex;
 	}
 
+	// TODO Remove, let this implementation get inherited from the interface
 	@Override
 	public void search(Path queryPath, boolean exact) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {

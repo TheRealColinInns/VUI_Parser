@@ -24,12 +24,12 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 			throws IOException {
 		if (Files.isDirectory(inputPath)) {
 			directoryStemmer(inputPath, myInvertedIndex, workqueue);
-			workqueue.finish();
+			workqueue.finish(); // TODO Remove
 		} else {
 			singleFileStemmer(inputPath, myInvertedIndex, workqueue);
-			workqueue.finish();
+			workqueue.finish(); // TODO Remove
 		}
-
+		// TODO workqueue.finish();
 	}
 
 	/**
@@ -73,10 +73,10 @@ public class ThreadedInvertedIndexCreator extends InvertedIndexCreator {
 	private static class Task implements Runnable {
 
 		/** buffered reader */
-		private Path inputPath;
+		private Path inputPath; // TODO final
 
 		/** the index we write to */
-		private ThreadSafeInvertedIndex myInvertedIndex;
+		private ThreadSafeInvertedIndex myInvertedIndex; // TODO final
 
 		/**
 		 * constructor for task
