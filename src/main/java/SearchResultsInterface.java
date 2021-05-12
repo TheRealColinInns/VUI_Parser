@@ -1,5 +1,8 @@
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -10,7 +13,7 @@ import java.util.Set;
  *
  */
 public interface SearchResultsInterface {
-	
+
 	/**
 	 * searches the index given a query
 	 * 
@@ -18,9 +21,6 @@ public interface SearchResultsInterface {
 	 * @param exact     flag tells us what type of search
 	 * @throws IOException throws if we can't read the query file
 	 */
-	public void search(Path queryPath, boolean exact) throws IOException;
-	
-	/* TODO 
 	public default void search(Path queryPath, boolean exact) throws IOException {
 		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
 			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
@@ -28,8 +28,7 @@ public interface SearchResultsInterface {
 			}
 		}
 	}
-	*/
-	
+
 	/**
 	 * does a search of a single query line
 	 * 
@@ -37,14 +36,14 @@ public interface SearchResultsInterface {
 	 * @param exact     {code=true} if we are doing an exact search
 	 */
 	public void search(String queryLine, boolean exact);
-	
+
 	/**
 	 * gets an unmodifiable key set
 	 * 
 	 * @return an unmodifiable key set
 	 */
 	public Set<String> getResultKeySet();
-	
+
 	/**
 	 * the size at a specific query
 	 * 
@@ -52,7 +51,7 @@ public interface SearchResultsInterface {
 	 * @return the size in integer form
 	 */
 	public int size(String query);
-	
+
 	/**
 	 * writes the results
 	 * 

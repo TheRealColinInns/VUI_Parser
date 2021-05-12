@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +17,7 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	/**
 	 * the work queue
 	 */
-	private WorkQueue queue; // TODO final
+	private final WorkQueue queue;
 
 	/**
 	 * the results of the search
@@ -29,7 +27,7 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	/**
 	 * the inverted index the results are coming from
 	 */
-	private final InvertedIndex index; // TODO ThreadSafeInvertedIndex
+	private final ThreadSafeInvertedIndex index;
 
 	/**
 	 * constructor for thread safe search results
@@ -44,56 +42,39 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	}
 
 	@Override
-	public synchronized Set<String> getResultKeySet() { // TODO synchronized (results)
-		return Collections.unmodifiableSet(results.keySet());
-	}
-
-	@Override
-	public synchronized int size(String query) { // TODO synchronized (results)
-		if (this.results.containsKey(query)) {
-			return this.results.get(query).size();
-		} else {
-			return -1;
+	public Set<String> getResultKeySet() {
+		synchronized (results) {
+			return Collections.unmodifiableSet(results.keySet());
 		}
 	}
 
 	@Override
-	public synchronized void write(Path output) throws IOException { // TODO synchronized (results)
-		SimpleJsonWriter.asSearchResult(results, output);
+	public int size(String query) {
+		synchronized (results) {
+			if (this.results.containsKey(query)) {
+				return this.results.get(query).size();
+			} else {
+				return -1;
+			}
+		}
+	}
+
+	@Override
+	public void write(Path output) throws IOException {
+		synchronized (results) {
+			SimpleJsonWriter.asSearchResult(results, output);
+		}
 	}
 
 	@Override
 	public void search(String queryLine, boolean exact) {
-		// TODO Create a task and add to the work queue
-		// TODO queue.execute(new Task(line, exact));
-		TreeSet<String> parsed = TextFileStemmer.uniqueStems(queryLine);
-		if (!parsed.isEmpty()) {
-			String joined = String.join(" ", parsed);
-			synchronized (results) { 
-				if (results.containsKey(joined)) {
-					return;
-				}
-			}
-			var search = index.search(parsed, exact);
-			synchronized (results) { 
-				results.put(joined, search);
-			}
-		}
+		queue.execute(new Task(queryLine, exact));
 	}
 
 	@Override
 	public void search(Path queryPath, boolean exact) throws IOException {
-		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
-			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-				queue.execute(new Task(line, exact));
-			}
-		}
-		queue.finish();
-		
-		/* TODO 
 		SearchResultsInterface.super.search(queryPath, exact);
 		queue.finish();
-		*/
 	}
 
 	/**
@@ -102,13 +83,13 @@ public class ThreadSafeSearchResults implements SearchResultsInterface {
 	 * @author colininns
 	 *
 	 */
-	public class Task implements Runnable { // TODO private
+	private class Task implements Runnable {
 
 		/** the text of the query */
-		String line; // TODO private final
+		private final String line;
 
 		/** which test to run */
-		boolean exact; // TODO private final
+		private final boolean exact;
 
 		/**
 		 * constructor for task

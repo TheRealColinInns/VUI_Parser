@@ -211,45 +211,37 @@ public class InvertedIndex {
 			this.add(word, location, position);
 		}
 	}
-	
+
 	/**
 	 * adds an entire index to the index
 	 * 
 	 * @param other the index to add
 	 */
 	public void addAll(InvertedIndex other) {
-		// TODO Can make this faster
-		for(String word:other.index.keySet()) {
-			for(String location:other.index.get(word).keySet()) {
-				for(Integer postition:other.index.get(word).get(location)) {
-					this.add(word, location, postition);
-				}
-			}
-		}
-		
-		/* TODO 
-		for(String word : other.index.keySet()) {
+		// first part adds the words
+		for (String word : other.index.keySet()) {
 			if (this.index.containsKey(word)) {
-				loop through all of the locations
-					if the key already exists
-						combine using set.addAll
-					else
-						put the entire set of positions
-			}
-			else {
+				for (String location : other.index.get(word).keySet()) {
+					if (this.index.get(word).containsKey(location)) {
+						this.index.get(word).get(location).addAll(other.index.get(word).get(location));
+					} else {
+						this.index.get(word).put(location, other.index.get(word).get(location));
+					}
+				}
+			} else {
 				this.index.put(word, other.index.get(word));
 			}
 		}
-		
+		// second part updates the word counts
 		for (String location : other.wordCount.keySet()) {
-			check for overlap, if exists
-				add together the counts in this.wordCount and other.wordCount
-			else
-				put other.wordCount value
+			if (this.wordCount.containsKey(location)) {
+				this.wordCount.put(location, this.wordCount.get(location) + other.wordCount.get(location));
+			} else {
+				this.wordCount.put(location, other.wordCount.get(location));
+			}
 		}
-		*/
+
 	}
-	
 
 	/**
 	 * searches the index for exact queries
@@ -367,7 +359,6 @@ public class InvertedIndex {
 	public void writeWordCount(Path countPath) throws IOException {
 		SimpleJsonWriter.asObject(wordCount, countPath);
 	}
-	
 
 	/*
 	 * +--------------------------------------------------------------------------+

@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -37,16 +35,6 @@ public class SearchResults implements SearchResultsInterface {
 	public SearchResults(InvertedIndex myInvertedIndex) {
 		results = new TreeMap<String, List<InvertedIndex.Result>>();
 		index = myInvertedIndex;
-	}
-
-	// TODO Remove, let this implementation get inherited from the interface
-	@Override
-	public void search(Path queryPath, boolean exact) throws IOException {
-		try (BufferedReader mybr = Files.newBufferedReader(queryPath, StandardCharsets.UTF_8);) {
-			for (String line = mybr.readLine(); line != null; line = mybr.readLine()) {
-				this.search(line, exact);
-			}
-		}
 	}
 
 	@Override

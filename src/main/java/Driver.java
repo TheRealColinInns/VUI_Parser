@@ -28,13 +28,11 @@ public class Driver {
 		ArgumentMap flagValuePairs = new ArgumentMap();
 		flagValuePairs.parse(args);
 
-		// tests if we are multi-threading
-		// TODO ThreadSafeInvertedIndex threadSafeIndex = null;
+		ThreadSafeInvertedIndex threadSafeIndex = null;
 		InvertedIndex myInvertedIndex;
-		boolean multithreaded; // TODO Remove
 		WorkQueue workqueue;
-		Object results; // TODO SearchResultInterface results;
-		
+		SearchResultsInterface results;
+
 		if (flagValuePairs.hasFlag("-threads")) {
 			// threads
 			int threads = flagValuePairs.getInteger("-threads", 5);
@@ -42,25 +40,18 @@ public class Driver {
 				threads = 1;
 			}
 			workqueue = new WorkQueue(threads);
-			/* TODO threadSafeIndex = new ThreadSafeInvertedIndex();
-			myInvertedIndex = threadSafeIndex; */
-			// thread safe
-			myInvertedIndex = new ThreadSafeInvertedIndex();
+			threadSafeIndex = new ThreadSafeInvertedIndex();
+			myInvertedIndex = threadSafeIndex;
 			// the results of the search, but thread safe
-			// TODO Pass in the threadSafeIndex instead
-			results = new ThreadSafeSearchResults((ThreadSafeInvertedIndex) myInvertedIndex, workqueue);
-			// tells code we are multi-threading
-			multithreaded = true; // TODO Remove
+			results = new ThreadSafeSearchResults(threadSafeIndex, workqueue);
 
 		} else {
 			// the inverted index data structure that we will store all of the data in
 			myInvertedIndex = new InvertedIndex();
 			// the results of the search
 			results = new SearchResults(myInvertedIndex);
-			// tells code we are not multi-threading
-			multithreaded = false; // TODO Remove
 			// only a single thread working
-			workqueue = new WorkQueue(1); // TODO workqueue = null;
+			workqueue = null;
 		}
 
 		// the input file into the inverted index
@@ -70,9 +61,8 @@ public class Driver {
 				System.out.println("The input file was null");
 			} else {
 				try {
-					if (multithreaded) { // TODO threadSafeIndex != null && workqueue != null
-						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath,
-								(ThreadSafeInvertedIndex) myInvertedIndex, workqueue); // TODO pass in threadSafeIndex instead
+					if (threadSafeIndex != null && workqueue != null) {
+						ThreadedInvertedIndexCreator.createInvertedIndex(inputPath, threadSafeIndex, workqueue);
 					} else {
 						InvertedIndexCreator.createInvertedIndex(inputPath, myInvertedIndex);
 					}
@@ -97,12 +87,7 @@ public class Driver {
 			Path queryPath = flagValuePairs.getPath("-query");
 			if (queryPath != null) {
 				try {
-					// TODO Always results.search(...)
-					if (multithreaded) {
-						((ThreadSafeSearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
-					} else {
-						((SearchResults) results).search(queryPath, flagValuePairs.hasFlag("-exact"));
-					}
+					results.search(queryPath, flagValuePairs.hasFlag("-exact"));
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
@@ -123,12 +108,7 @@ public class Driver {
 		if (flagValuePairs.hasFlag("-results")) {
 			Path resultsPath = flagValuePairs.getPath("-results", Path.of("results.json"));
 			try {
-				// TODO results.write(...)
-				if (multithreaded) {
-					((ThreadSafeSearchResults) results).write(resultsPath);
-				} else {
-					((SearchResults) results).write(resultsPath);
-				}
+				results.write(resultsPath);
 			} catch (IOException e) {
 				System.out.println("IO Exception while writing results to " + resultsPath);
 			}
@@ -136,8 +116,9 @@ public class Driver {
 		}
 
 		// ends the queue
-		// TODO if (workqueue != null)
-		workqueue.join();
+		if (workqueue != null) {
+			workqueue.join();
+		}
 
 		// calculate time elapsed and output
 		Duration elapsed = Duration.between(start, Instant.now());
