@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,7 +35,7 @@ public class Driver {
 		WorkQueue workqueue;
 		SearchResultsInterface results;
 
-		if (flagValuePairs.hasFlag("-threads")) {
+		if (flagValuePairs.hasFlag("-threads")||flagValuePairs.hasFlag("-html")) {
 			// threads
 			int threads = flagValuePairs.getInteger("-threads", 5);
 			if (threads <= 0) {
@@ -44,6 +46,17 @@ public class Driver {
 			myInvertedIndex = threadSafeIndex;
 			// the results of the search, but thread safe
 			results = new ThreadSafeSearchResults(threadSafeIndex, workqueue);
+			//test if it has a seed
+			if(flagValuePairs.hasFlag("-html")) {
+				try {
+					WebCrawler crawler = new WebCrawler(flagValuePairs.getInteger("-max", 1));
+					crawler.crawl(new URL(flagValuePairs.getString("-html")), workqueue, myInvertedIndex);
+				} catch (MalformedURLException e) {
+					System.out.println("Malformed URL at: "+flagValuePairs.getString("-html"));
+				} catch (IOException e) {
+					System.out.println("IO excpetion for seed url: "+flagValuePairs.getString("-html"));
+				}
+			}
 
 		} else {
 			// the inverted index data structure that we will store all of the data in

@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
 /**
  * Class responsible for storing the data structure See the README for details.
  *
@@ -29,6 +32,9 @@ public class InvertedIndex {
 	 * this is our wordCount map
 	 */
 	private final TreeMap<String, Integer> wordCount;
+	
+	/** The default stemmer algorithm used by this class. */
+	public static final SnowballStemmer.ALGORITHM DEFAULT = SnowballStemmer.ALGORITHM.ENGLISH;
 
 	/**
 	 * Constructor for inverted index
@@ -136,6 +142,8 @@ public class InvertedIndex {
 	 * @param value    position
 	 */
 	public void add(String word, String location, Integer value) {
+		Stemmer stemmer = new SnowballStemmer(DEFAULT);
+		word = stemmer.stem(word).toString();
 		this.index.putIfAbsent(word, new TreeMap<>());
 		this.index.get(word).putIfAbsent(location, new TreeSet<>());
 		boolean modified = this.index.get(word).get(location).add(value);

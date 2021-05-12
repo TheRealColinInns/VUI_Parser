@@ -4,8 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * Class responsible for converting an array list into the map data structure
@@ -16,9 +14,6 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * @version Spring 2021
  */
 public class InvertedIndexCreator {
-
-	/** The default stemmer algorithm used by this class. */
-	public static final SnowballStemmer.ALGORITHM DEFAULT = SnowballStemmer.ALGORITHM.ENGLISH;
 
 	/**
 	 * the method that calls all the other methods
@@ -46,14 +41,13 @@ public class InvertedIndexCreator {
 	 * @throws IOException it really shouldn't throw tho
 	 */
 	public static void singleFileStemmer(Path inputPath, InvertedIndex myInvertedIndex) throws IOException {
-		Stemmer myStemmer = new SnowballStemmer(DEFAULT);
 		int counter = 0;
 		String location = inputPath.toString();
 		try (BufferedReader myBufferedReader = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8);) {
 			for (String line = myBufferedReader.readLine(); line != null; line = myBufferedReader.readLine()) {
 				for (String word : TextParser.parse(line)) {
 					counter++;
-					myInvertedIndex.add(myStemmer.stem(word).toString(), location, counter);
+					myInvertedIndex.add(word, location, counter);
 				}
 			}
 		}
