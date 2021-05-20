@@ -440,6 +440,11 @@ public class InvertedIndex {
 			this.count += index.get(query).get(location).size();
 			this.score = this.count / (double) wordCount.get(location);
 		}
+		
+		@Override
+		public String toString() {
+			return "Location: "+this.location+"\nCount: "+this.count+"\nScore: "+this.score;
+		}
 
 		@Override
 		public int compareTo(Result original) {

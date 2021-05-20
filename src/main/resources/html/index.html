@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+</head>
+
+<body>
+  <h1>Search Engine</h1>
+  
+  ${results}
+  
+  <form method="${method}" action="${action}">
+    <p>
+      <label for="query">Query:</label>
+      <input type="text" name="query" id="query" maxlength="30" size="10" value=${prevquery}>
+    </p>
+    
+    <p><input type="submit" value="Search"></p>
+    <p><input type="submit" name="history" value= "Clear History"></p>
+  </form>
+  
+  <h3>Search History</h3>
+  ${history}
+  <h3>Frequent Searches</h3>
+  ${map}
+  <br>
+  <p>This request was handled by thread ${thread}.</p>
+  <p>Last time visisted ${time}.</p>
+  
+  
+  
+</body>
+</html>

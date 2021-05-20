@@ -35,7 +35,7 @@ public class Driver {
 		WorkQueue workqueue;
 		SearchResultsInterface results;
 
-		if (flagValuePairs.hasFlag("-threads")||flagValuePairs.hasFlag("-html")) {
+		if (flagValuePairs.hasFlag("-threads")||flagValuePairs.hasFlag("-html")||flagValuePairs.hasFlag("-server")) {
 			// threads
 			int threads = flagValuePairs.getInteger("-threads", 5);
 			if (threads <= 0) {
@@ -104,6 +104,16 @@ public class Driver {
 				} catch (IOException e) {
 					System.out.println("Unable to aquire queries from path " + queryPath.toString());
 				}
+			}
+		}
+		
+		if(flagValuePairs.hasFlag("-server")) {
+			try {
+				SearchEngineServer server = new SearchEngineServer(flagValuePairs.getInteger("-server", 8080), threadSafeIndex);
+				System.out.println("Creating Server...");
+				server.createServer();
+			} catch(Exception e) {
+				System.out.println("Error with Server: "+e);
 			}
 		}
 
