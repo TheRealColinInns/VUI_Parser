@@ -19,7 +19,17 @@
     </p>
     
     <p><input type="submit" value="Search"></p>
+    <br>
+    <p>
+      <label for="seed">New Seed:</label>
+      <input type="text" name="seed" id="seed" maxlength="50" size="10">
+    </p>
+
+    <h4>${errors}</h4>
+    <p><input type="submit" name="newSeed" value="Add Seed"></p>
+    <br>
     <p><input type="submit" name="history" value= "Clear History"></p>
+   
   </form>
   
   <h3>Search History</h3>
@@ -27,6 +37,7 @@
   <h3>Frequent Searches</h3>
   ${map}
   <br>
+  
   <p>This request was handled by thread ${thread}.</p>
   <p>Last time visisted ${time}.</p>
   

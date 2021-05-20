@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +59,8 @@ public class SearchEngineServlet extends HttpServlet {
 	private static final HashMap<String, Integer> pop = new HashMap<String, Integer>();
 
 	private static Integer minpop = Integer.MAX_VALUE;
+
+	private final WebCrawler crawler = new WebCrawler(10);
 
 	/**
 	 * Initializes this message board. Each message board has its own collection of
@@ -159,6 +162,7 @@ public class SearchEngineServlet extends HttpServlet {
 		values.put("method", "POST");
 		values.put("action", request.getServletPath());
 		values.put("results", "Search Anything :)");
+		values.put("errors", "");
 
 		// generate html from template
 		StringSubstitutor replacer = new StringSubstitutor(values);
@@ -185,9 +189,44 @@ public class SearchEngineServlet extends HttpServlet {
 		ArrayList<InvertedIndex.Result> results = new ArrayList<InvertedIndex.Result>();
 		HashSet<String> querySet = null;
 
+		values.put("errors", "");
+		values.put("map", "");
+		values.put("prevquery", "");
+
 		// gets the user input
 		String query = request.getParameter("query");
 		String clearHistory = request.getParameter("history");
+
+		if (request.getParameter("newSeed") != null) {
+			if (query != null) {
+				query = StringEscapeUtils.escapeHtml4(query);
+				query = TextParser.clean(query);
+				values.put("prevquery", query);
+				query = null;
+			}
+			try {
+				URL seed = new URL(StringEscapeUtils.escapeHtml4(request.getParameter("seed")));
+
+				WorkQueue queue = new WorkQueue(5);
+
+				if (!crawler.crawl(seed, queue, index)) {
+					values.put("errors", "URL already Crawled");
+				} else {
+					values.put("errors", "Crawl Successful");
+				}
+			} catch (Exception e) {
+				values.put("errors", "Invalid Input");
+			}
+			
+			if (cookies.containsKey(ENABLE_COOKIES)) {
+				if (!pop.isEmpty()) {
+					values.put("map", formatPop(addTop().keySet()));
+				} 
+			} else {
+				values.put("map", "value unavailable w/o cookies");
+			}
+
+		}
 
 		// checks if null before cleaning the query text
 		if (query != null) {
@@ -197,22 +236,24 @@ public class SearchEngineServlet extends HttpServlet {
 			for (String queryItem : query.split("\\s+")) {
 				querySet.add(queryItem);
 			}
+
 			if (cookies.containsKey(ENABLE_COOKIES)) {
-				if (!query.isBlank()) {
-					if (pop.containsKey(query)) {
-						pop.put(query, pop.get(query) + 1);
-					} else {
-						pop.put(query, 1);
+				if (clearHistory == null) {
+					if (!query.isBlank()) {
+						if (pop.containsKey(query)) {
+							pop.put(query, pop.get(query) + 1);
+						} else {
+							pop.put(query, 1);
+						}
 					}
+					HashMap<String, Integer> topfive = addTop();
+					values.put("map", formatPop(topfive.keySet()));
 				}
-				HashMap<String, Integer> topfive = addTop();
-				values.put("map", formatPop(topfive.keySet()));
 			} else {
 				values.put("map", "value unavailable w/o cookies");
 			}
 		}
 
-		values.put("prevquery", "");
 		// System.out.println("query: "+query);
 		// if the clear history button is pressed clear the history
 		if (clearHistory != null) {
@@ -283,7 +324,7 @@ public class SearchEngineServlet extends HttpServlet {
 			} else {
 				values.put("history", "value unavailable w/o cookies");
 				values.put("time", "value unavailable w/o cookies");
-				if (query.isBlank()) {
+				if (query == null || query.isBlank()) {
 					values.put("results", "Can't be Blank :)");
 				} else {
 					StringBuilder output = new StringBuilder();
@@ -291,6 +332,10 @@ public class SearchEngineServlet extends HttpServlet {
 					localSearch(values, results, querySet, output);
 				}
 			}
+		}
+
+		if (values.containsKey("errors") && !values.get("errors").isBlank()) {
+			values.put("results", "Search Anything :)");
 		}
 
 		// finish putting in the values
@@ -332,7 +377,6 @@ public class SearchEngineServlet extends HttpServlet {
 				if (pop.get(queryPop) < minpop) {
 					minpop = pop.get(queryPop);
 				}
-				System.out.println("Defualt");
 			} else {
 				if (minpop < pop.get(queryPop)) {
 					int min = Integer.MAX_VALUE;

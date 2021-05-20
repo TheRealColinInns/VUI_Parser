@@ -33,10 +33,14 @@ public class WebCrawler {
 	 * @param myInvertedIndex the index we add to
 	 * @throws IOException in case we ahve a problem reading
 	 */
-	public void crawl(URL seed, WorkQueue queue, InvertedIndex myInvertedIndex) throws IOException {
-		usedUrls.add(seed.toString());
+	public boolean crawl(URL seed, WorkQueue queue, InvertedIndex myInvertedIndex) throws IOException {
+		boolean badseed = usedUrls.add(seed.toString());
+		if(!badseed) {
+			return badseed;
+		}
 		queue.execute(new Task(seed, myInvertedIndex, queue));
 		queue.finish();
+		return badseed;
 	}
 
 	/**
