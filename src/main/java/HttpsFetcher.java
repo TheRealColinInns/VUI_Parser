@@ -21,26 +21,24 @@ import javax.net.ssl.SSLSocketFactory;
  * An alternative to using {@link Socket} connections instead of a
  * {@link URLConnection} to fetch the headers and content from a URL on the web.
  * 
- * @author CS 212 Software Development
- * @author University of San Francisco
- * @version Spring 2021 - Project Version
+ * @author colininns
+ * @version VUI
  */
+
 public class HttpsFetcher {
 	/**
-	 * Fetches the headers and content for the specified URL. The content is
-	 * placed as a list of all the lines fetched under the "Content" key.
+	 * Fetches the headers and content for the specified URL. The content is placed
+	 * as a list of all the lines fetched under the "Content" key.
 	 *
 	 * @param url the url to fetch
 	 * @return a map with the headers and content
 	 * @throws IOException if unable to fetch headers and content
 	 */
 	public static Map<String, List<String>> fetchURL(URL url) throws IOException {
-		try (
-				Socket socket = openConnection(url);
+		try (Socket socket = openConnection(url);
 				PrintWriter request = new PrintWriter(socket.getOutputStream());
 				InputStreamReader input = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
-				BufferedReader response = new BufferedReader(input);
-		) {
+				BufferedReader response = new BufferedReader(input);) {
 			printGetRequest(request, url);
 
 			Map<String, List<String>> headers = getHeaderFields(response);
@@ -57,7 +55,7 @@ public class HttpsFetcher {
 	 * @param url the url to fetch
 	 * @return a map with the headers and content
 	 * @throws MalformedURLException if unable to convert String to URL
-	 * @throws IOException if unable to fetch headers and content
+	 * @throws IOException           if unable to fetch headers and content
 	 *
 	 * @see #fetchURL(URL)
 	 */
@@ -66,13 +64,13 @@ public class HttpsFetcher {
 	}
 
 	/**
-	 * Uses a {@link Socket} to open a connection to the web server associated
-	 * with the provided URL. Supports HTTP and HTTPS connections.
+	 * Uses a {@link Socket} to open a connection to the web server associated with
+	 * the provided URL. Supports HTTP and HTTPS connections.
 	 *
 	 * @param url the url to connect
 	 * @return a socket connection for that url
 	 * @throws UnknownHostException if the host is not known
-	 * @throws IOException if an I/O error occurs when creating the socket
+	 * @throws IOException          if an I/O error occurs when creating the socket
 	 *
 	 * @see URL#openConnection()
 	 */
@@ -92,7 +90,7 @@ public class HttpsFetcher {
 	 * Writes a simple HTTP GET request to the provided socket writer.
 	 *
 	 * @param writer a writer created from a socket connection
-	 * @param url the url to fetch via the socket connection
+	 * @param url    the url to fetch via the socket connection
 	 * @throws IOException if unable to write request to socket
 	 */
 	public static void printGetRequest(PrintWriter writer, URL url) throws IOException {
@@ -108,8 +106,8 @@ public class HttpsFetcher {
 
 	/**
 	 * Gets the header fields from a reader associated with a socket connection.
-	 * Requires that the socket reader has not yet been used, otherwise this
-	 * method will return unpredictable results.
+	 * Requires that the socket reader has not yet been used, otherwise this method
+	 * will return unpredictable results.
 	 *
 	 * @param response a reader created from a socket connection
 	 * @return a map of header fields to a list of header values
@@ -135,8 +133,8 @@ public class HttpsFetcher {
 	}
 
 	/**
-	 * Gets the content from a socket. Whether this output includes headers
-	 * depends how the socket connection has already been used.
+	 * Gets the content from a socket. Whether this output includes headers depends
+	 * how the socket connection has already been used.
 	 *
 	 * @param response the reader created from a socket connection
 	 * @return a list of lines read from the socket reader

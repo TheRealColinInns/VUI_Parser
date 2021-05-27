@@ -4,10 +4,9 @@ import java.util.Map;
 
 /**
  * Parses and stores command-line arguments into simple flag/value pairs.
- *
- * @author CS 212 Software Development - Colin Inns
- * @author University of San Francisco
- * @version Spring 2021
+ * 
+ * @author colininns
+ * @version VUI
  */
 public class ArgumentMap {
 	/**
@@ -44,15 +43,11 @@ public class ArgumentMap {
 	public void parse(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			if (isFlag(args[i])) {
-
 				if (i != args.length - 1 && isValue(args[i + 1])) {
-
 					map.put(args[i], args[++i]);
-
 				} else {
 					map.put(args[i], null);
 				}
-
 			}
 		}
 	}
